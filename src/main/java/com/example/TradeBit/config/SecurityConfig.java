@@ -1,7 +1,8 @@
-package com.example.cointrade.config;
+package com.example.TradeBit.config;
 
-import com.example.cointrade.CustomAccessDeniedHandler;
-import com.example.cointrade.jwt.JwtAuthenticationFilter;
+
+import com.example.TradeBit.exceptions.CustomAccessDeniedHandler;
+import com.example.TradeBit.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,7 @@ public class SecurityConfig {
                 authorizeRequests
                         .requestMatchers("/login/email").permitAll()
                         .requestMatchers("/register").permitAll()
+                        .requestMatchers("/registrationConfirm").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

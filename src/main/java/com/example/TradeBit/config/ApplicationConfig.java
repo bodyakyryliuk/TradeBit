@@ -1,6 +1,6 @@
-package com.example.cointrade.config;
+package com.example.TradeBit.config;
 
-import com.example.cointrade.user.UserRepository;
+import com.example.TradeBit.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

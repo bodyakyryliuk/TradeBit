@@ -1,4 +1,4 @@
-package com.example.cointrade.jwt;
+package com.example.TradeBit.jwt;
 
 
 import jakarta.servlet.FilterChain;
@@ -42,6 +42,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
             if (jwtService.isTokenValid(jwt, userDetails)) {
+                // check jwt token if user is enabled
+                if (!jwtService.extractEnabledStatus(jwt)){
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "User is not activated");
+                    return;
+                }
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,

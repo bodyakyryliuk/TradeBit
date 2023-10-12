@@ -1,4 +1,4 @@
-package com.example.cointrade;
+package com.example.TradeBit.exceptions;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

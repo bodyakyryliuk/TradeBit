@@ -1,4 +1,4 @@
-package com.example.cointrade.role;
+package com.example.TradeBit.role;
 
 public enum Role {
     USER,

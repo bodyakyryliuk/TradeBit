@@ -1,6 +1,6 @@
-package com.example.cointrade.user;
+package com.example.TradeBit.user;
 
-import com.example.cointrade.role.Role;
+import com.example.TradeBit.role.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +32,8 @@ public class User implements UserDetails {
     private String email;
     @Column
     private String password;
+    @Column
+    private boolean enabled;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -62,6 +64,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

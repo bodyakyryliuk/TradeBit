@@ -1,4 +1,4 @@
-package com.example.cointrade.authentication;
+package com.example.TradeBit.registration;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

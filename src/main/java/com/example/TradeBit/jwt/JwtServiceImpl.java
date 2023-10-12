@@ -1,4 +1,4 @@
-package com.example.cointrade.jwt;
+package com.example.TradeBit.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -41,6 +41,7 @@ public class JwtServiceImpl implements JwtService{
     }
 
     private String generateToken(Map<String, Object> claims, UserDetails userDetails){
+        claims.put("enabled", userDetails.isEnabled());
         return Jwts
                 .builder()
                 .setClaims(claims)
@@ -54,6 +55,11 @@ public class JwtServiceImpl implements JwtService{
     @Override
     public String generateToken(UserDetails userDetails){
         return generateToken(new HashMap<>(), userDetails);
+    }
+
+    @Override
+    public boolean extractEnabledStatus(String token) {
+        return extractClaim(token, claims -> claims.get("enabled", Boolean.class));
     }
 
     private Key getSignInKey() {

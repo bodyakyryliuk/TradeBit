@@ -1,4 +1,5 @@
-package com.example.cointrade.user;
+package com.example.TradeBit.user;
 
-public class UserService {
+public interface UserService {
+
 }

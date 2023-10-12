@@ -1,4 +1,4 @@
-package com.example.cointrade;
+package com.example.TradeBit;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
