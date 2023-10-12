@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class RegistrationService {
     private final JwtService jwtService;
     private final VerificationTokenService verificationTokenService;
     private final EmailService emailService;
-    public AuthenticationResponse register(RegisterRequest request) {
+    public Map<String, String> register(RegisterRequest request) {
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
@@ -39,14 +41,14 @@ public class RegistrationService {
             throw new UserExistsException();
 
         userRepository.save(user);
-        String jwtToken = jwtService.generateToken(user);
 
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
         emailService.sendVerificationToken(user.getEmail(), verificationToken.getToken());
 
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        HashMap<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Registration successful! Please check your email to activate your account.");
+        return response;
     }
 
     public User confirmRegistration(String token){

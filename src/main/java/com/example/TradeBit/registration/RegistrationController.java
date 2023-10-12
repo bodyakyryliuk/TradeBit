@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 public class RegistrationController {
     private final RegistrationService registrationService;
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<Map<String, String>> register(
             @RequestBody RegisterRequest request
     ){
         return ResponseEntity.ok(registrationService.register(request));
