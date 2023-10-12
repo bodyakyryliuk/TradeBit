@@ -24,10 +24,10 @@ public class RegistrationController {
     }
 
     @GetMapping("/registrationConfirm")
-    public ResponseEntity<String> confirmRegistration(@RequestParam("token") String token){
+    public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token){
         try {
-            registrationService.confirmRegistration(token);
-            return new ResponseEntity<>("User verified successfully", HttpStatus.OK);
+            AuthenticationResponse response = registrationService.confirmRegistration(token);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

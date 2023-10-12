@@ -11,6 +11,7 @@ import com.example.TradeBit.registration.verificationToken.VerificationTokenServ
 import com.example.TradeBit.role.Role;
 import com.example.TradeBit.user.User;
 import com.example.TradeBit.user.UserRepository;
+import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,7 @@ public class RegistrationService {
         return response;
     }
 
-    public User confirmRegistration(String token){
+    public AuthenticationResponse confirmRegistration(String token){
         VerificationToken verificationToken = verificationTokenService.getVerificationToken(token);
 
         if (verificationToken == null)
@@ -64,7 +65,12 @@ public class RegistrationService {
 
         user.setEnabled(true);
         verificationTokenService.deleteVerificationToken(verificationToken);
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        String jwtToken = jwtService.generateToken(user);
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .build();
     }
 
     private boolean checkUserExists(String email){

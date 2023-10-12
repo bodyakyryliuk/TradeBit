@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 @RequestMapping()
 @RequiredArgsConstructor
@@ -14,10 +17,11 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/login/email")
-    public ResponseEntity<AuthenticationResponse> authenticate(
+    public ResponseEntity<Map<String, String>> authenticate(
             @RequestBody AuthenticationRequest request
     ){
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        HashMap<String, String> response = new HashMap<>(authenticationService.authenticate(request));
+        return ResponseEntity.ok(response);
     }
 
 }
