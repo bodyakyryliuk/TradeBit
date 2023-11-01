@@ -35,9 +35,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         User user = createUserFromRequest(request);
 
         if (checkUserExists(user.getEmail())){
-//            response.put("status", "failure");
-//            response.put("message", "User already exists!");
-//            return response;
             throw new UserAlreadyExistsException();
         }
 
