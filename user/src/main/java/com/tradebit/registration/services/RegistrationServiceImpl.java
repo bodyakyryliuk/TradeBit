@@ -1,8 +1,10 @@
 package com.tradebit.registration.services;
 
+import com.tradebit.RabbitMQMessageProducer;
 import com.tradebit.authentication.AuthenticationResponse;
 import com.tradebit.exception.InvalidTokenException;
 import com.tradebit.exception.UserNotFoundException;
+import com.tradebit.registration.EmailRequest;
 import com.tradebit.registration.RegistrationRequest;
 import com.tradebit.registration.services.RegistrationService;
 import com.tradebit.user.models.Role;
@@ -25,6 +27,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final UserRepository userRepository;
     private final VerificationTokenService verificationTokenService;
     private final JwtService jwtService;
+    private final RabbitMQMessageProducer messageProducer;
     public Map<String, String> register(RegistrationRequest request) {
         HashMap<String, String> response = new HashMap<>();
 
@@ -39,12 +42,23 @@ public class RegistrationServiceImpl implements RegistrationService {
         userRepository.save(user);
 
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
-        // TODO: create a notification microservice with emailService class to send verification token
-//        emailService.sendVerificationToken(user.getEmail(), verificationToken.getToken());
+        // TODO: create a email microservice with emailService class to send verification token
 
+        messageProducer.publish(
+                generateEmailRequest(user.getEmail(), verificationToken.getToken()),
+                "internal.exchange",
+                "internal.email.routing-key"
+        );
         response.put("status", "success");
         response.put("message", "Registration successful! Please check your email to activate your account.");
         return response;
+    }
+
+    private EmailRequest generateEmailRequest(String to, String token) {
+        return EmailRequest.builder()
+                .to(to)
+                .message(token)
+                .build();
     }
 
     public AuthenticationResponse confirmRegistration(String token){
