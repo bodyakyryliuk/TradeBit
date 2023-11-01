@@ -3,6 +3,7 @@ package com.tradebit.registration.services;
 import com.tradebit.RabbitMQMessageProducer;
 import com.tradebit.authentication.AuthenticationResponse;
 import com.tradebit.exception.InvalidTokenException;
+import com.tradebit.exception.UserAlreadyExistsException;
 import com.tradebit.exception.UserNotFoundException;
 import com.tradebit.registration.EmailRequest;
 import com.tradebit.registration.RegistrationRequest;
@@ -34,15 +35,15 @@ public class RegistrationServiceImpl implements RegistrationService {
         User user = createUserFromRequest(request);
 
         if (checkUserExists(user.getEmail())){
-            response.put("status", "failure");
-            response.put("message", "User already exists!");
-            return response;
+//            response.put("status", "failure");
+//            response.put("message", "User already exists!");
+//            return response;
+            throw new UserAlreadyExistsException();
         }
 
         userRepository.save(user);
 
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
-        // TODO: create a email microservice with emailService class to send verification token
 
         messageProducer.publish(
                 generateEmailRequest(user.getEmail(), verificationToken.getToken()),
@@ -54,7 +55,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         return response;
     }
 
-    private EmailRequest generateEmailRequest(String to, String token) {
+    public EmailRequest generateEmailRequest(String to, String token) {
         return EmailRequest.builder()
                 .to(to)
                 .message(token)
@@ -86,7 +87,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         return userRepository.findByEmail(email).isPresent();
     }
 
-    private User createUserFromRequest(RegistrationRequest request) {
+    public User createUserFromRequest(RegistrationRequest request) {
         return User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
