@@ -1,4 +1,4 @@
-package com.tradebit.user.controllers;
+package com.tradebit.controllers;
 
 import com.tradebit.authentication.AuthenticationResponse;
 import com.tradebit.registration.RegistrationRequest;

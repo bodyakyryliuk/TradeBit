@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -24,13 +25,12 @@ public class SecurityConfig {
                                 .requestMatchers("/login/email").permitAll()
                                 .requestMatchers("/register").permitAll()
                                 .requestMatchers("/registrationConfirm").permitAll()
+                                .requestMatchers("/secured").permitAll()
+
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider);
-                // TODO: add jwt auth filter
-                //.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-
 
         return http.build();
     }

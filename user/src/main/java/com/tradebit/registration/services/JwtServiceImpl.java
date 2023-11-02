@@ -42,6 +42,7 @@ public class JwtServiceImpl implements JwtService{
 
     private String generateToken(Map<String, Object> claims, UserDetails userDetails){
         claims.put("enabled", userDetails.isEnabled());
+        claims.put("roles", userDetails.getAuthorities());
         return Jwts
                 .builder()
                 .setClaims(claims)
