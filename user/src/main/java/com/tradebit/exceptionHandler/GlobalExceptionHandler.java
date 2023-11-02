@@ -1,6 +1,7 @@
 package com.tradebit.exceptionHandler;
 
 import com.tradebit.exception.InvalidTokenException;
+import com.tradebit.exception.JwtNotValidException;
 import com.tradebit.exception.UserAlreadyExistsException;
 import com.tradebit.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleUserNotFoundException(UserNotFoundException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(JwtNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleJwtNotValidException(JwtNotValidException ex) {
         return new ResponseEntity<>(
                 Map.of("status", "failure", "message", ex.getMessage()),
                 HttpStatus.NOT_FOUND);

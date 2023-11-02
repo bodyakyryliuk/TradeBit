@@ -17,7 +17,7 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                .route("registration-service-route", r -> r.path("/register")
+                .route("auth-service-route", r -> r.path("/register", "/login/**")
                         .uri("lb://USER"))
                 .route("secured-service-route", r -> r.path("/secured")
                         .filters(f -> f.filter(authenticationFilter.apply(new AuthenticationFilter.Config())))

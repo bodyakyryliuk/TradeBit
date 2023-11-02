@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 
 
@@ -31,7 +32,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             jwtUtil.validateToken(authHeader);
 
-            return chain.filter(exchange);
+            // Forward the token to downstream services
+            ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + authHeader)
+                    .build();
+            return chain.filter(exchange.mutate().request(modifiedRequest).build());
         }));
     }
 
