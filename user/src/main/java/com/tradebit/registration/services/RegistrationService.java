@@ -1,11 +1,13 @@
 package com.tradebit.registration.services;
 
-import com.tradebit.authentication.AuthenticationResponse;
+import com.tradebit.authentication.OAuth2TokenResponse;
 import com.tradebit.registration.RegistrationRequest;
+import jakarta.ws.rs.core.Response;
 
 import java.util.Map;
 
 public interface RegistrationService {
     Map<String, String> register(RegistrationRequest request);
-    AuthenticationResponse confirmRegistration(String token);
+    Response createKeycloakUser(RegistrationRequest request);
+    OAuth2TokenResponse confirmRegistration(String token);
 }

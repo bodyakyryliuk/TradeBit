@@ -1,6 +1,5 @@
-package com.tradebit.user.models;
+package com.datmt.keycloak.springbootauth.user.models;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,9 +20,8 @@ import java.util.List;
 @Table(name = "users")
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long id;
+    private String id;
     @Column(name = "first_name")
     private String firstName;
     @Column(name = "last_name")

@@ -8,8 +8,41 @@ services:
     networks:
       - spring
 
+  keycloak:
+    image: jboss/keycloak
+    restart: always
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: password
+    ports:
+      - "8180:8080"
+    networks:
+      backend:
+        aliases:
+          - "keycloak"
+    depends_on:
+      - postgres
+
+  postgres: # New PostgreSQL service
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    networks:
+      backend:
+        aliases:
+          - "postgres"
+
 networks:
   postgres:
     driver: bridge
   spring:
     driver: bridge
+  backend:

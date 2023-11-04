@@ -1,4 +1,4 @@
-package com.tradebit.security;
+package com.tradebit.config;
 
 import com.tradebit.user.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -20,7 +20,9 @@
 		<module>eureka-server</module>
         <module>email</module>
 		<module>amqp</module>
-	</modules>
+        <module>authentication</module>
+		<module>user-service</module>
+    </modules>
 	<properties>
 		<java.version>17</java.version>
 		<spring.boot.maven.plugin.version>3.1.4</spring.boot.maven.plugin.version>
@@ -44,14 +46,20 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+
+			<dependency>
+				<groupId>org.keycloak.bom</groupId>
+				<artifactId>
+					keycloak-adapter-bom
+				</artifactId>
+				<version>22.0.5</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -64,9 +72,19 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>com.mashape.unirest</groupId>
+			<artifactId>unirest-java</artifactId>
+			<version>1.4.9</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-admin-client</artifactId>
+			<version>22.0.5</version>
 		</dependency>
 	</dependencies>
 
