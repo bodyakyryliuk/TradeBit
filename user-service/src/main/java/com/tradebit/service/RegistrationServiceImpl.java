@@ -1,10 +1,17 @@
-package com.datmt.keycloak.springbootauth.service;
+package com.tradebit.service;
 
-import com.datmt.keycloak.springbootauth.config.KeycloakProvider;
-import com.datmt.keycloak.springbootauth.http.requests.CreateUserRequest;
-import com.datmt.keycloak.springbootauth.user.models.Role;
-import com.datmt.keycloak.springbootauth.user.models.User;
-import com.datmt.keycloak.springbootauth.user.repositories.UserRepository;
+import com.tradebit.config.KeycloakProvider;
+import com.tradebit.exception.InvalidTokenException;
+import com.tradebit.exception.UserNotFoundException;
+import com.tradebit.http.requests.EmailRequest;
+import com.tradebit.http.requests.RegistrationRequest;
+import com.tradebit.user.models.Role;
+import com.tradebit.user.models.User;
+import com.tradebit.user.repositories.UserRepository;
+import com.tradebit.verificationToken.VerificationToken;
+import com.tradebit.verificationToken.VerificationTokenService;
+import com.tradebit.RabbitMQMessageProducer;
+import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.resource.RoleMappingResource;
@@ -14,29 +21,55 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Arrays;
+import java.net.http.HttpResponse;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class KeycloakAdminClientService {
+public class RegistrationServiceImpl implements RegistrationService {
     @Value("${keycloak.realm}")
     public String realm;
 
     private final KeycloakProvider kcProvider;
     private final UserRepository userRepository;
-    public Response createKeycloakUser(CreateUserRequest user) {
+    private final VerificationTokenService verificationTokenService;
+    private final RabbitMQMessageProducer messageProducer;
+
+
+    @Override
+    public Response register(RegistrationRequest registrationRequest) {
         UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
+        UserRepresentation kcUser = createKeycloakUser(registrationRequest);
+        Response response = usersResource.create(kcUser);
+
+        if (response.getStatus() == 201) {
+            String userId = extractUserId(response);
+            String role = assignRole(userId, usersResource);
+            User user = saveUserInDB(kcUser, userId, role);
+            VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
+
+            messageProducer.publish(
+                    generateEmailRequest(user.getEmail(), verificationToken.getToken()),
+                    "internal.exchange",
+                    "internal.email.routing-key"
+            );
+        }
+
+        return response;
+    }
+
+    public UserRepresentation createKeycloakUser(RegistrationRequest user) {
         CredentialRepresentation credentialRepresentation = createPasswordCredentials(user.getPassword());
 
         UserRepresentation kcUser = new UserRepresentation();
@@ -48,17 +81,14 @@ public class KeycloakAdminClientService {
         kcUser.setEnabled(true);
         kcUser.setEmailVerified(false);
 
+        return kcUser;
+    }
 
-        Response response = usersResource.create(kcUser);
-
-        if (response.getStatus() == 201) {
-            String userId = extractUserId(response);
-            String role = assignRole(userId, usersResource);
-            saveUserInDB(kcUser, userId, role);
-        }
-
-        return response;
-
+    private EmailRequest generateEmailRequest(String to, String token) {
+        return EmailRequest.builder()
+                .to(to)
+                .message(token)
+                .build();
     }
 
     private String assignRole(String userId, UsersResource usersResource){
@@ -82,6 +112,28 @@ public class KeycloakAdminClientService {
                         .orElse(null);
     }
 
+    public ResponseEntity<Map<String, String>> confirmRegistration(String token){
+        VerificationToken verificationToken = verificationTokenService.getVerificationToken(token);
+
+        if (verificationToken == null)
+            throw new InvalidTokenException("Invalid token");
+        else if (verificationToken.getExpiryDate().before(new Date()))
+            throw new InvalidTokenException("Token has expired");
+
+        User user = verificationToken.getUser();
+        if (user == null)
+            throw new UserNotFoundException("User with a given token doesn't exist");
+
+        user.setEmailVerified(true);
+        verificationTokenService.deleteVerificationToken(verificationToken);
+        userRepository.save(user);
+
+        return new ResponseEntity<>(Map.of("status", "success",
+                                           "mmessage", "User email verified successfully. Please log in to continue."),
+                                    HttpStatus.OK);
+
+    }
+
     private List<String> getUserRoles(String userId, UsersResource usersResource){
         List<RoleRepresentation> assignedRoles = usersResource.get(userId).roles().realmLevel().listEffective();
 
@@ -100,7 +152,7 @@ public class KeycloakAdminClientService {
         return path.substring(path.lastIndexOf('/') + 1);
     }
 
-    private void saveUserInDB(UserRepresentation kcUser, String userId, String role){
+    private User saveUserInDB(UserRepresentation kcUser, String userId, String role){
         User user = User.builder()
                 .email(kcUser.getEmail())
                 .id(userId)
@@ -113,7 +165,7 @@ public class KeycloakAdminClientService {
 
         userRepository.save(user);
         log.info("User {} saved to database!", user.getEmail());
-
+        return user;
     }
 
     private Role mapRole(String roleName){
@@ -127,6 +179,5 @@ public class KeycloakAdminClientService {
         passwordCredentials.setValue(password);
         return passwordCredentials;
     }
-
 
 }

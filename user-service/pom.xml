@@ -3,10 +3,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.6</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<groupId>com.tradebit</groupId>
+		<artifactId>tradebit</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>com.datmt</groupId>
 	<artifactId>keycloak-springboot-microservice</artifactId>
@@ -16,7 +15,7 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<keycloak.version>15.0.2</keycloak.version>
+		<keycloak.version>22.0.5</keycloak.version>
 	</properties>
 
 	<dependencies>
@@ -86,7 +85,25 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.tradebit</groupId>
+			<artifactId>amqp</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<version>4.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+		</dependency>
+	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>

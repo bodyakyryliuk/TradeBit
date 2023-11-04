@@ -1,10 +1,8 @@
-package com.datmt.keycloak.springbootauth.controller;
+package com.tradebit.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.security.RolesAllowed;
 
 @RestController
 public class HelloController {
@@ -30,7 +28,6 @@ public class HelloController {
 		return ResponseEntity.ok("Nice day, admin");
 	}
 	
-	@RolesAllowed("member")
 	@GetMapping("/public/hello-fake-public")
 	public ResponseEntity<String> helloCustom() {
 		return ResponseEntity.ok("Nice day, it appears to be public but not");

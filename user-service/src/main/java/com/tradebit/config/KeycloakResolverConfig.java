@@ -1,4 +1,4 @@
-package com.datmt.keycloak.springbootauth.config;
+package com.tradebit.config;
 
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;

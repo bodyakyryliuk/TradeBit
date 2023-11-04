@@ -1,4 +1,4 @@
-package com.datmt.keycloak.springbootauth.config;
+package com.tradebit.config;
 
 
 import com.mashape.unirest.http.JsonNode;

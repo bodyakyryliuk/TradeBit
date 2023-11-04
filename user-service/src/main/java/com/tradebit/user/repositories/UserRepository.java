@@ -1,6 +1,6 @@
-package com.datmt.keycloak.springbootauth.user.repositories;
+package com.tradebit.user.repositories;
 
-import com.datmt.keycloak.springbootauth.user.models.User;
+import com.tradebit.user.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

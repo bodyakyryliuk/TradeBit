@@ -1,4 +1,4 @@
-package com.datmt.keycloak.springbootauth;
+package com.tradebit;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
