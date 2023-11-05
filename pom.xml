@@ -52,7 +52,7 @@
 				<artifactId>
 					keycloak-adapter-bom
 				</artifactId>
-				<version>22.0.5</version>
+				<version>16.1.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

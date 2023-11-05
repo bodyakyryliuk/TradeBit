@@ -39,7 +39,6 @@ services:
       backend:
         aliases:
           - "postgres"
-
 networks:
   postgres:
     driver: bridge

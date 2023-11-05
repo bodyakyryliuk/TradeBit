@@ -36,7 +36,7 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody RegistrationRequest registrationRequest) {
         Response createdResponse = kcAdminClient.register(registrationRequest);
         return ResponseEntity.status(createdResponse.getStatus()).build();
-
+//        return kcAdminClient.registerUser(registrationRequest);
     }
 
     @PostMapping("/login")

@@ -2,6 +2,7 @@ package com.tradebit.service;
 
 import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.InvalidTokenException;
+import com.tradebit.exception.UserCreationException;
 import com.tradebit.exception.UserNotFoundException;
 import com.tradebit.http.requests.EmailRequest;
 import com.tradebit.http.requests.RegistrationRequest;
@@ -11,22 +12,31 @@ import com.tradebit.user.repositories.UserRepository;
 import com.tradebit.verificationToken.VerificationToken;
 import com.tradebit.verificationToken.VerificationTokenService;
 import com.tradebit.RabbitMQMessageProducer;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RoleMappingResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -47,26 +57,58 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RabbitMQMessageProducer messageProducer;
 
 
+    public ResponseEntity registerUser(RegistrationRequest registrationRequest){
+        Keycloak keycloak = kcProvider.getInstance();
+        UserRepresentation userRepresentation = createKeycloakUser(registrationRequest);
+        CredentialRepresentation credential = createPasswordCredentials(registrationRequest.getPassword());
+        userRepresentation.setCredentials(Collections.singletonList(credential));
+        Response response = keycloak.realm(kcProvider.getRealm()).users().create(userRepresentation);
+        System.out.println(response.readEntity(String.class));
+
+
+        if (response.getStatus() == HttpStatus.CREATED.value()) {
+            // User registered successfully, authenticate the user to get the token
+            OAuth2AccessToken token = authenticateWithKeycloak(registrationRequest.getEmail(), registrationRequest.getPassword());
+            return ResponseEntity.ok(token);
+        } else {
+            // Handle error response
+            return ResponseEntity.status(response.getStatus()).build();
+        }
+    }
+
+    private OAuth2AccessToken authenticateWithKeycloak(String username, String password) {
+        Keycloak keycloakWithPassword = kcProvider.newKeycloakBuilderWithPasswordCredentials(username, password).build();
+        AccessTokenResponse tokenResponse = keycloakWithPassword.tokenManager().getAccessToken();
+        Instant issuedAt = Instant.now();
+        Instant expiresAt = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
+        return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, tokenResponse.getToken(), issuedAt, expiresAt);
+    }
+
     @Override
     public Response register(RegistrationRequest registrationRequest) {
-        UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
-        UserRepresentation kcUser = createKeycloakUser(registrationRequest);
-        Response response = usersResource.create(kcUser);
+        try {
+            UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
+            UserRepresentation kcUser = createKeycloakUser(registrationRequest);
+            Response response = usersResource.create(kcUser);
 
-        if (response.getStatus() == 201) {
-            String userId = extractUserId(response);
-            String role = assignRole(userId, usersResource);
-            User user = saveUserInDB(kcUser, userId, role);
-            VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
+            if (response.getStatus() == 201) {
+                String userId = extractUserId(response);
+                String role = Role.USER.name();
+                saveUserInDB(kcUser, userId, role);
+                UserResource userResource = usersResource.get(userId);
+                userResource.sendVerifyEmail();
 
-            messageProducer.publish(
-                    generateEmailRequest(user.getEmail(), verificationToken.getToken()),
-                    "internal.exchange",
-                    "internal.email.routing-key"
-            );
+                return response;
+            }
+            else {
+                String errorMessage = new JSONObject(response.readEntity(String.class)).getString("errorMessage");
+                throw new UserCreationException(errorMessage, response.getStatus());
+            }
+        }catch (WebApplicationException e){
+            String errorMessage = e.getResponse().readEntity(String.class);
+            throw new UserCreationException(errorMessage, e.getResponse().getStatus());
+
         }
-
-        return response;
     }
 
     public UserRepresentation createKeycloakUser(RegistrationRequest user) {
@@ -100,7 +142,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         // Find the roles you want to assign
         List<RoleRepresentation> rolesToAdd = availableRoles.stream()
-                .filter(role -> role.getName().equals("USER"))
+                .filter(role -> role.getName().equals("tradebit-user"))
                 .collect(Collectors.toList());
 
         // Add the roles to the user
