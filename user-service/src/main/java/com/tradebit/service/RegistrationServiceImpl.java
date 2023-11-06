@@ -12,36 +12,25 @@ import com.tradebit.user.repositories.UserRepository;
 import com.tradebit.verificationToken.VerificationToken;
 import com.tradebit.verificationToken.VerificationTokenService;
 import com.tradebit.RabbitMQMessageProducer;
-import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.RoleMappingResource;
-import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
-import java.net.http.HttpResponse;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -57,33 +46,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RabbitMQMessageProducer messageProducer;
 
 
-    public ResponseEntity registerUser(RegistrationRequest registrationRequest){
-        Keycloak keycloak = kcProvider.getInstance();
-        UserRepresentation userRepresentation = createKeycloakUser(registrationRequest);
-        CredentialRepresentation credential = createPasswordCredentials(registrationRequest.getPassword());
-        userRepresentation.setCredentials(Collections.singletonList(credential));
-        Response response = keycloak.realm(kcProvider.getRealm()).users().create(userRepresentation);
-        System.out.println(response.readEntity(String.class));
-
-
-        if (response.getStatus() == HttpStatus.CREATED.value()) {
-            // User registered successfully, authenticate the user to get the token
-            OAuth2AccessToken token = authenticateWithKeycloak(registrationRequest.getEmail(), registrationRequest.getPassword());
-            return ResponseEntity.ok(token);
-        } else {
-            // Handle error response
-            return ResponseEntity.status(response.getStatus()).build();
-        }
-    }
-
-    private OAuth2AccessToken authenticateWithKeycloak(String username, String password) {
-        Keycloak keycloakWithPassword = kcProvider.newKeycloakBuilderWithPasswordCredentials(username, password).build();
-        AccessTokenResponse tokenResponse = keycloakWithPassword.tokenManager().getAccessToken();
-        Instant issuedAt = Instant.now();
-        Instant expiresAt = issuedAt.plusSeconds(tokenResponse.getExpiresIn());
-        return new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, tokenResponse.getToken(), issuedAt, expiresAt);
-    }
-
     @Override
     public Response register(RegistrationRequest registrationRequest) {
         try {
@@ -94,9 +56,8 @@ public class RegistrationServiceImpl implements RegistrationService {
             if (response.getStatus() == 201) {
                 String userId = extractUserId(response);
                 String role = Role.USER.name();
-                saveUserInDB(kcUser, userId, role);
-                UserResource userResource = usersResource.get(userId);
-                userResource.sendVerifyEmail();
+                User user = getUserFromRepresentation(kcUser, userId, role);
+                sendVerificationLink(user);
 
                 return response;
             }
@@ -109,6 +70,16 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new UserCreationException(errorMessage, e.getResponse().getStatus());
 
         }
+    }
+
+    private void sendVerificationLink(User user){
+        VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
+
+        messageProducer.publish(
+                generateEmailRequest(user.getEmail(), verificationToken.getToken()),
+                "internal.exchange",
+                "internal.email.routing-key"
+        );
     }
 
     public UserRepresentation createKeycloakUser(RegistrationRequest user) {
@@ -133,27 +104,6 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .build();
     }
 
-    private String assignRole(String userId, UsersResource usersResource){
-        RoleMappingResource roleMappingResource = usersResource.get(userId).roles();
-        RoleScopeResource realmRolesResource = roleMappingResource.realmLevel();
-
-        // Get existing realm roles
-        List<RoleRepresentation> availableRoles = realmRolesResource.listAvailable();
-
-        // Find the roles you want to assign
-        List<RoleRepresentation> rolesToAdd = availableRoles.stream()
-                .filter(role -> role.getName().equals("tradebit-user"))
-                .collect(Collectors.toList());
-
-        // Add the roles to the user
-        realmRolesResource.add(rolesToAdd);
-        return rolesToAdd
-                        .stream()
-                        .findFirst()
-                        .map(RoleRepresentation::getName)
-                        .orElse(null);
-    }
-
     public ResponseEntity<Map<String, String>> confirmRegistration(String token){
         VerificationToken verificationToken = verificationTokenService.getVerificationToken(token);
 
@@ -167,23 +117,23 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new UserNotFoundException("User with a given token doesn't exist");
 
         user.setEmailVerified(true);
+        setKeycloakEmailVerified(user.getId());
         verificationTokenService.deleteVerificationToken(verificationToken);
         userRepository.save(user);
 
         return new ResponseEntity<>(Map.of("status", "success",
-                                           "mmessage", "User email verified successfully. Please log in to continue."),
+                                           "message", "User email verified successfully. Please log in to continue."),
                                     HttpStatus.OK);
-
     }
 
-    private List<String> getUserRoles(String userId, UsersResource usersResource){
-        List<RoleRepresentation> assignedRoles = usersResource.get(userId).roles().realmLevel().listEffective();
+    private void setKeycloakEmailVerified(String userId){
+        UserResource userResource = kcProvider.getInstance().realm(realm).users().get(userId);
+        UserRepresentation userRepresentation = userResource.toRepresentation();
 
-        // Extract role names from the assigned roles
-        return assignedRoles.stream()
-                .map(RoleRepresentation::getName)
-                .collect(Collectors.toList());
+        userRepresentation.setEmailVerified(true);
+        userResource.update(userRepresentation);
     }
+
 
     private String extractUserId(Response response) {
         URI location = response.getLocation();
@@ -194,7 +144,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         return path.substring(path.lastIndexOf('/') + 1);
     }
 
-    private User saveUserInDB(UserRepresentation kcUser, String userId, String role){
+    private User getUserFromRepresentation(UserRepresentation kcUser, String userId, String role){
         User user = User.builder()
                 .email(kcUser.getEmail())
                 .id(userId)
@@ -205,8 +155,6 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .emailVerified(kcUser.isEmailVerified())
                 .build();
 
-        userRepository.save(user);
-        log.info("User {} saved to database!", user.getEmail());
         return user;
     }
 
