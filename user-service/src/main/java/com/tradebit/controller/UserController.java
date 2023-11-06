@@ -5,6 +5,7 @@ import com.tradebit.http.requests.AuthorizationRequest;
 import com.tradebit.http.requests.RegistrationRequest;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.RegistrationService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +25,13 @@ public class UserController {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(UserController.class);
 
     @PostMapping(value = "/create")
-    public ResponseEntity<?> createUser(@RequestBody RegistrationRequest registrationRequest) {
+    public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
         Response createdResponse = registrationService.register(registrationRequest);
         return ResponseEntity.status(createdResponse.getStatus()).build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@NotNull @RequestBody AuthorizationRequest authorizationRequest) {
+    public ResponseEntity<?> login(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
         // TODO: create authorization service and perform this logic there. Handle not correct credentials when user logins
         // TODO:
 
