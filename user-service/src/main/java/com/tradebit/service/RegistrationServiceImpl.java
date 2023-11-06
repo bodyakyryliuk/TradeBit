@@ -1,5 +1,6 @@
 package com.tradebit.service;
 
+import com.tradebit.RabbitMQMessageProducer;
 import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.InvalidTokenException;
 import com.tradebit.exception.UserCreationException;
@@ -11,13 +12,11 @@ import com.tradebit.user.models.User;
 import com.tradebit.user.repositories.UserRepository;
 import com.tradebit.verificationToken.VerificationToken;
 import com.tradebit.verificationToken.VerificationTokenService;
-import com.tradebit.RabbitMQMessageProducer;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 
@@ -52,7 +52,6 @@ public class RegistrationServiceImpl implements RegistrationService {
             UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
             UserRepresentation kcUser = createKeycloakUser(registrationRequest);
             Response response = usersResource.create(kcUser);
-
             if (response.getStatus() == 201) {
                 String userId = extractUserId(response);
                 String role = Role.USER.name();
@@ -126,11 +125,14 @@ public class RegistrationServiceImpl implements RegistrationService {
                                     HttpStatus.OK);
     }
 
+
     private void setKeycloakEmailVerified(String userId){
         UserResource userResource = kcProvider.getInstance().realm(realm).users().get(userId);
         UserRepresentation userRepresentation = userResource.toRepresentation();
-
         userRepresentation.setEmailVerified(true);
+        List<String> requiredActions = userRepresentation.getRequiredActions();
+        requiredActions.remove("VERIFY_EMAIL");
+        userRepresentation.setRequiredActions(requiredActions);
         userResource.update(userRepresentation);
     }
 

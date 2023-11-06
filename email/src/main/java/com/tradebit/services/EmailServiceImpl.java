@@ -22,7 +22,7 @@ public class EmailServiceImpl implements EmailService{
             helper.setSubject("Email Verification");
 
             String content = "To confirm your email, please click the link below:\n"
-                    + "http://localhost:8085/user/registrationConfirm?token=" + emailRequest.getMessage();
+                    + "http://localhost:8080/user/user/registrationConfirm?token=" + emailRequest.getMessage();
             helper.setText(content, true); // set to true to indicate the text content is HTML
 
             // TODO: implement email validation (regex)

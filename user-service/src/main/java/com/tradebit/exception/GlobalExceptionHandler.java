@@ -31,4 +31,18 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(AccountNotVerifiedException.class)
+    public ResponseEntity<Map<String, String>> handleAccountNotVerifiedException(AccountNotVerifiedException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.FORBIDDEN);
+    }
+
 }
