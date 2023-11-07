@@ -22,16 +22,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .oauth2Login(oauth2Login -> oauth2Login
+                        .loginPage("/auth/login/google") // This is the endpoint for initiating OAuth2 login
+                        .redirectionEndpoint(redirectionEndpointConfig ->
+                                redirectionEndpointConfig.baseUri("/login/oauth2/code/google"))
+                )
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/user/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/register").permitAll()
                                 .requestMatchers("/registrationConfirm").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter)))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
         return http.build();
     }
 }

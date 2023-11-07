@@ -20,7 +20,6 @@
 		<module>eureka-server</module>
         <module>email</module>
 		<module>amqp</module>
-        <module>authentication</module>
 		<module>user-service</module>
     </modules>
 	<properties>

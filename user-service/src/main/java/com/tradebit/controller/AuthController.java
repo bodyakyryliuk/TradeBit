@@ -6,23 +6,23 @@ import com.tradebit.http.requests.RegistrationRequest;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.RegistrationService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
-public class UserController {
+public class AuthController {
     private final RegistrationService registrationService;
     private final AuthorizationService authorizationService;
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(UserController.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping(value = "/create")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
@@ -30,13 +30,16 @@ public class UserController {
         return ResponseEntity.status(createdResponse.getStatus()).build();
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
-        // TODO: create authorization service and perform this logic there. Handle not correct credentials when user logins
-        // TODO:
-
+    @PostMapping("/login/email")
+    public ResponseEntity<?> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
         return authorizationService.login(authorizationRequest);
     }
+
+    @GetMapping("/login/google")
+    public RedirectView loginGoogle() {
+        return new RedirectView("/oauth2/authorization/google");
+    }
+
 
     @GetMapping("/registrationConfirm")
     public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token){
