@@ -26,6 +26,6 @@ public class RegistrationRequest {
     String firstname;
 
     @NotBlank(message = "Last name is mandatory")
-    @Pattern(regexp = "^[a-zA-Z'\\-\\s]+$", message = "First name contains invalid characters")
+    @Pattern(regexp = "^[a-zA-Z'\\-\\s]+$", message = "Last name contains invalid characters")
     String lastname;
 }

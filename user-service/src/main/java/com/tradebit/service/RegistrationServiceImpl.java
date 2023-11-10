@@ -17,21 +17,21 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.IDToken;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.util.*;
+
+import static java.util.Arrays.asList;
 
 
 @Service
@@ -40,6 +40,8 @@ import java.util.*;
 public class RegistrationServiceImpl implements RegistrationService {
     @Value("${keycloak.realm}")
     public String realm;
+    @Value("${keycloak.resource}")
+    private String clientId;
 
     private final KeycloakProvider kcProvider;
     private final UserRepository userRepository;
@@ -48,18 +50,18 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 
     @Override
-    public Response register(RegistrationRequest registrationRequest) {
+    public ResponseEntity<?> register(RegistrationRequest registrationRequest) {
         try {
             UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
             UserRepresentation kcUser = createKeycloakUser(registrationRequest);
             Response response = usersResource.create(kcUser);
             if (response.getStatus() == 201) {
                 String userId = extractUserId(response);
-                String role = Role.USER.name();
-                User user = getUserFromRepresentation(kcUser, userId, role);
+                User user = getUserFromRepresentation(kcUser, userId, Role.USER);
                 sendVerificationLink(user);
-
-                return response;
+                return new ResponseEntity<>(Map.of("status", "success",
+                        "message", "User has been registered successfully!"),
+                        HttpStatus.CREATED);
             }
             else {
                 String errorMessage = new JSONObject(response.readEntity(String.class)).getString("errorMessage");
@@ -82,6 +84,16 @@ public class RegistrationServiceImpl implements RegistrationService {
         );
     }
 
+    private void assignRoles(String userId){
+        Keycloak kc = kcProvider.getInstance();
+        kc.realm(realm).clients().findByClientId(clientId).forEach(clientRepresentation -> {
+            RoleRepresentation savedRoleRepresentation = kc.realm(clientId).clients()
+                    .get(clientRepresentation.getId()).roles().get("USER").toRepresentation();
+            kc.realm(realm).users().get(userId).roles().clientLevel(clientRepresentation.getId())
+                    .add(asList(savedRoleRepresentation));
+        });
+    }
+
 
     public UserRepresentation createKeycloakUser(RegistrationRequest user) {
         CredentialRepresentation credentialRepresentation = createPasswordCredentials(user.getPassword());
@@ -96,6 +108,15 @@ public class RegistrationServiceImpl implements RegistrationService {
         kcUser.setEmailVerified(false);
 
         return kcUser;
+    }
+
+    private Map<String, List<String>> getClientUserRole(){
+        List<String> rolesToAdd = new ArrayList<>();
+        rolesToAdd.add("USER");
+        Map<String, List<String>> clientRoles = new HashMap<>();
+        clientRoles.put(clientId, rolesToAdd);
+        System.out.println(clientRoles);
+        return clientRoles;
     }
 
     private EmailRequest generateEmailRequest(String to, String token) {
@@ -127,35 +148,6 @@ public class RegistrationServiceImpl implements RegistrationService {
                                     HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<?> processGoogleLogin(Authentication authentication) {
-        String email = extractEmailFromAuthentication(authentication);
-        Optional<User> optional = userRepository.findByEmail(email);
-        if(optional.isPresent()){
-            User user = optional.get();
-            if (!user.isEmailVerified()){
-                user.setEmailVerified(true);
-                setKeycloakEmailVerified(user.getId());
-                userRepository.save(user);
-            }
-        }else {
-            User user = getUserFromAuthentication(authentication, Role.USER.name());
-            userRepository.save(user);
-        }
-        return null;
-    }
-
-    public String extractEmailFromAuthentication(Authentication authentication) {
-        if (authentication instanceof KeycloakAuthenticationToken) {
-            KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) authentication;
-            KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) keycloakAuthenticationToken.getPrincipal();
-            IDToken idToken = keycloakPrincipal.getKeycloakSecurityContext().getIdToken();
-            return idToken.getEmail();
-        }
-        throw new IllegalStateException("Authentication token is not an instance of KeycloakAuthenticationToken");
-    }
-
-
 
     private void setKeycloakEmailVerified(String userId){
         UserResource userResource = kcProvider.getInstance().realm(realm).users().get(userId);
@@ -177,53 +169,18 @@ public class RegistrationServiceImpl implements RegistrationService {
         return path.substring(path.lastIndexOf('/') + 1);
     }
 
-    private User getUserFromRepresentation(UserRepresentation kcUser, String userId, String role){
+    private User getUserFromRepresentation(UserRepresentation kcUser, String userId, Role role){
         User user = User.builder()
                 .email(kcUser.getEmail())
                 .id(userId)
                 .firstName(kcUser.getFirstName())
                 .lastName(kcUser.getLastName())
-                .role(mapRole(role))
+                .role(role)
                 .enabled(kcUser.isEnabled())
                 .emailVerified(kcUser.isEmailVerified())
                 .build();
 
         return user;
-    }
-
-    private User getUserFromAuthentication(Authentication authentication, String role) {
-        if (!(authentication instanceof KeycloakAuthenticationToken)) {
-            throw new IllegalArgumentException("Authentication is not of type KeycloakAuthenticationToken");
-        }
-
-        KeycloakAuthenticationToken keycloakAuth = (KeycloakAuthenticationToken) authentication;
-        KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) keycloakAuth.getPrincipal();
-        IDToken idToken = keycloakPrincipal.getKeycloakSecurityContext().getIdToken();
-
-        // Extract user information from the IDToken
-        String email = idToken.getEmail();
-        String firstName = idToken.getGivenName();
-        String lastName = idToken.getFamilyName();
-        boolean emailVerified = true;
-        boolean enabled = true;
-
-        // Construct the user object
-        User user = User.builder()
-                .email(email)
-                .id(UUID.randomUUID().toString()) // Generate a new UUID or set your own ID logic
-                .firstName(firstName)
-                .lastName(lastName)
-                .role(mapRole(role))
-                .enabled(enabled)
-                .emailVerified(emailVerified)
-                .build();
-
-        return user;
-    }
-
-
-    private Role mapRole(String roleName){
-        return Role.valueOf(roleName);
     }
 
     private static CredentialRepresentation createPasswordCredentials(String password) {

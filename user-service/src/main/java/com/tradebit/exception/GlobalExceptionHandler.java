@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,5 +64,13 @@ public class GlobalExceptionHandler {
                 Map.of("status", "failure", "message", errors),
                 HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InternalErrorException.class)
+    public ResponseEntity<Map<String, String>> handleInternalErrorException(InternalErrorException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
 }

@@ -9,9 +9,7 @@ import java.util.Map;
 
 
 public interface RegistrationService {
-    Response register(RegistrationRequest user);
+    ResponseEntity<?> register(RegistrationRequest user);
     ResponseEntity<Map<String, String>> confirmRegistration(String token);
-
-    ResponseEntity<?> processGoogleLogin(Authentication authentication);
 
 }

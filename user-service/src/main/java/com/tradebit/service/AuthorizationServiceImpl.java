@@ -2,11 +2,9 @@ package com.tradebit.service;
 
 import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.AccountNotVerifiedException;
+import com.tradebit.exception.InternalErrorException;
 import com.tradebit.exception.InvalidCredentialsException;
-import com.tradebit.exception.UserNotFoundException;
 import com.tradebit.http.requests.AuthorizationRequest;
-import com.tradebit.user.models.User;
-import com.tradebit.user.repositories.UserRepository;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +59,8 @@ public class AuthorizationServiceImpl implements AuthorizationService{
                 throw new InvalidCredentialsException("email required");
             else
                 throw new InvalidCredentialsException(ex.getMessage());
+        } catch (Exception ex){
+            throw new InternalErrorException(ex.getMessage());
         }
     }
 

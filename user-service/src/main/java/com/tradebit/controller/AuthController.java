@@ -1,7 +1,7 @@
 package com.tradebit.controller;
 
-
-import com.tradebit.exception.AccountNotVerifiedException;
+import com.mashape.unirest.http.JsonNode;
+import com.tradebit.config.KeycloakProvider;
 import com.tradebit.http.requests.AuthorizationRequest;
 import com.tradebit.http.requests.RegistrationRequest;
 import com.tradebit.responses.TokenResponse;
@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
+import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,16 +25,14 @@ import org.springframework.web.servlet.view.RedirectView;
 public class AuthController {
     private final RegistrationService registrationService;
     private final AuthorizationService authorizationService;
+    private final KeycloakProvider keycloakProvider;
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthController.class);
-
-    @PostMapping(value = "/create")
+    @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
-        Response createdResponse = registrationService.register(registrationRequest);
-        return ResponseEntity.status(createdResponse.getStatus()).build();
+        return registrationService.register(registrationRequest);
     }
 
-    @GetMapping("/login")
+    @GetMapping
     public String login(){
         return "General login page";
     }
@@ -43,7 +41,6 @@ public class AuthController {
     public ResponseEntity<?> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
         return authorizationService.login(authorizationRequest);
     }
-
 
     @GetMapping("/login/google")
     public RedirectView loginGoogle() {
@@ -66,38 +63,14 @@ public class AuthController {
         }
     }
 
-//    @GetMapping("/user/public/hello")
-//    public ResponseEntity<?> handleGoogleLogin(@RequestParam("code") String code) {
-//        // Exchange the code for tokens
-//        TokenResponse tokenResponse = authorizationService.exchangeCodeForTokens(code);
-//
-//        // Create a session or other post-login actions
-//
-//        // Return success response
-//        return ResponseEntity.ok().body(tokenResponse);
-//    }
-
-    @GetMapping("/account-not-exists")
-    public ResponseEntity<?> handleNoAccount() {
-        // Logic to confirm no account exists
-
-        // Return custom error response
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(new CustomErrorResponse(
-                        "account_not_created",
-                        "Please create an account to continue."
-                ));
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshAccessToken(@RequestParam String refreshToken) {
+        try {
+            AccessTokenResponse response = keycloakProvider.refreshToken(refreshToken);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to refresh token");
+        }
     }
-
-
-    @GetMapping("/required-action")
-    public void handleEmailNotVerified(@RequestParam("execution") String execution) {
-        throw new AccountNotVerifiedException();
-    }
-
-
-
-
 
 }
