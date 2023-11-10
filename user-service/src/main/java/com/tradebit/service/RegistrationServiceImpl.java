@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.RoleMappingResource;
+import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -57,6 +60,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             Response response = usersResource.create(kcUser);
             if (response.getStatus() == 201) {
                 String userId = extractUserId(response);
+                assignClientRole(userId, usersResource);
                 User user = getUserFromRepresentation(kcUser, userId, Role.USER);
                 sendVerificationLink(user);
                 return new ResponseEntity<>(Map.of("status", "success",
@@ -84,14 +88,28 @@ public class RegistrationServiceImpl implements RegistrationService {
         );
     }
 
-    private void assignRoles(String userId){
-        Keycloak kc = kcProvider.getInstance();
-        kc.realm(realm).clients().findByClientId(clientId).forEach(clientRepresentation -> {
-            RoleRepresentation savedRoleRepresentation = kc.realm(clientId).clients()
-                    .get(clientRepresentation.getId()).roles().get("USER").toRepresentation();
-            kc.realm(realm).users().get(userId).roles().clientLevel(clientRepresentation.getId())
-                    .add(asList(savedRoleRepresentation));
-        });
+    private String assignClientRole(String userId, UsersResource usersResource){
+        // Fetch the client UUID from Keycloak
+        String clientUuid = kcProvider.getInstance().realm(realm).clients().findByClientId(clientId).get(0).getId();
+
+        RoleMappingResource roleMappingResource = usersResource.get(userId).roles();
+        RoleScopeResource clientRolesResource = roleMappingResource.clientLevel(clientUuid);
+
+        // Get existing client roles
+        List<RoleRepresentation> availableRoles = clientRolesResource.listAvailable();
+
+        // Find the roles you want to assign
+        List<RoleRepresentation> rolesToAdd = availableRoles.stream()
+                .filter(role -> role.getName().equals("ADMIN")) // Change to the desired role name
+                .collect(Collectors.toList());
+
+        // Add the roles to the user
+        clientRolesResource.add(rolesToAdd);
+        return rolesToAdd
+                .stream()
+                .findFirst()
+                .map(RoleRepresentation::getName)
+                .orElse(null);
     }
 
 
@@ -108,15 +126,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         kcUser.setEmailVerified(false);
 
         return kcUser;
-    }
-
-    private Map<String, List<String>> getClientUserRole(){
-        List<String> rolesToAdd = new ArrayList<>();
-        rolesToAdd.add("USER");
-        Map<String, List<String>> clientRoles = new HashMap<>();
-        clientRoles.put(clientId, rolesToAdd);
-        System.out.println(clientRoles);
-        return clientRoles;
     }
 
     private EmailRequest generateEmailRequest(String to, String token) {
