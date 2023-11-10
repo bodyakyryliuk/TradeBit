@@ -17,20 +17,21 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.representations.IDToken;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -81,6 +82,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         );
     }
 
+
     public UserRepresentation createKeycloakUser(RegistrationRequest user) {
         CredentialRepresentation credentialRepresentation = createPasswordCredentials(user.getPassword());
 
@@ -125,6 +127,35 @@ public class RegistrationServiceImpl implements RegistrationService {
                                     HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<?> processGoogleLogin(Authentication authentication) {
+        String email = extractEmailFromAuthentication(authentication);
+        Optional<User> optional = userRepository.findByEmail(email);
+        if(optional.isPresent()){
+            User user = optional.get();
+            if (!user.isEmailVerified()){
+                user.setEmailVerified(true);
+                setKeycloakEmailVerified(user.getId());
+                userRepository.save(user);
+            }
+        }else {
+            User user = getUserFromAuthentication(authentication, Role.USER.name());
+            userRepository.save(user);
+        }
+        return null;
+    }
+
+    public String extractEmailFromAuthentication(Authentication authentication) {
+        if (authentication instanceof KeycloakAuthenticationToken) {
+            KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) authentication;
+            KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) keycloakAuthenticationToken.getPrincipal();
+            IDToken idToken = keycloakPrincipal.getKeycloakSecurityContext().getIdToken();
+            return idToken.getEmail();
+        }
+        throw new IllegalStateException("Authentication token is not an instance of KeycloakAuthenticationToken");
+    }
+
+
 
     private void setKeycloakEmailVerified(String userId){
         UserResource userResource = kcProvider.getInstance().realm(realm).users().get(userId);
@@ -159,6 +190,37 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         return user;
     }
+
+    private User getUserFromAuthentication(Authentication authentication, String role) {
+        if (!(authentication instanceof KeycloakAuthenticationToken)) {
+            throw new IllegalArgumentException("Authentication is not of type KeycloakAuthenticationToken");
+        }
+
+        KeycloakAuthenticationToken keycloakAuth = (KeycloakAuthenticationToken) authentication;
+        KeycloakPrincipal<?> keycloakPrincipal = (KeycloakPrincipal<?>) keycloakAuth.getPrincipal();
+        IDToken idToken = keycloakPrincipal.getKeycloakSecurityContext().getIdToken();
+
+        // Extract user information from the IDToken
+        String email = idToken.getEmail();
+        String firstName = idToken.getGivenName();
+        String lastName = idToken.getFamilyName();
+        boolean emailVerified = true;
+        boolean enabled = true;
+
+        // Construct the user object
+        User user = User.builder()
+                .email(email)
+                .id(UUID.randomUUID().toString()) // Generate a new UUID or set your own ID logic
+                .firstName(firstName)
+                .lastName(lastName)
+                .role(mapRole(role))
+                .enabled(enabled)
+                .emailVerified(emailVerified)
+                .build();
+
+        return user;
+    }
+
 
     private Role mapRole(String roleName){
         return Role.valueOf(roleName);

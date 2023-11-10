@@ -32,7 +32,6 @@ public class HelloController {
 	public ResponseEntity<String> helloCustom() {
 		return ResponseEntity.ok("Nice day, it appears to be public but not");
 	}
-	
 
 	
 }
