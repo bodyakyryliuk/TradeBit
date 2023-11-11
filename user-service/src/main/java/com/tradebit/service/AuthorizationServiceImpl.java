@@ -1,10 +1,16 @@
 package com.tradebit.service;
 
+import com.tradebit.RabbitMQMessageProducer;
 import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.AccountNotVerifiedException;
 import com.tradebit.exception.InternalErrorException;
 import com.tradebit.exception.InvalidCredentialsException;
 import com.tradebit.http.requests.AuthorizationRequest;
+import com.tradebit.http.requests.MailRequest;
+import com.tradebit.resetToken.ResetToken;
+import com.tradebit.resetToken.ResetTokenService;
+import com.tradebit.user.models.EmailType;
+import com.tradebit.user.models.User;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotAuthorizedException;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +32,9 @@ public class AuthorizationServiceImpl implements AuthorizationService{
     public String realm;
 
     private final KeycloakProvider kcProvider;
+    private final KeycloakService keycloakService;
+    private final RabbitMQMessageProducer messageProducer;
+    private final ResetTokenService resetTokenService;
 
     @Override
     public ResponseEntity<?> login(AuthorizationRequest authorizationRequest) {
@@ -62,6 +71,41 @@ public class AuthorizationServiceImpl implements AuthorizationService{
         } catch (Exception ex){
             throw new InternalErrorException(ex.getMessage());
         }
+    }
+
+    public void forgotPassword(String email){
+        User user = keycloakService.userExists(email);
+        if (user != null){
+            ResetToken existing = resetTokenService.findByUser(user);
+            ResetToken resetToken;
+            if (existing != null) {
+                if (existing.isTokenValid()) {
+                    existing.setExpiryDate(existing.calculateExpiryDate(ResetToken.EXPIRATION));
+                    resetToken = resetTokenService.save(existing);
+                } else {
+                    resetToken = resetTokenService.generateResetToken(user);
+                }
+            }else {
+                resetToken = resetTokenService.generateResetToken(user);
+            }
+            sendResetPasswordLink(email, resetToken.getToken());
+        }
+    }
+
+    private void sendResetPasswordLink(String email, String token){
+        messageProducer.publish(
+                generateEmailRequest(email, token, EmailType.RESET_PASSWORD_EMAIL),
+                "internal.exchange",
+                "internal.email.routing-key"
+        );
+    }
+
+    private MailRequest generateEmailRequest(String to, String token, EmailType emailType) {
+        return MailRequest.builder()
+                .to(to)
+                .message(token)
+                .emailType(emailType)
+                .build();
     }
 
 }

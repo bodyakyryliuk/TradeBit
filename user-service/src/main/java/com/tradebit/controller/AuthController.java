@@ -1,23 +1,24 @@
 package com.tradebit.controller;
 
-import com.mashape.unirest.http.JsonNode;
-import com.tradebit.config.KeycloakProvider;
 import com.tradebit.http.requests.AuthorizationRequest;
 import com.tradebit.http.requests.RegistrationRequest;
-import com.tradebit.responses.TokenResponse;
+import com.tradebit.resetToken.ResetTokenService;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.KeycloakService;
 import com.tradebit.service.RegistrationService;
+import com.tradebit.http.requests.EmailRequest;
+import com.tradebit.http.requests.PasswordRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.AccessTokenResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
+
+import java.util.Map;
 
 
 @RestController
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class AuthController {
     private final RegistrationService registrationService;
     private final AuthorizationService authorizationService;
+    private final ResetTokenService resetTokenService;
     private final KeycloakService keycloakService;
     @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
@@ -51,10 +53,11 @@ public class AuthController {
     @GetMapping("/logout")
     public RedirectView logout(HttpServletRequest request) throws ServletException {
         request.logout();
+        // TODO: dont return redirect view, only response
         return new RedirectView("http://localhost:8180/auth/realms/tradebit-realm/protocol/openid-connect/logout?redirect_uri=http://localhost:8080/user/auth/login");
     }
 
-    @GetMapping("/registrationConfirm")
+    @PostMapping("/registrationConfirm")
     public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token){
         try {
             return new ResponseEntity<>(registrationService.confirmRegistration(token), HttpStatus.OK);
@@ -72,5 +75,32 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to refresh token");
         }
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody @Valid EmailRequest email) {
+        try {
+            authorizationService.forgotPassword(email.getEmail());
+            return ResponseEntity.ok(Map.of("success", "If an account with that email exists, a password reset email has been sent."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error processing your request"));
+        }
+    }
+
+    @GetMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam("token") String token){
+        boolean isValidToken = resetTokenService.isTokenValid(token);
+        if (isValidToken) {
+            return ResponseEntity.ok(Map.of("status", "success", "message", "Token is valid."));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("status", "error", "message", "Invalid or expired token."));
+        }
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestParam("token") String token,
+                                            @RequestBody @Valid PasswordRequest passwordRequest) {
+        return keycloakService.updatePassword(token, passwordRequest);
+    }
+
 
 }

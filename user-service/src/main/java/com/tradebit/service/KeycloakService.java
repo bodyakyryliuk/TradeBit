@@ -2,6 +2,8 @@ package com.tradebit.service;
 
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.tradebit.http.requests.PasswordRequest;
+import com.tradebit.user.models.User;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,11 @@ public interface KeycloakService {
 
     ResponseEntity<Map<String, String>> deleteAllUsers();
 
-    public List<UserRepresentation> getAllUsers();
+    List<UserRepresentation> getAllUsers();
 
-    public UserRepresentation getUser(String userId);
+    UserRepresentation getUser(String userId);
+
+    User userExists(String email);
+
+    ResponseEntity<Map<String, String>> updatePassword(String token, PasswordRequest newPassword);
 }

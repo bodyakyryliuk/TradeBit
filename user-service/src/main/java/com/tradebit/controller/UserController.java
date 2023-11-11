@@ -37,4 +37,6 @@ public class UserController {
     public UserRepresentation getUser(@PathVariable String userId){
         return keycloakService.getUser(userId);
     }
+
+
 }

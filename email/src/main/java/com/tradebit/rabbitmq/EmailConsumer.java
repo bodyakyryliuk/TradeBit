@@ -16,7 +16,11 @@ public class EmailConsumer {
     @RabbitListener(queues = "${rabbitmq.queue.email}")
     public void consumer(EmailRequest emailRequest){
         log.info("Consumed {} from queue", emailRequest);
-        emailService.sendVerificationToken(emailRequest);
+        switch (emailRequest.getEmailType()){
+            case VERIFICATION_EMAIL -> emailService.sendVerificationMail(emailRequest);
+            case RESET_PASSWORD_EMAIL -> emailService.sendResetPasswordMail(emailRequest);
+
+        }
     }
 
 }

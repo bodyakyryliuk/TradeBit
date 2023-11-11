@@ -5,11 +5,13 @@ import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.InvalidTokenException;
 import com.tradebit.exception.UserCreationException;
 import com.tradebit.exception.UserNotFoundException;
-import com.tradebit.http.requests.EmailRequest;
+import com.tradebit.http.requests.MailRequest;
 import com.tradebit.http.requests.RegistrationRequest;
+import com.tradebit.user.models.EmailType;
 import com.tradebit.user.models.Role;
 import com.tradebit.user.models.User;
 import com.tradebit.user.repositories.UserRepository;
+import com.tradebit.user.services.UserService;
 import com.tradebit.verificationToken.VerificationToken;
 import com.tradebit.verificationToken.VerificationTokenService;
 import jakarta.ws.rs.WebApplicationException;
@@ -17,7 +19,6 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
-import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RoleMappingResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
@@ -34,8 +35,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
-
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +49,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final UserRepository userRepository;
     private final VerificationTokenService verificationTokenService;
     private final RabbitMQMessageProducer messageProducer;
+    private final UserService userService;
 
 
     @Override
@@ -61,7 +61,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             if (response.getStatus() == 201) {
                 String userId = extractUserId(response);
                 assignClientRole(userId, usersResource);
-                User user = getUserFromRepresentation(kcUser, userId, Role.USER);
+                User user = userService.getUserFromRepresentation(kcUser, userId, Role.USER);
                 sendVerificationLink(user);
                 return new ResponseEntity<>(Map.of("status", "success",
                         "message", "User has been registered successfully!"),
@@ -82,7 +82,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
 
         messageProducer.publish(
-                generateEmailRequest(user.getEmail(), verificationToken.getToken()),
+                generateEmailRequest(user.getEmail(), verificationToken.getToken(), EmailType.VERIFICATION_EMAIL),
                 "internal.exchange",
                 "internal.email.routing-key"
         );
@@ -98,12 +98,10 @@ public class RegistrationServiceImpl implements RegistrationService {
         // Get existing client roles
         List<RoleRepresentation> availableRoles = clientRolesResource.listAvailable();
 
-        // Find the roles you want to assign
         List<RoleRepresentation> rolesToAdd = availableRoles.stream()
-                .filter(role -> role.getName().equals("ADMIN")) // Change to the desired role name
+                .filter(role -> role.getName().equals("ADMIN"))
                 .collect(Collectors.toList());
 
-        // Add the roles to the user
         clientRolesResource.add(rolesToAdd);
         return rolesToAdd
                 .stream()
@@ -129,10 +127,11 @@ public class RegistrationServiceImpl implements RegistrationService {
         return kcUser;
     }
 
-    private EmailRequest generateEmailRequest(String to, String token) {
-        return EmailRequest.builder()
+    private MailRequest generateEmailRequest(String to, String token, EmailType emailType) {
+        return MailRequest.builder()
                 .to(to)
                 .message(token)
+                .emailType(emailType)
                 .build();
     }
 
@@ -177,20 +176,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
         String path = location.getPath();
         return path.substring(path.lastIndexOf('/') + 1);
-    }
-
-    private User getUserFromRepresentation(UserRepresentation kcUser, String userId, Role role){
-        User user = User.builder()
-                .email(kcUser.getEmail())
-                .id(userId)
-                .firstName(kcUser.getFirstName())
-                .lastName(kcUser.getLastName())
-                .role(role)
-                .enabled(kcUser.isEnabled())
-                .emailVerified(kcUser.isEmailVerified())
-                .build();
-
-        return user;
     }
 
     private static CredentialRepresentation createPasswordCredentials(String password) {

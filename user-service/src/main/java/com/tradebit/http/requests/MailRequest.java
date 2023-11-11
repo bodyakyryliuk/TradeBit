@@ -1,5 +1,6 @@
-package com.tradebit;
+package com.tradebit.http.requests;
 
+import com.tradebit.user.models.EmailType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailRequest {
-    private EmailType emailType;
-    private String to;
-    private String message;
+public class MailRequest {
+    String to;
+    String message;
+    EmailType emailType;
 }
