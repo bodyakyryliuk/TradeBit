@@ -124,6 +124,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         kcUser.setEmail(user.getEmail());
         kcUser.setEnabled(true);
         kcUser.setEmailVerified(false);
+        kcUser.setClientRoles(Map.of("tradebit", List.of(Role.USER.name())));
 
         return kcUser;
     }

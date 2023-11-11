@@ -6,6 +6,7 @@ import com.tradebit.http.requests.AuthorizationRequest;
 import com.tradebit.http.requests.RegistrationRequest;
 import com.tradebit.responses.TokenResponse;
 import com.tradebit.service.AuthorizationService;
+import com.tradebit.service.KeycloakService;
 import com.tradebit.service.RegistrationService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,8 +26,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class AuthController {
     private final RegistrationService registrationService;
     private final AuthorizationService authorizationService;
-    private final KeycloakProvider keycloakProvider;
-
+    private final KeycloakService keycloakService;
     @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
         return registrationService.register(registrationRequest);
@@ -66,7 +66,7 @@ public class AuthController {
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshAccessToken(@RequestParam String refreshToken) {
         try {
-            AccessTokenResponse response = keycloakProvider.refreshToken(refreshToken);
+            AccessTokenResponse response = keycloakService.refreshToken(refreshToken);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to refresh token");
