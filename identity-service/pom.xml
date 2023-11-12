@@ -8,7 +8,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>com.datmt</groupId>
-	<artifactId>user-service</artifactId>
+	<artifactId>identity-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>keycloak-springboot-authentication</name>
 	<description>Spring boot keycloak authen</description>

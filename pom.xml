@@ -20,7 +20,7 @@
 		<module>eureka-server</module>
         <module>email</module>
 		<module>amqp</module>
-		<module>user-service</module>
+		<module>identity-service</module>
     </modules>
 	<properties>
 		<java.version>17</java.version>

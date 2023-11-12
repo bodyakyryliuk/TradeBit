@@ -20,7 +20,7 @@ public class ResetToken {
     @Column
     private String token;
     private Date expiryDate;
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private User user;
 

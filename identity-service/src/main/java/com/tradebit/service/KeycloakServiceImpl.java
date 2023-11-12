@@ -115,7 +115,7 @@ public class KeycloakServiceImpl implements KeycloakService{
 
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "message", "All have been deleted successfully!"
+                    "message", "All the users have been deleted successfully!"
             ));
         } catch (Exception e) {
             throw new InternalErrorException("An error occurred while deleting non-admin users: " + e.getMessage());
