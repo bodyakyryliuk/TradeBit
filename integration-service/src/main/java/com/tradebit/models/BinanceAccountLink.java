@@ -24,7 +24,7 @@ public class BinanceAccountLink {
     @Column(name = "secret_key")
     private String secret_key;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", unique = true)
     private String userId;
 }
 

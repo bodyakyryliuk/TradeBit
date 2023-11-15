@@ -2,6 +2,7 @@ package com.tradebit.controller;
 
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.services.BinanceLinkService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +21,10 @@ public class BinanceLinkController {
     private final BinanceLinkService binanceLinkService;
 
     @PostMapping("/link")
-    public ResponseEntity<Map<String, String>> linkAccount(@RequestBody BinanceLinkDTO binanceLinkDTO,
+    public ResponseEntity<Map<String, String>> linkAccount(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
                                                            Authentication authentication){
         try {
             String userId = binanceLinkService.getUserIdFromAuthentication(authentication);
-            System.out.println(userId);
             binanceLinkService.linkAccount(binanceLinkDTO, userId);
 
             return ResponseEntity.ok(
