@@ -9,7 +9,7 @@ import com.tradebit.exception.InvalidTokenException;
 import com.tradebit.exception.UserNotFoundException;
 import com.tradebit.resetToken.ResetToken;
 import com.tradebit.resetToken.ResetTokenService;
-import com.tradebit.http.requests.PasswordRequest;
+import com.tradebit.requests.PasswordRequest;
 import com.tradebit.user.models.User;
 import com.tradebit.user.services.UserService;
 import jakarta.ws.rs.NotFoundException;

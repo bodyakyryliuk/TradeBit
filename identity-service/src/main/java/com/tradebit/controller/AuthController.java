@@ -1,13 +1,13 @@
 package com.tradebit.controller;
 
-import com.tradebit.http.requests.AuthorizationRequest;
-import com.tradebit.http.requests.RegistrationRequest;
+import com.tradebit.requests.AuthorizationRequest;
+import com.tradebit.requests.RegistrationRequest;
 import com.tradebit.resetToken.ResetTokenService;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.KeycloakService;
 import com.tradebit.service.RegistrationService;
-import com.tradebit.http.requests.EmailRequest;
-import com.tradebit.http.requests.PasswordRequest;
+import com.tradebit.requests.EmailRequest;
+import com.tradebit.requests.PasswordRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

@@ -1,6 +1,6 @@
 package com.tradebit.service;
 
-import com.tradebit.http.requests.AuthorizationRequest;
+import com.tradebit.requests.AuthorizationRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface AuthorizationService {

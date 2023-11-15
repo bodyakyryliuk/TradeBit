@@ -39,6 +39,14 @@ services:
       backend:
         aliases:
           - "postgres"
+
+  api-gateway:
+    image: api-gateway-image  # Replace with your API Gateway image
+    ports:
+      - "8080:8080"
+    networks:
+      - spring
+
 networks:
   postgres:
     driver: bridge
