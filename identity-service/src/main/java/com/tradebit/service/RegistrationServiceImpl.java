@@ -53,7 +53,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 
     @Override
-    public ResponseEntity<?> register(RegistrationRequest registrationRequest) {
+    public void register(RegistrationRequest registrationRequest) {
         try {
             UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
             UserRepresentation kcUser = createKeycloakUser(registrationRequest);
@@ -63,9 +63,6 @@ public class RegistrationServiceImpl implements RegistrationService {
                 assignClientRole(userId, usersResource);
                 User user = userService.getUserFromRepresentation(kcUser, userId, Role.USER);
                 sendVerificationLink(user);
-                return new ResponseEntity<>(Map.of("status", "success",
-                        "message", "User has been registered successfully!"),
-                        HttpStatus.CREATED);
             }
             else {
                 String errorMessage = new JSONObject(response.readEntity(String.class)).getString("errorMessage");
@@ -135,7 +132,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .build();
     }
 
-    public ResponseEntity<Map<String, String>> confirmRegistration(String token){
+    public void confirmRegistration(String token){
         VerificationToken verificationToken = verificationTokenService.getVerificationToken(token);
 
         if (verificationToken == null)
@@ -151,10 +148,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         setKeycloakEmailVerified(user.getId());
         verificationTokenService.deleteVerificationToken(verificationToken);
         userRepository.save(user);
-
-        return new ResponseEntity<>(Map.of("status", "success",
-                                           "message", "User email verified successfully. Please log in to continue."),
-                                    HttpStatus.OK);
     }
 
 

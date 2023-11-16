@@ -16,9 +16,9 @@ public interface KeycloakService {
 
     AccessTokenResponse createTokenResponseFromJsonNode(JsonNode jsonNode);
 
-    ResponseEntity<Map<String, String>> deleteUser(String userId);
+    void deleteUser(String userId);
 
-    ResponseEntity<Map<String, String>> deleteAllUsers();
+    void deleteAllUsers();
 
     List<UserRepresentation> getAllUsers();
 
@@ -26,5 +26,5 @@ public interface KeycloakService {
 
     User userExists(String email);
 
-    ResponseEntity<Map<String, String>> updatePassword(String token, PasswordRequest newPassword);
+    void updatePassword(String token, PasswordRequest newPassword);
 }

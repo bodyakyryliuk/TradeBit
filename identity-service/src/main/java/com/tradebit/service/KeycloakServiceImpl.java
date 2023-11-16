@@ -83,12 +83,9 @@ public class KeycloakServiceImpl implements KeycloakService{
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> deleteUser(String userId) {
+    public void deleteUser(String userId) {
         try (Keycloak keycloak = keycloakProvider.getInstance()) {
             keycloak.realm(realm).users().delete(userId);
-            return new ResponseEntity<>(Map.of("status", "success",
-                    "message", "User has been deleted successfully!"),
-                    HttpStatus.OK);
         }catch (NotFoundException e){
             throw new UserNotFoundException("User with a given userId doesn't exist");
         }catch (Exception e){
@@ -97,7 +94,7 @@ public class KeycloakServiceImpl implements KeycloakService{
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> deleteAllUsers() {
+    public void deleteAllUsers() {
         try (Keycloak keycloak = keycloakProvider.getInstance()) {
             UsersResource usersResource = keycloak.realm(realm).users();
             List<UserRepresentation> users = usersResource.list();
@@ -112,13 +109,8 @@ public class KeycloakServiceImpl implements KeycloakService{
 //                }
                 usersResource.delete(user.getId());
             }
-
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "message", "All the users have been deleted successfully!"
-            ));
         } catch (Exception e) {
-            throw new InternalErrorException("An error occurred while deleting non-admin users: " + e.getMessage());
+            throw new InternalErrorException("An error occurred while deleting users: " + e.getMessage());
         }
     }
 
@@ -150,7 +142,7 @@ public class KeycloakServiceImpl implements KeycloakService{
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> updatePassword(String token, PasswordRequest newPassword) {
+    public void updatePassword(String token, PasswordRequest newPassword) {
         ResetToken resetToken = resetTokenService.getResetToken(token);
         if (resetToken != null && resetTokenService.isTokenValid(token)) {
             String userId = resetToken.getUser().getId();
@@ -166,10 +158,9 @@ public class KeycloakServiceImpl implements KeycloakService{
                 userResource.resetPassword(credential);
 
                 resetTokenService.invalidateToken(resetToken);
-                return new ResponseEntity<>(Map.of("status", "success", "message", "Password has been successfully updated."), HttpStatus.OK);
             } catch (Exception e) {
                 // Handle any Keycloak exceptions, e.g., user not found, connection issues, etc.
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("status", "error", "message", "Error updating password: " + e.getMessage()));
+                throw new InternalErrorException("An error occurred while updating password: " + e.getMessage());
             }
         }else{
             throw new InvalidTokenException("Invalid or expired token.");

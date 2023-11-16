@@ -4,6 +4,7 @@ import com.tradebit.service.KeycloakService;
 import com.tradebit.user.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,13 +20,20 @@ public class UserController {
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable String userId){
         userRepository.deleteById(userId);
-        return keycloakService.deleteUser(userId);
+        keycloakService.deleteUser(userId);
+        return new ResponseEntity<>(Map.of("status", "success",
+                "message", "User has been deleted successfully!"),
+                HttpStatus.OK);
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Map<String, String>> deleteAllUsers(){
         userRepository.deleteAll();
-        return keycloakService.deleteAllUsers();
+        keycloakService.deleteAllUsers();
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "message", "All the users have been deleted successfully!"
+        ));
     }
 
     @GetMapping

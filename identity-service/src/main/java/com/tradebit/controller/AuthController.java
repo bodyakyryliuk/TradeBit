@@ -34,7 +34,10 @@ public class AuthController {
     private final KeycloakService keycloakService;
     @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
-        return registrationService.register(registrationRequest);
+        registrationService.register(registrationRequest);
+        return new ResponseEntity<>(Map.of("status", "success",
+                "message", "User has been registered successfully!"),
+                HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -43,8 +46,8 @@ public class AuthController {
     }
 
     @PostMapping("/login/email")
-    public ResponseEntity<?> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
-        return authorizationService.login(authorizationRequest);
+    public ResponseEntity<AccessTokenResponse> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(authorizationService.login(authorizationRequest));
     }
 
     @GetMapping("/login/google")
@@ -69,7 +72,10 @@ public class AuthController {
     @PostMapping("/registrationConfirm")
     public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token){
         try {
-            return registrationService.confirmRegistration(token);
+            registrationService.confirmRegistration(token);
+            return new ResponseEntity<>(Map.of("status", "success",
+                    "message", "User email verified successfully. Please log in to continue."),
+                    HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -122,7 +128,9 @@ public class AuthController {
     @PostMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestParam("token") String token,
                                             @RequestBody @Valid PasswordRequest passwordRequest) {
-        return keycloakService.updatePassword(token, passwordRequest);
+        keycloakService.updatePassword(token, passwordRequest);
+        return new ResponseEntity<>(Map.of("status", "success", "message", "Password has been successfully updated."), HttpStatus.OK);
+
     }
 
 

@@ -37,7 +37,7 @@ public class AuthorizationServiceImpl implements AuthorizationService{
     private final ResetTokenService resetTokenService;
 
     @Override
-    public ResponseEntity<?> login(AuthorizationRequest authorizationRequest) {
+    public AccessTokenResponse login(AuthorizationRequest authorizationRequest) {
         Keycloak keycloak = kcProvider.getInstance();
 
         // Check if the user's email is verified
@@ -57,8 +57,7 @@ public class AuthorizationServiceImpl implements AuthorizationService{
             if (!user.isEmailVerified()) {
                 throw new AccountNotVerifiedException();
             }
-
-            return ResponseEntity.status(HttpStatus.OK).body(accessTokenResponse);
+            return accessTokenResponse;
         } catch (NotAuthorizedException ex) {
             throw new InvalidCredentialsException("Invalid credentials");
         } catch (BadRequestException ex) {
