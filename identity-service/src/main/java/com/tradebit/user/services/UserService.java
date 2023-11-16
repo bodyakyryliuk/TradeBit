@@ -6,6 +6,8 @@ import org.keycloak.representations.idm.UserRepresentation;
 
 public interface UserService {
     void deleteUser(String userId);
+
+    void deleteAllUsers();
     User getUserFromRepresentation(UserRepresentation kcUser, String userId, Role role);
     User getUserFromRepresentation(UserRepresentation kcUser);
 
