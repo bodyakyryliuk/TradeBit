@@ -59,7 +59,6 @@ public class AuthController {
     @PostMapping("/logout")
     public RedirectView logout(HttpServletRequest request) throws ServletException {
         request.logout();
-        // Redirect to the Keycloak logout page to perform logout there as well
         return new RedirectView("http://localhost:8180/auth/realms/tradebit-realm/protocol/openid-connect/logout?redirect_uri=" +
                 "http://" +
                 apiGatewayHost

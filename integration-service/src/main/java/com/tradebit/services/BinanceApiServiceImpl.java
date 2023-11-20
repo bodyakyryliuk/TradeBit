@@ -1,9 +1,7 @@
 package com.tradebit.services;
 
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.tradebit.dto.BinanceOrderDTO;
+import okhttp3.*;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
@@ -28,22 +26,67 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         String queryString = "timestamp=" + timeStamp;
         String signature = hashHmac(queryString, apiSecret);
 
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + "/api/v3/account").newBuilder();
-        urlBuilder.addQueryParameter("timestamp", String.valueOf(timeStamp));
-        urlBuilder.addQueryParameter("signature", signature);
-
+        HttpUrl url = buildRequestUrl(queryString, signature,  "/api/v3/account");
         Request request = new Request.Builder()
-                .url(urlBuilder.build())
+                .url(url)
                 .addHeader("X-MBX-APIKEY", apiKey)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
-            assert response.body() != null;
-            return response.body().string();
+        try {
+            return executeRequest(request);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String buyCurrency(BinanceOrderDTO orderDTO, String apiKey, String apiSecret) {
+        long timeStamp = Instant.now().toEpochMilli();
+        String queryString = buildQueryString(orderDTO, timeStamp);
+        String signature = hashHmac(queryString, apiSecret);
+        HttpUrl url = buildRequestUrl(queryString, signature, "/api/v3/order");
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("X-MBX-APIKEY", apiKey)
+                .post(RequestBody.create("", null)) // to indicate post request
+                .build();
+
+        try {
+            return executeRequest(request);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    private HttpUrl buildRequestUrl(String queryString, String signature, String endpoint) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + endpoint).newBuilder();
+        String[] queryParams = queryString.split("&");
+        for (String param : queryParams) {
+            String[] keyValuePair = param.split("=");
+            urlBuilder.addQueryParameter(keyValuePair[0], keyValuePair[1]);
+        }
+        urlBuilder.addQueryParameter("signature", signature);
+        return urlBuilder.build();
+    }
+
+
+    private String buildQueryString(BinanceOrderDTO orderDTO, long timeStamp) {
+        return "symbol=" + orderDTO.getSymbol() +
+                "&side=" + orderDTO.getSide().toString() +
+                "&type=" + orderDTO.getType().toString() +
+                "&quantity=" + orderDTO.getQuantity().toPlainString() +
+                "&timestamp=" + timeStamp;
+    }
+
+    private String executeRequest(Request request) throws IOException {
+        try (Response response = client.newCall(request).execute()) {
+            assert response.body() != null;
+            return response.body().string();
+        }
+    }
+
 
     private String hashHmac(String data, String secret) {
         try {

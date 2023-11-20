@@ -1,6 +1,9 @@
 package com.tradebit.controller;
 
 import com.tradebit.dto.BinanceLinkDTO;
+import com.tradebit.dto.BinanceOrderDTO;
+import com.tradebit.dto.BinanceRequestWrapper;
+import com.tradebit.services.BinanceApiService;
 import com.tradebit.services.BinanceLinkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +20,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/binance")
 @RequiredArgsConstructor
-public class BinanceLinkController {
+public class BinanceController {
     private final BinanceLinkService binanceLinkService;
+    private final BinanceApiService binanceApiService;
 
     @PostMapping("/link")
     public ResponseEntity<Map<String, String>> linkAccount(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
@@ -38,6 +42,25 @@ public class BinanceLinkController {
                     "message", ex.getMessage()));
         }
 
+    }
+
+    @PostMapping("/buy")
+    public ResponseEntity<Map<String, String>> buyCurrency(@RequestBody @Valid BinanceRequestWrapper wrapper){
+        try {
+            BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
+            BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
+            String result = binanceApiService.buyCurrency(orderDTO, linkDTO.getApiKey(), linkDTO.getSecretApiKey());
+            System.out.println(result);
+            return ResponseEntity.ok(
+                    Map.of
+                            ("status", "success",
+                                    "message", "Congrats"));
+        }catch (Exception ex){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of(
+                            "status", "failure",
+                            "message", ex.getMessage()));
+        }
     }
 
 }

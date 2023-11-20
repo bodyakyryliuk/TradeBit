@@ -15,9 +15,9 @@ import lombok.NoArgsConstructor;
 public class BinanceLinkDTO {
     @NotBlank(message = "API key is mandatory")
     @Pattern(regexp = "^[a-zA-Z0-9]{64}$", message = "Incorrect format of API key")
-    String apiKey;
+    private String apiKey;
 
     @NotBlank(message = "Secret API key is mandatory")
     @Pattern(regexp = "^[a-zA-Z0-9]{64}$", message = "Incorrect format of API secret key")
-    String secretApiKey;
+    private String secretApiKey;
 }
