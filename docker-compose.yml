@@ -1,4 +1,33 @@
 services:
+  postgres-custom:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - my_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  identity-service:
+    image: 7320c8ea8eaf95ee6c9d80c3c88bc18a7e566dae7cdc24edcf33c940a6902ca0
+    ports:
+      - "8085:8085"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    networks:
+      - microservices-network
+
+  amqp:
+    image: 200fa6d140ba44234363898b163d49ebec98285016c761b5bfcbfa0cff23c68d
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+    networks:
+      - microservices-network
+
   rabbitmq:
     image: rabbitmq:3.12-management
     container_name: rabbitmq
@@ -6,14 +35,39 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - spring
+      - microservices-network
+
+  email-service:
+    image: 1acb12db3c4280f933c87c927a586d40d4e64f9abab7cf835842d5a14ec5a529
+    ports:
+      - "8081:8081"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    networks:
+      - microservices-network
+
+  api-gateway:
+    image: 7ac1b2d96a5163e079f5216438eacf107e1657fbfe0952aa8ceb4f95769ff17c
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    networks:
+      - microservices-network
+
+  eureka-server:
+    image: f879424e4f63bb996a1186f6bb149e4618d97f9750d8b8af4e9fded9a290b950
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
 
   keycloak:
-    image: jboss/keycloak
+    image: 52e6e1e2cacdbf1f62dd019101f1d0d25ed4cc2fd4018c6bb63161a1d5681ff6
     restart: always
     environment:
-#      KEYCLOAK_USER: admin
-#      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
       DB_DATABASE: keycloak
@@ -22,9 +76,7 @@ services:
     ports:
       - "8180:8080"
     networks:
-      backend:
-        aliases:
-          - "keycloak"
+      - microservices-network
     depends_on:
       - postgres
 
@@ -36,12 +88,11 @@ services:
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
     networks:
-      backend:
-        aliases:
-          - "postgres"
+      - microservices-network
+
 networks:
-  postgres:
+  microservices-network:
     driver: bridge
-  spring:
-    driver: bridge
-  backend:
+
+volumes:
+  my_db_data:
