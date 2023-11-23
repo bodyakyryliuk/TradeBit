@@ -12,7 +12,7 @@ services:
       - microservices-network
 
   identity-service:
-    image: 7320c8ea8eaf95ee6c9d80c3c88bc18a7e566dae7cdc24edcf33c940a6902ca0
+    image: 322cbd7d01a8e690f1e26ff9cd0080c460479406297e22c6973bf64c7b481dd8
     ports:
       - "8085:8085"
     environment:
@@ -38,7 +38,7 @@ services:
       - microservices-network
 
   email-service:
-    image: 1acb12db3c4280f933c87c927a586d40d4e64f9abab7cf835842d5a14ec5a529
+    image: c2b91f07699ba3f9f6eaf1b295d7869a85cb573e90e981d611af785549a50bb0
     ports:
       - "8081:8081"
     environment:

@@ -21,8 +21,9 @@ public class EmailServiceImpl implements EmailService{
     private final JavaMailSender mailSender;
     private final ResourceLoader resourceLoader;
 
-    @Value("${gateway.hostname}")
-    private String hostName;
+//    @Value("${gateway.hostname}")
+//    private String hostName;
+    private static final String hostName = "localhost:8080";
     @Override
     public void sendVerificationMail(EmailRequest emailRequest) {
         MimeMessage mail = mailSender.createMimeMessage();

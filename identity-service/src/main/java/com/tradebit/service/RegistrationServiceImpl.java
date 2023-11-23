@@ -96,7 +96,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         List<RoleRepresentation> availableRoles = clientRolesResource.listAvailable();
 
         List<RoleRepresentation> rolesToAdd = availableRoles.stream()
-                .filter(role -> role.getName().equals("ADMIN"))
+                .filter(role -> role.getName().equals("USER"))
                 .collect(Collectors.toList());
 
         clientRolesResource.add(rolesToAdd);
