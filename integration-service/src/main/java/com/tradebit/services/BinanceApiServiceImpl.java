@@ -1,6 +1,10 @@
 package com.tradebit.services;
 
 import com.tradebit.dto.BinanceOrderDTO;
+import com.tradebit.exceptions.InvalidSideException;
+import com.tradebit.exceptions.InvalidTypeException;
+import com.tradebit.models.OrderSide;
+import com.tradebit.models.OrderType;
 import okhttp3.*;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +62,6 @@ public class BinanceApiServiceImpl implements BinanceApiService{
             throw new RuntimeException(e);
         }
     }
-
 
     private HttpUrl buildRequestUrl(String queryString, String signature, String endpoint) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + endpoint).newBuilder();
