@@ -26,41 +26,38 @@ public class BinanceController {
 
     @PostMapping("/link")
     public ResponseEntity<Map<String, String>> linkAccount(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
-                                                           Authentication authentication){
-        try {
-            String userId = binanceLinkService.getUserIdFromAuthentication(authentication);
-            binanceLinkService.linkAccount(binanceLinkDTO, userId);
+                                                           Authentication authentication) {
+        String userId = binanceLinkService.getUserIdFromAuthentication(authentication);
+        binanceLinkService.linkAccount(binanceLinkDTO, userId);
 
-            return ResponseEntity.ok(
-                    Map.of
-                            ("status", "success",
-                        "message", "Binance wallet has been linked successfully!"));
-        }catch (Exception ex){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    Map.of(
-                    "status", "failure",
-                    "message", ex.getMessage()));
-        }
-
+        return ResponseEntity.ok(
+                Map.of
+                        ("status", "success",
+                                "message", "Binance wallet has been linked successfully!"));
     }
 
-    @PostMapping("/buy")
-    public ResponseEntity<Map<String, String>> buyCurrency(@RequestBody @Valid BinanceRequestWrapper wrapper){
-        try {
-            BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
-            BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
-            String result = binanceApiService.buyCurrency(orderDTO, linkDTO.getApiKey(), linkDTO.getSecretApiKey());
-            System.out.println(result);
-            return ResponseEntity.ok(
-                    Map.of
-                            ("status", "success",
-                                    "message", "Congrats"));
-        }catch (Exception ex){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    Map.of(
-                            "status", "failure",
-                            "message", ex.getMessage()));
-        }
+    @PostMapping("/order")
+    public ResponseEntity<Map<String, String>> createOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
+        BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
+        BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
+        String response = binanceApiService.makeOrder(orderDTO, linkDTO.getApiKey(), linkDTO.getSecretApiKey());
+        System.out.println(response);
+        return ResponseEntity.ok(
+                Map.of
+                        ("status", "success",
+                                "message", response));
+    }
+
+    @PostMapping("/order/test")
+    public ResponseEntity<Map<String, String>> createTestOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
+        BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
+        BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
+        String response = binanceApiService.testNewOrder(orderDTO, linkDTO.getApiKey(), linkDTO.getSecretApiKey());
+        System.out.println(response);
+        return ResponseEntity.ok(
+                Map.of
+                        ("status", "success",
+                                "message", response));
     }
 
 }
