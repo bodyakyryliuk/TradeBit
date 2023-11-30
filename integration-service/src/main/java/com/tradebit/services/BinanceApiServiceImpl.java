@@ -2,7 +2,9 @@ package com.tradebit.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.dto.BinanceOrderDTO;
+import com.tradebit.exceptions.BinanceRequestException;
 import com.tradebit.exceptions.InsufficientBalanceException;
 import com.tradebit.exceptions.InvalidQuantityException;
 import com.tradebit.exceptions.UnexpectedException;
@@ -27,15 +29,15 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public String getAccountData(String apiKey, String apiSecret){
+    public String getAccountData(BinanceLinkDTO binanceLinkDTO, String endpoint){
         long timeStamp = Instant.now().toEpochMilli();
         String queryString = "timestamp=" + timeStamp;
-        String signature = hashHmac(queryString, apiSecret);
+        String signature = hashHmac(queryString, binanceLinkDTO.getSecretApiKey());
 
-        HttpUrl url = buildRequestUrl(queryString, signature,  "/api/v3/account");
+        HttpUrl url = buildRequestUrl(queryString, signature,  endpoint);
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("X-MBX-APIKEY", apiKey)
+                .addHeader("X-MBX-APIKEY", binanceLinkDTO.getApiKey())
                 .build();
 
         try {
@@ -62,18 +64,38 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public String makeOrder(BinanceOrderDTO orderDTO, String apiKey, String apiSecret) {
+    public String makeOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
         try {
-            return executeOrder(orderDTO, apiKey, apiSecret, "/api/v3/order");
+            return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public String testNewOrder(BinanceOrderDTO orderDTO, String apiKey, String apiSecret) {
+    public String testNewOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
         try {
-            return executeOrder(orderDTO, apiKey, apiSecret, "/api/v3/order/test");
+            return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order/test");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String getAllOrders(BinanceLinkDTO binanceLinkDTO, String symbol) {
+        long timeStamp = Instant.now().toEpochMilli();
+        String queryString = "symbol=" + symbol + "&timestamp=" + timeStamp;
+        String signature = hashHmac(queryString, binanceLinkDTO.getSecretApiKey());
+
+        HttpUrl url = buildRequestUrl(queryString, signature,  "/api/v3/myTrades");
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("X-MBX-APIKEY", binanceLinkDTO.getApiKey())
+                .build();
+
+        try {
+            return processResponse(executeRequest(request));
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -109,6 +131,9 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     private String processResponse(String response)  {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
+            if (response.startsWith("["))
+                return response;
+
             Map responseMap = objectMapper.readValue(response, Map.class);
 
             if (responseMap.containsKey("code") && responseMap.containsKey("msg")) {
@@ -116,6 +141,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
                 switch (message) {
                     case "Filter failure: LOT_SIZE", "Filter failure: NOTIONAL" -> throw new InvalidQuantityException("Invalid quantity");
                     case "Account has insufficient balance for requested action." -> throw new InsufficientBalanceException();
+                    default -> throw new BinanceRequestException(message);
                 }
             }
         }catch (JsonProcessingException e){

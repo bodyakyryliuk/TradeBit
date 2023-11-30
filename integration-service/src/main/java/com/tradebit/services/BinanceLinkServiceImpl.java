@@ -25,7 +25,7 @@ public class BinanceLinkServiceImpl implements BinanceLinkService {
         String encryptedApiKey = encryptionUtil.encrypt(binanceLinkDTO.getApiKey());
         String encryptedSecretKey = encryptionUtil.encrypt(binanceLinkDTO.getSecretApiKey());
 
-        String accountData = binanceApiService.getAccountData(binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey());
+        String accountData = binanceApiService.getAccountData(binanceLinkDTO, "/api/v3/account");
         JSONObject response = new JSONObject(accountData);
 
         if (!response.has("uid"))

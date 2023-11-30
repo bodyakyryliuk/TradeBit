@@ -58,4 +58,11 @@ public class GlobalExceptionHandler {
                 HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(BinanceRequestException.class)
+    public ResponseEntity<Map<String, String>> handleBinanceRequestException(BinanceRequestException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
+
 }

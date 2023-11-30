@@ -10,10 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -40,7 +37,7 @@ public class BinanceController {
     public ResponseEntity<Map<String, String>> createOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
         BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
         BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
-        String response = binanceApiService.makeOrder(orderDTO, linkDTO.getApiKey(), linkDTO.getSecretApiKey());
+        String response = binanceApiService.makeOrder(orderDTO, linkDTO);
         System.out.println(response);
         return ResponseEntity.ok(
                 Map.of
@@ -52,8 +49,19 @@ public class BinanceController {
     public ResponseEntity<Map<String, String>> createTestOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
         BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
         BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
-        String response = binanceApiService.testNewOrder(orderDTO, linkDTO.getApiKey(), linkDTO.getSecretApiKey());
+        String response = binanceApiService.testNewOrder(orderDTO, linkDTO);
         System.out.println(response);
+        return ResponseEntity.ok(
+                Map.of
+                        ("status", "success",
+                                "message", response));
+    }
+
+    @GetMapping("/myTrades")
+    public ResponseEntity<Map<String, String>> getAllOrders(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
+                                                            @RequestParam String symbol){
+        String response = binanceApiService.getAllOrders(binanceLinkDTO, symbol);
+
         return ResponseEntity.ok(
                 Map.of
                         ("status", "success",
