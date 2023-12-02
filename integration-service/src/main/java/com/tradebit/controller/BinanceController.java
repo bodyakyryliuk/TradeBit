@@ -68,4 +68,6 @@ public class BinanceController {
                                 "message", response));
     }
 
+    //TODO: add endpoint for getting wallet data
+
 }
