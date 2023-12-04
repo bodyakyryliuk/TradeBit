@@ -1,6 +1,7 @@
 package com.tradebit.services;
 
 import com.tradebit.dto.BotDTO;
+import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.models.Bot;
 import com.tradebit.models.BotManager;
 import com.tradebit.repositories.BotRepository;
@@ -56,7 +57,8 @@ public class BotServiceImpl implements BotService{
     @Override
     public void toggleBot(Long botId, String userId) {
         Bot bot = botRepository.findByIdAndUserId(botId, userId);
-        //TODO: check if bot is not null
+        if (bot == null)
+            throw new BotNotFoundException(botId);
         boolean newState = !bot.getEnabled();
         botManager.setBotEnabledState(botId, newState);
         bot.setEnabled(newState);
