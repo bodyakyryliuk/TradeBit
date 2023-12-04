@@ -2,6 +2,7 @@ package com.tradebit.controllers;
 
 import com.tradebit.dto.BotDTO;
 import com.tradebit.services.BotService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class BotController {
     private final BotService botService;
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createBot(@RequestBody BotDTO botDTO,
+    public ResponseEntity<Map<String, String>> createBot(@RequestBody @Valid BotDTO botDTO,
                                                          Authentication authentication){
         //TODO: add validation to botDTO
         try {
@@ -37,7 +38,7 @@ public class BotController {
     }
 
     @PostMapping("/toggleBot")
-    public ResponseEntity<Map<String, String>> toggleBot(@RequestParam Long botId,
+    public ResponseEntity<Map<String, String>> toggleBot(@RequestParam @Valid Long botId,
                                                          Authentication authentication){
         try {
             String userId = botService.getUserIdFromAuthentication(authentication);

@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.util.Random;
+
 
 @Service
 @RequiredArgsConstructor
@@ -43,10 +45,11 @@ public class BotServiceImpl implements BotService{
 
     //TODO: implement trading strategy
     private void executeTrading(Long botId) {
+        Random random = new Random();
         while (botManager.getBotEnabledState(botId)) {
             try {
-                System.out.println("Bot is trading");
-                Thread.sleep(1000);
+                System.out.println("Bot " + botId + " is trading");
+                Thread.sleep(500 + random.nextInt(1000));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return; // Exit if the thread is interrupted
@@ -54,6 +57,12 @@ public class BotServiceImpl implements BotService{
         }
     }
 
+
+    /*
+        TODO: allow only one bot working with one trading pair
+        Otherwise, bots will interfere in trading process of each one,
+        making trading unpredictable
+     */
     @Override
     public void toggleBot(Long botId, String userId) {
         Bot bot = botRepository.findByIdAndUserId(botId, userId);

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BotDTO {
+    //TODO: add validation
     private Double buyThreshold;
     private Double sellThreshold;
     private Double takeProfitPercentage;
