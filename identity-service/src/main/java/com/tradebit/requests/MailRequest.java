@@ -1,4 +1,4 @@
-package com.tradebit.http.requests;
+package com.tradebit.requests;
 
 import com.tradebit.user.models.EmailType;
 import lombok.AllArgsConstructor;

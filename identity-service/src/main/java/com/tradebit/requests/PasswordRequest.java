@@ -1,4 +1,4 @@
-package com.tradebit.http.requests;
+package com.tradebit.requests;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
