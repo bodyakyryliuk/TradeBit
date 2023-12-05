@@ -3,12 +3,16 @@ package com.tradebit.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.shaded.gson.JsonArray;
+import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.dto.BinanceOrderDTO;
 import com.tradebit.exceptions.BinanceRequestException;
 import com.tradebit.exceptions.InsufficientBalanceException;
 import com.tradebit.exceptions.InvalidQuantityException;
 import com.tradebit.exceptions.UnexpectedException;
+import com.tradebit.models.wallet.CryptoBalance;
+import com.tradebit.models.wallet.WalletInfo;
 import okhttp3.*;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +21,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -104,14 +111,73 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public JsonNode getWallet(BinanceLinkDTO binanceLinkDTO) {
-        return getAccountData(binanceLinkDTO, "/api/v3/account");
+    public WalletInfo getWallet(BinanceLinkDTO binanceLinkDTO) {
+        // Make the API call to Binance
+        JsonNode response = getAccountData(binanceLinkDTO, "/api/v3/account");
+
+        WalletInfo walletInfo = new WalletInfo();
+        List<CryptoBalance> balances = new ArrayList<>();
+
+        JsonNode jsonBalances = response.get("balances");
+        for (JsonNode jsonBalance : jsonBalances) {
+            CryptoBalance balance = new CryptoBalance();
+            balance.setAsset(jsonBalance.get("asset").asText());
+            balance.setFree(jsonBalance.get("free").asDouble());
+            balance.setLocked(jsonBalance.get("locked").asDouble());
+            balances.add(balance);
+        }
+
+        walletInfo.setBalances(balances);
+        walletInfo.setCanTrade(response.get("canTrade").asBoolean());
+        walletInfo.setCanWithdraw(response.get("canWithdraw").asBoolean());
+        walletInfo.setCanDeposit(response.get("canDeposit").asBoolean());
+
+        return walletInfo;
     }
 
-//    @Override
-//    public Double getTotalBalance(BinanceLinkDTO binanceLinkDTO) {
-//        return getAccountData(binanceLinkDTO, "/api/v3/account");
-//    }
+    private JsonNode getCurrentPrices() {
+        HttpUrl url = HttpUrl.parse(API_URL  + "/api/v3/ticker/price")
+                .newBuilder()
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        try {
+            return processResponse(executeRequest(request));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public double getTotalBalance(BinanceLinkDTO binanceLinkDTO) {
+        WalletInfo walletInfo = getWallet(binanceLinkDTO);
+        JsonNode allPricesResponse = getCurrentPrices();
+        Map<String, Double> priceMap = new HashMap<>();
+        for (JsonNode priceInfo : allPricesResponse) {
+            String symbol = priceInfo.get("symbol").asText();
+            double price = priceInfo.get("price").asDouble();
+            priceMap.put(symbol, price);
+        }
+
+        // Calculate total balance
+        double totalBalance = 0.0;
+        for (CryptoBalance cryptoBalance : walletInfo.getBalances()) {
+            String symbol = cryptoBalance.getAsset();
+            double balance = cryptoBalance.getFree();
+            if (!symbol.equals("USDT")) {
+                symbol += "USDT";
+            }
+            double price = priceMap.getOrDefault(symbol, 1.0);
+            totalBalance += balance * price;
+        }
+
+        return totalBalance;
+    }
 
     private HttpUrl buildRequestUrl(String queryString, String signature, String endpoint) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + endpoint).newBuilder();

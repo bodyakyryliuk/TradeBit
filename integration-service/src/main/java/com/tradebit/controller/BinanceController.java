@@ -1,9 +1,12 @@
 package com.tradebit.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.dto.BinanceOrderDTO;
 import com.tradebit.dto.BinanceRequestWrapper;
+import com.tradebit.models.wallet.WalletInfo;
 import com.tradebit.services.BinanceApiService;
 import com.tradebit.services.BinanceLinkService;
 import jakarta.validation.Valid;
@@ -58,22 +61,20 @@ public class BinanceController {
         return ResponseEntity.ok(response);
     }
 
-    //TODO: add endpoint for getting wallet data
     @GetMapping("/wallet")
-    public ResponseEntity<JsonNode> getWallet(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO){
-        JsonNode response = binanceApiService.getWallet(binanceLinkDTO);
+    public ResponseEntity<WalletInfo> getWallet(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO){
+        WalletInfo response = binanceApiService.getWallet(binanceLinkDTO);
 
         return ResponseEntity.ok(response);
     }
 
-//    @GetMapping("/totalBalance")
-//    public ResponseEntity<Map<String, String>> getAccountData(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO){
-//        Double response = binanceApiService.getTotalBalance(binanceLinkDTO);
-//
-//        return ResponseEntity.ok(
-//                Map.of
-//                        ("status", "success",
-//                                "message", response.toString()));
-//    }
+    @GetMapping("/totalBalance")
+    public ResponseEntity<JsonNode> getTotalBalance(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO){
+        double totalBalance = binanceApiService.getTotalBalance(binanceLinkDTO);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode responseNode = mapper.createObjectNode();
+        responseNode.put("balance", totalBalance);
+        return ResponseEntity.ok(responseNode);
+    }
 
 }
