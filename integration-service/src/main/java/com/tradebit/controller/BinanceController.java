@@ -1,5 +1,6 @@
 package com.tradebit.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.dto.BinanceOrderDTO;
 import com.tradebit.dto.BinanceRequestWrapper;
@@ -34,40 +35,45 @@ public class BinanceController {
     }
 
     @PostMapping("/order")
-    public ResponseEntity<Map<String, String>> createOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
+    public ResponseEntity<JsonNode> createOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
         BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
         BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
-        String response = binanceApiService.makeOrder(orderDTO, linkDTO);
-        System.out.println(response);
-        return ResponseEntity.ok(
-                Map.of
-                        ("status", "success",
-                                "message", response));
+        JsonNode response = binanceApiService.makeOrder(orderDTO, linkDTO);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/order/test")
-    public ResponseEntity<Map<String, String>> createTestOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
+    public ResponseEntity<JsonNode> createTestOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
         BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
         BinanceLinkDTO linkDTO = wrapper.getLinkDTO();
-        String response = binanceApiService.testNewOrder(orderDTO, linkDTO);
-        System.out.println(response);
-        return ResponseEntity.ok(
-                Map.of
-                        ("status", "success",
-                                "message", response));
+        JsonNode response = binanceApiService.testNewOrder(orderDTO, linkDTO);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/myTrades")
-    public ResponseEntity<Map<String, String>> getAllOrders(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
+    public ResponseEntity<JsonNode> getAllOrders(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
                                                             @RequestParam String symbol){
-        String response = binanceApiService.getAllOrders(binanceLinkDTO, symbol);
+        JsonNode response = binanceApiService.getAllOrders(binanceLinkDTO, symbol);
 
-        return ResponseEntity.ok(
-                Map.of
-                        ("status", "success",
-                                "message", response));
+        return ResponseEntity.ok(response);
     }
 
     //TODO: add endpoint for getting wallet data
+    @GetMapping("/wallet")
+    public ResponseEntity<JsonNode> getWallet(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO){
+        JsonNode response = binanceApiService.getWallet(binanceLinkDTO);
+
+        return ResponseEntity.ok(response);
+    }
+
+//    @GetMapping("/totalBalance")
+//    public ResponseEntity<Map<String, String>> getAccountData(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO){
+//        Double response = binanceApiService.getTotalBalance(binanceLinkDTO);
+//
+//        return ResponseEntity.ok(
+//                Map.of
+//                        ("status", "success",
+//                                "message", response.toString()));
+//    }
 
 }

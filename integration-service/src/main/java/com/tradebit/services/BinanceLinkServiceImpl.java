@@ -1,5 +1,6 @@
 package com.tradebit.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.encryption.EncryptionUtil;
 import com.tradebit.exceptions.BinanceLinkException;
@@ -25,8 +26,7 @@ public class BinanceLinkServiceImpl implements BinanceLinkService {
         String encryptedApiKey = encryptionUtil.encrypt(binanceLinkDTO.getApiKey());
         String encryptedSecretKey = encryptionUtil.encrypt(binanceLinkDTO.getSecretApiKey());
 
-        String accountData = binanceApiService.getAccountData(binanceLinkDTO, "/api/v3/account");
-        JSONObject response = new JSONObject(accountData);
+        JsonNode response = binanceApiService.getAccountData(binanceLinkDTO, "/api/v3/account");
 
         if (!response.has("uid"))
             throw new BinanceLinkException("Invalid API or secret key");

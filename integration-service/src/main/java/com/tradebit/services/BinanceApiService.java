@@ -1,14 +1,20 @@
 package com.tradebit.services;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.dto.BinanceOrderDTO;
+import org.json.JSONObject;
 
 public interface BinanceApiService {
-    String getAccountData(BinanceLinkDTO binanceLinkDTO, String endpoint);
+    JsonNode getAccountData(BinanceLinkDTO binanceLinkDTO, String endpoint);
 
-    String makeOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO);
+    JsonNode makeOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO);
 
-    String testNewOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO);
+    JsonNode testNewOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO);
 
-    String getAllOrders(BinanceLinkDTO binanceLinkDTO, String symbol);
+    JsonNode getAllOrders(BinanceLinkDTO binanceLinkDTO, String symbol);
+
+    JsonNode getWallet(BinanceLinkDTO binanceLinkDTO);
+
+//    Double getTotalBalance(BinanceLinkDTO binanceLinkDTO);
 }

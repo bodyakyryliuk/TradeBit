@@ -1,6 +1,7 @@
 package com.tradebit.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.dto.BinanceOrderDTO;
@@ -29,7 +30,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public String getAccountData(BinanceLinkDTO binanceLinkDTO, String endpoint){
+    public JsonNode getAccountData(BinanceLinkDTO binanceLinkDTO, String endpoint){
         long timeStamp = Instant.now().toEpochMilli();
         String queryString = "timestamp=" + timeStamp;
         String signature = hashHmac(queryString, binanceLinkDTO.getSecretApiKey());
@@ -41,13 +42,14 @@ public class BinanceApiServiceImpl implements BinanceApiService{
                 .build();
 
         try {
-            return executeRequest(request);
+            String response = executeRequest(request);
+            return processResponse(response);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String executeOrder(BinanceOrderDTO orderDTO, String apiKey, String apiSecret, String endpoint) throws IOException {
+    private JsonNode executeOrder(BinanceOrderDTO orderDTO, String apiKey, String apiSecret, String endpoint) throws IOException {
         long timeStamp = Instant.now().toEpochMilli();
         String queryString = buildQueryString(orderDTO, timeStamp);
         String signature = hashHmac(queryString, apiSecret);
@@ -64,7 +66,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public String makeOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
+    public JsonNode makeOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
         try {
             return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order");
         } catch (IOException e) {
@@ -73,7 +75,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public String testNewOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
+    public JsonNode testNewOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
         try {
             return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order/test");
         } catch (IOException e) {
@@ -82,7 +84,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public String getAllOrders(BinanceLinkDTO binanceLinkDTO, String symbol) {
+    public JsonNode getAllOrders(BinanceLinkDTO binanceLinkDTO, String symbol) {
         long timeStamp = Instant.now().toEpochMilli();
         String queryString = "symbol=" + symbol + "&timestamp=" + timeStamp;
         String signature = hashHmac(queryString, binanceLinkDTO.getSecretApiKey());
@@ -100,6 +102,16 @@ public class BinanceApiServiceImpl implements BinanceApiService{
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public JsonNode getWallet(BinanceLinkDTO binanceLinkDTO) {
+        return getAccountData(binanceLinkDTO, "/api/v3/account");
+    }
+
+//    @Override
+//    public Double getTotalBalance(BinanceLinkDTO binanceLinkDTO) {
+//        return getAccountData(binanceLinkDTO, "/api/v3/account");
+//    }
 
     private HttpUrl buildRequestUrl(String queryString, String signature, String endpoint) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + endpoint).newBuilder();
@@ -128,27 +140,27 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         }
     }
 
-    private String processResponse(String response)  {
+    private JsonNode processResponse(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             if (response.startsWith("["))
-                return response;
+                return objectMapper.readTree(response);
 
-            Map responseMap = objectMapper.readValue(response, Map.class);
+            JsonNode responseNode = objectMapper.readTree(response);
 
-            if (responseMap.containsKey("code") && responseMap.containsKey("msg")) {
-                String message = (String) responseMap.get("msg");
+            if (responseNode.has("code") && responseNode.has("msg")) {
+                String message = responseNode.get("msg").asText();
                 switch (message) {
                     case "Filter failure: LOT_SIZE", "Filter failure: NOTIONAL" -> throw new InvalidQuantityException("Invalid quantity");
                     case "Account has insufficient balance for requested action." -> throw new InsufficientBalanceException();
                     default -> throw new BinanceRequestException(message);
                 }
             }
-        }catch (JsonProcessingException e){
+
+            return responseNode;
+        } catch (JsonProcessingException e) {
             throw new UnexpectedException(e.getMessage());
         }
-
-        return response;
     }
 
 
