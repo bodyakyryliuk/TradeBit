@@ -37,6 +37,8 @@ public class BinanceController {
                                 "message", "Binance wallet has been linked successfully!"));
     }
 
+    //TODO: add get mapping for getting account secret and api keys ?
+
     @PostMapping("/order")
     public ResponseEntity<JsonNode> createOrder(@RequestBody @Valid BinanceRequestWrapper wrapper){
         BinanceOrderDTO orderDTO = wrapper.getOrderDTO();
@@ -76,5 +78,16 @@ public class BinanceController {
         responseNode.put("balance", totalBalance);
         return ResponseEntity.ok(responseNode);
     }
+
+    //TODO: add get mapping for getting price change for some period
+    @GetMapping("/priceChange/{tradingPair}")
+    public ResponseEntity<Double> getPriceChange(
+            @PathVariable String tradingPair,
+            //period in hours
+            @RequestParam (name = "period", required = false, defaultValue = "24") int period){
+        Double priceChange = binanceApiService.getPriceChange(tradingPair, period);
+        return ResponseEntity.ok(priceChange);
+    }
+
 
 }

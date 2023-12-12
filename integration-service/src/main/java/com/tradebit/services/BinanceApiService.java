@@ -18,4 +18,12 @@ public interface BinanceApiService {
     WalletInfo getWallet(BinanceLinkDTO binanceLinkDTO);
 
     double getTotalBalance(BinanceLinkDTO binanceLinkDTO);
+
+    Double getPriceChange(String tradingPair, int period);
+
+    Double getHistoricalPrice(String tradingPair, long timestamp);
+
+    JsonNode getCurrentPriceForCrypto(String tradingPair);
+
+    JsonNode getCurrentPrices();
 }

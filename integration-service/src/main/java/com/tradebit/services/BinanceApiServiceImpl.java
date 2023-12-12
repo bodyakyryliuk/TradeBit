@@ -15,12 +15,13 @@ import com.tradebit.models.wallet.CryptoBalance;
 import com.tradebit.models.wallet.WalletInfo;
 import okhttp3.*;
 import org.springframework.stereotype.Service;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,7 +136,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         return walletInfo;
     }
 
-    private JsonNode getCurrentPrices() {
+    public JsonNode getCurrentPrices() {
         HttpUrl url = HttpUrl.parse(API_URL  + "/api/v3/ticker/price")
                 .newBuilder()
                 .build();
@@ -151,6 +152,23 @@ public class BinanceApiServiceImpl implements BinanceApiService{
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public JsonNode getCurrentPriceForCrypto(String tradingPair) {
+        HttpUrl url = HttpUrl.parse(API_URL  + "/api/v3/ticker/price?symbol=" + tradingPair)
+                .newBuilder()
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+
+        try {
+            return processResponse(executeRequest(request));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }    }
 
 
     @Override
@@ -178,6 +196,55 @@ public class BinanceApiServiceImpl implements BinanceApiService{
 
         return totalBalance;
     }
+
+    @Override
+    public Double getPriceChange(String tradingPair, int period) {
+        long currentTimeMillis = Instant.now().toEpochMilli();
+        long periodAgoMillis = Instant.now().minusMillis(period * 3600000L).toEpochMilli();
+        Double historicalPrice = getHistoricalPrice(tradingPair, periodAgoMillis);
+        Double currentPrice = getHistoricalPrice(tradingPair, currentTimeMillis);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+
+        String currentTimestamp = formatter.format(Instant.ofEpochMilli(currentTimeMillis));
+        String periodAgoTimestamp = formatter.format(Instant.ofEpochMilli(periodAgoMillis));
+
+
+        System.out.println(historicalPrice + "  historical " + periodAgoTimestamp);
+        System.out.println(currentPrice + "  current " + currentTimestamp);
+
+        if (!historicalPrice.isNaN() && !currentPrice.isNaN())
+            return (currentPrice - historicalPrice) / historicalPrice * 100;
+        else
+            throw new BinanceRequestException("No data available for the specified time");
+    }
+
+    @Override
+    public Double getHistoricalPrice(String tradingPair, long timestamp) {
+        long adjustedTimestamp = timestamp - (timestamp % (3600000L));
+
+        HttpUrl url = HttpUrl.parse(API_URL + "/api/v3/klines").newBuilder()
+                .addEncodedQueryParameter("symbol", tradingPair)
+                .addEncodedQueryParameter("interval", "1m")
+                .addEncodedQueryParameter("startTime", String.valueOf(adjustedTimestamp))
+                .addEncodedQueryParameter("limit", "1")
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try {
+            JsonNode response = processResponse(executeRequest(request));
+            if (response.isArray() && !response.isEmpty()) {
+                return response.get(0).get(4).asDouble(); // Close price of the kline
+            } else {
+                throw new BinanceRequestException("No data available for the specified timestamp.");
+            }
+        }catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private HttpUrl buildRequestUrl(String queryString, String signature, String endpoint) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + endpoint).newBuilder();
