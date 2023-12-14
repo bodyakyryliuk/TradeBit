@@ -89,5 +89,14 @@ public class BinanceController {
         return ResponseEntity.ok(priceChange);
     }
 
+    @GetMapping("/historicalPrices/{tradingPair}")
+    public ResponseEntity<JsonNode> getHistoricalPrices(
+            @PathVariable String tradingPair,
+            //period in hours
+            @RequestParam (name = "period", required = false, defaultValue = "24") int period){
+        JsonNode response = binanceApiService.getHistoricalPrices(tradingPair, period);
+        return ResponseEntity.ok(response);
+    }
+
 
 }

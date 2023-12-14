@@ -3,6 +3,7 @@ package com.tradebit.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.nimbusds.jose.shaded.gson.JsonArray;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.tradebit.dto.BinanceLinkDTO;
@@ -20,6 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -29,6 +31,8 @@ import java.util.Map;
 
 @Service
 public class BinanceApiServiceImpl implements BinanceApiService{
+    //TODO: implement BinanceApiClient that will handle API calls
+    //TODO: refactor code to multiple services
     private final OkHttpClient client;
     private static final String API_URL = "https://api.binance.com";
     private static final String HMAC_SHA256 = "HmacSHA256";
@@ -202,7 +206,8 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         long currentTimeMillis = Instant.now().toEpochMilli();
         long periodAgoMillis = Instant.now().minusMillis(period * 3600000L).toEpochMilli();
         Double historicalPrice = getHistoricalPrice(tradingPair, periodAgoMillis);
-        Double currentPrice = getHistoricalPrice(tradingPair, currentTimeMillis);
+        JsonNode jsonNode = getCurrentPriceForCrypto(tradingPair);
+        Double currentPrice = jsonNode.get("price").asDouble();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
@@ -225,7 +230,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
 
         HttpUrl url = HttpUrl.parse(API_URL + "/api/v3/klines").newBuilder()
                 .addEncodedQueryParameter("symbol", tradingPair)
-                .addEncodedQueryParameter("interval", "1m")
+                .addEncodedQueryParameter("interval", "1s")
                 .addEncodedQueryParameter("startTime", String.valueOf(adjustedTimestamp))
                 .addEncodedQueryParameter("limit", "1")
                 .build();
@@ -244,6 +249,49 @@ public class BinanceApiServiceImpl implements BinanceApiService{
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public JsonNode getHistoricalPrices(String tradingPair, int period) {
+        long endTimeMillis = Instant.now().toEpochMilli();
+        long startTimeMillis = Instant.now().minusMillis(period * 3600000L).toEpochMilli();
+
+        HttpUrl url = HttpUrl.parse(API_URL + "/api/v3/klines").newBuilder()
+                .addEncodedQueryParameter("symbol", tradingPair)
+                .addEncodedQueryParameter("interval", "1m")
+                .addEncodedQueryParameter("startTime", String.valueOf(startTimeMillis))
+                .addEncodedQueryParameter("endTime", String.valueOf(endTimeMillis))
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try {
+            return processClosePrices(executeRequest(request));
+        }catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private JsonNode processClosePrices(String response) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ArrayNode closePricesNode = objectMapper.createArrayNode();
+
+        try {
+            JsonNode rootNode = objectMapper.readTree(response);
+            if (rootNode.isArray()) {
+                for (JsonNode klineNode : rootNode) {
+                    // The close price is the 4th element in the kline array
+                    JsonNode closePrice = klineNode.get(4);
+                    closePricesNode.add(closePrice);
+                }
+            }
+
+            return closePricesNode;
+        } catch (JsonProcessingException e) {
+            throw new UnexpectedException("Error processing JSON" + e);
+        }
+    }
+
 
 
     private HttpUrl buildRequestUrl(String queryString, String signature, String endpoint) {

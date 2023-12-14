@@ -23,6 +23,8 @@ public interface BinanceApiService {
 
     Double getHistoricalPrice(String tradingPair, long timestamp);
 
+    JsonNode getHistoricalPrices(String tradingPair, int period);
+
     JsonNode getCurrentPriceForCrypto(String tradingPair);
 
     JsonNode getCurrentPrices();
