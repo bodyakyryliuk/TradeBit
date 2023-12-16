@@ -1,9 +1,9 @@
 package com.tradebit.models.deserializers;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.tradebit.exceptions.InvalidSideException;
-import com.tradebit.models.OrderSide;
 import com.tradebit.models.OrderType;
 
 import java.io.IOException;

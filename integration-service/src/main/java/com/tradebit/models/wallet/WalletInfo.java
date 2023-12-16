@@ -1,6 +1,5 @@
 package com.tradebit.models.wallet;
 
-import com.tradebit.models.wallet.CryptoBalance;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -8,7 +8,6 @@ import com.tradebit.models.BinanceAccountLink;
 import com.tradebit.repositories.BinanceAccountLinkRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
@@ -19,14 +18,14 @@ import org.springframework.stereotype.Service;
 public class BinanceLinkServiceImpl implements BinanceLinkService {
     private final BinanceAccountLinkRepository repository;
     private final EncryptionUtil encryptionUtil;
-    private final BinanceApiService binanceApiService;
+    private final BinanceAccountService binanceAccountService;
     @Override
     @Transactional
     public void linkAccount(BinanceLinkDTO binanceLinkDTO, String userId) {
         String encryptedApiKey = encryptionUtil.encrypt(binanceLinkDTO.getApiKey());
         String encryptedSecretKey = encryptionUtil.encrypt(binanceLinkDTO.getSecretApiKey());
 
-        JsonNode response = binanceApiService.getAccountData(binanceLinkDTO, "/api/v3/account");
+        JsonNode response = binanceAccountService.getAccountData(binanceLinkDTO);
 
         if (!response.has("uid"))
             throw new BinanceLinkException("Invalid API or secret key");
