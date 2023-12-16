@@ -79,7 +79,6 @@ public class BinanceController {
         return ResponseEntity.ok(responseNode);
     }
 
-    //TODO: add get mapping for getting price change for some period
     @GetMapping("/priceChange/{tradingPair}")
     public ResponseEntity<Double> getPriceChange(
             @PathVariable String tradingPair,
@@ -103,6 +102,5 @@ public class BinanceController {
         JsonNode response = binanceApiService.getAllCryptocurrenciesWithUSDT();
         return ResponseEntity.ok(response);
     }
-
 
 }

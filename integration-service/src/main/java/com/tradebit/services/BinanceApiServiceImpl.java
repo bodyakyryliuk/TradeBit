@@ -123,11 +123,20 @@ public class BinanceApiServiceImpl implements BinanceApiService{
 
         JsonNode jsonBalances = response.get("balances");
         for (JsonNode jsonBalance : jsonBalances) {
-            CryptoBalance balance = new CryptoBalance();
-            balance.setAsset(jsonBalance.get("asset").asText());
-            balance.setFree(jsonBalance.get("free").asDouble());
-            balance.setLocked(jsonBalance.get("locked").asDouble());
-            balances.add(balance);
+            if(jsonBalance.get("free").asDouble() != 0.0) {
+                CryptoBalance balance = new CryptoBalance();
+                balance.setAsset(jsonBalance.get("asset").asText());
+                balance.setFree(jsonBalance.get("free").asDouble());
+                balance.setLocked(jsonBalance.get("locked").asDouble());
+                // TODO: refactor
+                String tradingPair = "";
+                if (!balance.getAsset().equals("USDT")) {
+                    tradingPair = balance.getAsset() + "USDT";
+                    balance.setPriceChange(getPriceChange(tradingPair, 24));
+                }else
+                    balance.setPriceChange(0.0);
+                balances.add(balance);
+            }
         }
 
         walletInfo.setBalances(balances);

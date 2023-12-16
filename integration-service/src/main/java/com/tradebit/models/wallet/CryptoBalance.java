@@ -13,4 +13,5 @@ public class CryptoBalance {
     private String asset;
     private double free;
     private double locked;
+    private Double priceChange;
 }
