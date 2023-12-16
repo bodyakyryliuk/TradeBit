@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.nimbusds.jose.shaded.gson.JsonArray;
-import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.dto.BinanceOrderDTO;
 import com.tradebit.exceptions.BinanceRequestException;
@@ -16,12 +14,12 @@ import com.tradebit.models.wallet.CryptoBalance;
 import com.tradebit.models.wallet.WalletInfo;
 import okhttp3.*;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -148,13 +146,45 @@ public class BinanceApiServiceImpl implements BinanceApiService{
                 .url(url)
                 .build();
 
-
         try {
             return processResponse(executeRequest(request));
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    /*
+        Method returns json node of all cryptocurrencies with USDT with prices
+        [
+            {
+                "symbol": "ETHBTC",
+                "price": "0.05367000"
+            },
+            {
+                "symbol": "LTCBTC",
+                "price": "0.00169800"
+            },
+        ]
+     */
+    @Override
+    public JsonNode getAllCryptocurrenciesWithUSDT() {
+        JsonNode allCryptos = getCurrentPrices();
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode result = mapper.createArrayNode(); // This will hold the filtered results
+
+        // Assuming allCryptos is an array of cryptocurrency data
+        if (allCryptos.isArray()) {
+            for (JsonNode cryptoNode : allCryptos) {
+                String symbol = cryptoNode.get("symbol").asText();
+                if (symbol.contains("USDT")) {
+                    result.add(cryptoNode);
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -172,7 +202,8 @@ public class BinanceApiServiceImpl implements BinanceApiService{
 
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }    }
+        }
+    }
 
 
     @Override

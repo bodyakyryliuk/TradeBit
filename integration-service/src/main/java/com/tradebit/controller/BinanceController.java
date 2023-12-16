@@ -98,5 +98,11 @@ public class BinanceController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/cryptocurrencies")
+    public ResponseEntity<JsonNode> getAllCryptocurrencies(){
+        JsonNode response = binanceApiService.getAllCryptocurrenciesWithUSDT();
+        return ResponseEntity.ok(response);
+    }
+
 
 }

@@ -28,4 +28,6 @@ public interface BinanceApiService {
     JsonNode getCurrentPriceForCrypto(String tradingPair);
 
     JsonNode getCurrentPrices();
+
+    JsonNode getAllCryptocurrenciesWithUSDT();
 }
