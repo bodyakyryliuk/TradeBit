@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Data
@@ -16,9 +17,8 @@ import java.util.Date;
 @Table(name = "total_balance")
 public class TotalBalance {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    private Long id;
+    private String id;
 
     @Column(name = "balance")
     private Double totalBalance;
@@ -28,6 +28,15 @@ public class TotalBalance {
 
     @Column(name = "user_id", unique = true)
     private String userId;
+
+    @PrePersist
+    @PostLoad
+    private void generateId() {
+        if (this.userId != null && this.timeStamp != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            this.id = this.userId + "_" + sdf.format(this.timeStamp);
+        }
+    }
 
 
 }
