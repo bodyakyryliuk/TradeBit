@@ -17,7 +17,7 @@ public class CryptoPrediction {
     private String tradingPair;
     @Column(name = "predicted_price")
     private Double predictedPrice;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date timestamp;
 
     public CryptoPrediction() {
@@ -27,7 +27,7 @@ public class CryptoPrediction {
     @PostLoad
     private void generateId() {
         if (this.tradingPair != null && this.timestamp != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             this.id = this.tradingPair + "_" + sdf.format(this.timestamp);
         }
     }

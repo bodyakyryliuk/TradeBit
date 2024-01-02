@@ -1,6 +1,7 @@
 package com.tradebit.services;
 
 import com.tradebit.dto.BinanceOrderDTO;
+import com.tradebit.exceptions.UnexpectedException;
 import okhttp3.*;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class BinanceRequestServiceImpl implements BinanceRequestService{
             assert response.body() != null;
             return response.body().string();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UnexpectedException(e.getMessage());
         }
     }
 
@@ -86,7 +87,7 @@ public class BinanceRequestServiceImpl implements BinanceRequestService{
             }
             return hex.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Unable to hash data", e);
+            throw new UnexpectedException("Unable to hash data: " + e);
         }
     }
 

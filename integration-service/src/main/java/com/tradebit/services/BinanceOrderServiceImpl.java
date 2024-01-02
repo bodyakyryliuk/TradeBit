@@ -17,7 +17,7 @@ import java.time.Instant;
 public class BinanceOrderServiceImpl implements BinanceOrderService{
     private final BinanceRequestServiceImpl binanceRequestService;
     private final BinanceResponseProcessingServiceImpl responseProcessingService;
-    private JsonNode executeOrder(BinanceOrderDTO orderDTO, String apiKey, String apiSecret, String endpoint) throws IOException {
+    private JsonNode executeOrder(BinanceOrderDTO orderDTO, String apiKey, String apiSecret, String endpoint) {
         long timeStamp = Instant.now().toEpochMilli();
         String queryString = binanceRequestService.buildQueryString(orderDTO, timeStamp);
         String signature = binanceRequestService.hashHmac(queryString, apiSecret);
@@ -30,19 +30,11 @@ public class BinanceOrderServiceImpl implements BinanceOrderService{
 
     @Override
     public JsonNode makeOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
-        try {
-            return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order");
     }
 
     @Override
     public JsonNode testNewOrder(BinanceOrderDTO orderDTO, BinanceLinkDTO binanceLinkDTO) {
-        try {
-            return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order/test");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return executeOrder(orderDTO, binanceLinkDTO.getApiKey(), binanceLinkDTO.getSecretApiKey(), "/api/v3/order/test");
     }
 }

@@ -9,16 +9,11 @@ services:
       - spring
 
   keycloak:
-    image: jboss/keycloak
+    image: 011a708d97bf2f71cd182706518d34d0e7c9f89ff224bfeda35dcfdc0a63333c
     restart: always
     environment:
-#      KEYCLOAK_USER: admin
-#      KEYCLOAK_PASSWORD: admin
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
       JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled"
     ports:
       - "8180:8080"
@@ -26,8 +21,6 @@ services:
       backend:
         aliases:
           - "keycloak"
-    depends_on:
-      - postgres
 
   postgres: # New PostgreSQL service
     image: postgres

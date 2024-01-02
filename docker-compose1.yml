@@ -1,52 +1,49 @@
 services:
-#  rabbitmq:
-#    image: rabbitmq:3.12-management
-#    container_name: rabbitmq
-#    ports:
-#      - "5672:5672"
-#      - "15672:15672"
-#    networks:
-#      - microservices-network
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - microservices-network
 
   keycloak:
-    image: jboss/keycloak
+    image: 011a708d97bf2f71cd182706518d34d0e7c9f89ff224bfeda35dcfdc0a63333c
     restart: always
     environment:
-      #      KEYCLOAK_USER: admin
-      #      KEYCLOAK_PASSWORD: admin
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled"
     ports:
       - "8180:8080"
     networks:
-        - backend
-    depends_on:
-        - postgres
-
-  postgres:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
-    networks:
-      - backend
+      - microservices-network
 
   identity-service:
-    image: identity-service:latest
+    image: bodyakyryliuk/identity-service:v1
     ports:
       - "8085:8085"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      KEYCLOAK_CREDENTIALS_SECRET: jUrOMkDoewUt8Ht1Q1emycLm0ESkJxZy
+    networks:
+      - microservices-network
+
+  postgres-custom:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - my_db_data:/var/lib/postgresql/data
     networks:
       - microservices-network
 
   email-service:
-    image: email-service:latest
+    image: bodyakyryliuk/email-service:v1
     ports:
       - "8081:8081"
     environment:
@@ -55,7 +52,7 @@ services:
       - microservices-network
 
   api-gateway:
-    image: api-gateway:latest
+    image: bodyakyryliuk/api-gateway:v1
     ports:
       - "8080:8080"
     environment:
@@ -64,22 +61,25 @@ services:
       - microservices-network
 
   amqp:
-    image: amqp:latest
-    ports:
-      - "5672:5672"
+    image: bodyakyryliuk/amqp:v1
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
     networks:
       - microservices-network
 
   eureka-server:
-    image: eureka-server:latest
+    image: bodyakyryliuk/eureka-server:v1
     ports:
       - "8761:8761"
     networks:
       - microservices-network
 
 networks:
-
   backend:
     driver: bridge
   microservices-network:
     driver: bridge
+
+volumes:
+  my_db_data:
