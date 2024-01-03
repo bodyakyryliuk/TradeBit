@@ -6,7 +6,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - spring
+      - microservices-network
 
   keycloak:
     image: 011a708d97bf2f71cd182706518d34d0e7c9f89ff224bfeda35dcfdc0a63333c
@@ -18,32 +18,75 @@ services:
     ports:
       - "8180:8080"
     networks:
-      backend:
-        aliases:
-          - "keycloak"
+      - microservices-network
 
-  postgres: # New PostgreSQL service
-    image: postgres
-    restart: always
+  identity-service:
+    image: bodyakyryliuk/identity-service:v1
+    ports:
+      - "8085:8085"
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      KEYCLOAK_CREDENTIALS_SECRET: jUrOMkDoewUt8Ht1Q1emycLm0ESkJxZy
     networks:
-      backend:
-        aliases:
-          - "postgres"
+      - microservices-network
+
+#  binance-integration:
+#    image: 93aa8f7ae37e899d4187fbe93a693a69d06550dc54a58b0e8fb156a3c1d153fb
+#    ports:
+#      - "8086:8086"
+#    networks:
+#      - microservices-network
+
+  postgres-custom:
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - my_db_data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+    image: postgres:latest
+  email-service:
+    image: bodyakyryliuk/email-service:v1
+    ports:
+      - "8081:8081"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    networks:
+      - microservices-network
 
   api-gateway:
-    image: api-gateway-image  # Replace with your API Gateway image
+    image: bodyakyryliuk/api-gateway:v1
     ports:
       - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     networks:
-      - spring
+      - microservices-network
+
+  amqp:
+    image: bodyakyryliuk/amqp:v1
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+    networks:
+      - microservices-network
+
+  eureka-server:
+    image: bodyakyryliuk/eureka-server:v1
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
 
 networks:
-  postgres:
-    driver: bridge
-  spring:
-    driver: bridge
   backend:
+    driver: bridge
+  microservices-network:
+    driver: bridge
+
+volumes:
+  my_db_data:
