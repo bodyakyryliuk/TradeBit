@@ -12,8 +12,8 @@ services:
     image: jboss/keycloak:16.1.1
     restart: always
     environment:
-#      KEYCLOAK_USER: admin
-#      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
       JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled"
     ports:
       - "8180:8080"
