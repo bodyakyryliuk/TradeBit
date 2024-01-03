@@ -9,7 +9,7 @@ services:
       - microservices-network
 
   keycloak:
-    image: 011a708d97bf2f71cd182706518d34d0e7c9f89ff224bfeda35dcfdc0a63333c
+    image: jboss/keycloak:16.1.1
     restart: always
     environment:
       KEYCLOAK_USER: admin
