@@ -1,5 +1,6 @@
 package com.tradebit.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,22 +24,21 @@ public class TotalBalance {
     @Column(name = "balance")
     private Double totalBalance;
 
-    @Column(name = "time_stamp")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(name = "date")
     private Date timeStamp;
 
-    @Column(name = "user_id", unique = true)
+    @Column(name = "user_id")
     private String userId;
 
     @PrePersist
     @PostLoad
     private void generateId() {
         if (this.userId != null && this.timeStamp != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
             this.id = this.userId + "_" + sdf.format(this.timeStamp);
         }
     }
-
-
 }
 
 

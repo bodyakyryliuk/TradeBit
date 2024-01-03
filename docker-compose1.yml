@@ -30,8 +30,14 @@ services:
     networks:
       - microservices-network
 
+#  binance-integration:
+#    image: 93aa8f7ae37e899d4187fbe93a693a69d06550dc54a58b0e8fb156a3c1d153fb
+#    ports:
+#      - "8086:8086"
+#    networks:
+#      - microservices-network
+
   postgres-custom:
-    image: postgres:latest
     environment:
       POSTGRES_PASSWORD: root
       POSTGRES_USER: postgres
@@ -42,6 +48,7 @@ services:
     networks:
       - microservices-network
 
+    image: postgres:latest
   email-service:
     image: bodyakyryliuk/email-service:v1
     ports:

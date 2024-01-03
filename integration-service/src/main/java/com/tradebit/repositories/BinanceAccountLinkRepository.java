@@ -7,4 +7,6 @@ public interface BinanceAccountLinkRepository extends JpaRepository<BinanceAccou
     boolean existsByUserId(String userId);
 
     void deleteByUserId(String userId);
+
+    BinanceAccountLink findByApiKey(String apiKey);
 }

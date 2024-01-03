@@ -9,4 +9,5 @@ public interface BinanceAccountService {
     JsonNode getTotalBalance(BinanceLinkDTO binanceLinkDTO);
     JsonNode getAllOrders(BinanceLinkDTO binanceLinkDTO, String symbol);
     JsonNode getAccountData(BinanceLinkDTO binanceLinkDTO);
+    JsonNode getTotalBalanceHistory(BinanceLinkDTO binanceLinkDTO);
 }

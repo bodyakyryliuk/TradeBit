@@ -2,10 +2,16 @@ package com.tradebit.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tradebit.dto.BinanceLinkDTO;
+import com.tradebit.encryption.EncryptionUtil;
+import com.tradebit.models.BinanceAccountLink;
+import com.tradebit.models.TotalBalance;
 import com.tradebit.models.wallet.CryptoBalance;
 import com.tradebit.models.wallet.WalletInfo;
+import com.tradebit.repositories.BinanceAccountLinkRepository;
+import com.tradebit.repositories.TotalBalanceRepository;
 import lombok.RequiredArgsConstructor;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -23,6 +29,9 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
     private final BinanceApiService binanceApiService;
     private final BinanceRequestServiceImpl binanceRequestService;
     private final BinanceResponseProcessingService responseProcessingService;
+    private final TotalBalanceRepository totalBalanceRepository;
+    private final BinanceAccountLinkRepository binanceAccountLinkRepository;
+    private final EncryptionUtil encryptionUtil;
 
     private Map<String, Double> mapPricesToSymbols(JsonNode allPrices) {
         Map<String, Double> priceMap = new HashMap<>();
@@ -72,6 +81,32 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
         Request request = binanceRequestService.buildRequest(url, binanceLinkDTO.getApiKey(), "GET", null);
 
         return responseProcessingService.processResponse(binanceRequestService.executeRequest(request));
+    }
+
+    @Override
+    public JsonNode getTotalBalanceHistory(BinanceLinkDTO binanceLinkDTO) {
+        System.out.println(binanceLinkDTO.getApiKey());
+        BinanceAccountLink binanceAccountLink = binanceAccountLinkRepository.findByApiKey(encryptionUtil.encrypt(binanceLinkDTO.getApiKey()));
+        // error : binance account link is always null, probably because of encryption
+        String userId = binanceAccountLink.getUserId();
+        List<TotalBalance> totalBalances = totalBalanceRepository.findAllByUserId(userId);
+
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode arrayNode = mapper.createArrayNode();
+
+        for (TotalBalance balance : totalBalances) {
+            ObjectNode balanceNode = mapper.createObjectNode();
+            balanceNode.put("id", balance.getId());
+            balanceNode.put("balance", balance.getTotalBalance());
+            balanceNode.put("date", balance.getTimeStamp().getTime());
+            balanceNode.put("userId", balance.getUserId());
+            arrayNode.add(balanceNode);
+        }
+
+        ObjectNode responseNode = mapper.createObjectNode();
+        responseNode.set("balances", arrayNode);
+
+        return responseNode;
     }
 
     @Override

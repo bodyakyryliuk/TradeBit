@@ -55,4 +55,11 @@ public class AccountController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/balanceHistory")
+    public ResponseEntity<JsonNode> getBalanceHistory(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO){
+        JsonNode response = binanceAccountService.getTotalBalanceHistory(binanceLinkDTO);
+
+        return ResponseEntity.ok(response);
+    }
 }
