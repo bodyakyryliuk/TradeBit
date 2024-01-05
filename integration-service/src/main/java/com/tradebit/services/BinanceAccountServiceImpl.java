@@ -18,10 +18,9 @@ import okhttp3.Request;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -84,7 +83,8 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
     }
 
     @Override
-    public JsonNode getTotalBalanceHistory(BinanceLinkDTO binanceLinkDTO) {
+    public JsonNode getTotalBalanceHistory(BinanceLinkDTO binanceLinkDTO, int period) {
+        LocalDateTime periodDateTime = LocalDateTime.now().minusHours(period);
         String apiKeyHash = encryptionUtil.hashApiKey(binanceLinkDTO.getApiKey());
         BinanceAccountLink binanceAccountLink = binanceAccountLinkRepository.findByApiKeyHash(apiKeyHash);
         String userId = binanceAccountLink.getUserId();
@@ -94,12 +94,15 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
         ArrayNode arrayNode = mapper.createArrayNode();
 
         for (TotalBalance balance : totalBalances) {
-            ObjectNode balanceNode = mapper.createObjectNode();
-            balanceNode.put("id", balance.getId());
-            balanceNode.put("balance", balance.getTotalBalance());
-            balanceNode.put("date", balance.getTimeStamp().getTime());
-            balanceNode.put("userId", balance.getUserId());
-            arrayNode.add(balanceNode);
+            LocalDateTime balanceTimeStamp = LocalDateTime.ofInstant(balance.getTimeStamp().toInstant(), ZoneId.systemDefault());
+            if(balanceTimeStamp.isAfter(periodDateTime)) {
+                ObjectNode balanceNode = mapper.createObjectNode();
+                balanceNode.put("id", balance.getId());
+                balanceNode.put("balance", balance.getTotalBalance());
+                balanceNode.put("date", balance.getTimeStamp().toString());
+                balanceNode.put("userId", balance.getUserId());
+                arrayNode.add(balanceNode);
+            }
         }
 
         ObjectNode responseNode = mapper.createObjectNode();

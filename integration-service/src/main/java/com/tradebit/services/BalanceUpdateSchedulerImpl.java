@@ -22,7 +22,10 @@ public class BalanceUpdateSchedulerImpl implements BalanceUpdateScheduler{
     private final BinanceAccountService binanceAccountService;
     private final TotalBalanceRepository totalBalanceRepository;
 
-    @Scheduled(fixedRate = 60000)
+    private static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
+
+
+    @Scheduled(fixedRate = 3600000)
     @Transactional
     @Override
     public void updateTotalBalances() {
@@ -46,6 +49,5 @@ public class BalanceUpdateSchedulerImpl implements BalanceUpdateScheduler{
                 .build();
 
         totalBalanceRepository.save(totalBalanceObj);
-        System.out.println("Saved" + totalBalanceObj);
     }
 }
