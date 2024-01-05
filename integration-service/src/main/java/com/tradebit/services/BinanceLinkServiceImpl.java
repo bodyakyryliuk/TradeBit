@@ -37,6 +37,7 @@ public class BinanceLinkServiceImpl implements BinanceLinkService {
                 .apiKey(encryptedApiKey)
                 .secret_key(encryptedSecretKey)
                 .userId(userId)
+                .apiKeyHash(encryptionUtil.hashApiKey(binanceLinkDTO.getApiKey()))
                 .build();
         repository.save(binanceAccountLink);
     }

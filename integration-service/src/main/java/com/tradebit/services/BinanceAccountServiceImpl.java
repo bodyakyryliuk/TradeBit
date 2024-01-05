@@ -85,9 +85,8 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
 
     @Override
     public JsonNode getTotalBalanceHistory(BinanceLinkDTO binanceLinkDTO) {
-        System.out.println(binanceLinkDTO.getApiKey());
-        BinanceAccountLink binanceAccountLink = binanceAccountLinkRepository.findByApiKey(encryptionUtil.encrypt(binanceLinkDTO.getApiKey()));
-        // error : binance account link is always null, probably because of encryption
+        String apiKeyHash = encryptionUtil.hashApiKey(binanceLinkDTO.getApiKey());
+        BinanceAccountLink binanceAccountLink = binanceAccountLinkRepository.findByApiKeyHash(apiKeyHash);
         String userId = binanceAccountLink.getUserId();
         List<TotalBalance> totalBalances = totalBalanceRepository.findAllByUserId(userId);
 

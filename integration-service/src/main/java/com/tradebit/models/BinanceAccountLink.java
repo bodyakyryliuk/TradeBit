@@ -26,6 +26,10 @@ public class BinanceAccountLink {
 
     @Column(name = "user_id", unique = true)
     private String userId;
+
+    @Column(name = "api_key_hash")
+    private String apiKeyHash;
+
 }
 
 
