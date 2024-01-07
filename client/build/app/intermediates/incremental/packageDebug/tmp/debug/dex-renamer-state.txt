@@ -1,0 +1,4 @@
+#Sun Jan 07 00:32:48 CET 2024
+base.0=/Users/sergiyvergun/Documents/University/5 Semester/Software Engineering/Project/cointrade/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
