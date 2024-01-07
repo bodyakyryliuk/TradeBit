@@ -7,12 +7,15 @@ import 'package:cointrade/core/routes/pages/not_found_page.dart';
 import 'package:cointrade/features/auth/presentation/email_verification/email_verification_page.dart';
 import 'package:cointrade/features/auth/presentation/login/login_page.dart';
 import 'package:cointrade/features/auth/presentation/register/register_page.dart';
-import 'package:cointrade/features/home/home_page.dart';
+import 'package:cointrade/features/home/presentation/home_page.dart';
+import 'package:cointrade/features/settings/presentation/settings_page.dart';
+import 'package:cointrade/features/skeleton/presentation/skeleton_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 enum Routes {
   root("/"),
+  settings("/settings"),
   login("/auth/login"),
   register("/auth/register"),
   emailConfirmation("/auth/email-confirmation");
@@ -59,11 +62,22 @@ class AppRouter {
       return null;
     },
     routes: [
-      GoRoute(
-        path: Routes.root.path,
-        name: Routes.root.name,
-        builder: (context, state) => const HomePage(),
-      ),
+      ShellRoute(
+          builder: (context, state, child) {
+            return SkeletonPage(child: child);
+          },
+          routes: [
+            GoRoute(
+              path: Routes.root.path,
+              name: Routes.root.name,
+              builder: (context, state) => const HomePage(),
+            ),
+            GoRoute(
+              path: Routes.settings.path,
+              name: Routes.settings.name,
+              builder: (context, state) => const SettingsPage(),
+            ),
+          ]),
       GoRoute(
         path: Routes.login.path,
         name: Routes.login.name,
