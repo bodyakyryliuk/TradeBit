@@ -6,6 +6,12 @@ ThemeData darkTheme(BuildContext context) {
       seedColor: Colors.deepPurple,
       error: Colors.red,
     ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.black,
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+    ),
     primaryColor: Colors.deepPurple,
     useMaterial3: true,
     scaffoldBackgroundColor: Colors.black,
