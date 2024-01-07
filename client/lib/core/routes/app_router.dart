@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cointrade/core/db/hive_boxes.dart';
 import 'package:cointrade/core/db/keys.dart';
@@ -14,7 +15,7 @@ enum Routes {
   root("/"),
   login("/auth/login"),
   register("/auth/register"),
-  emailConfirmation("/auth/email-confirmation/:email");
+  emailConfirmation("/auth/email-confirmation");
 
   const Routes(this.path);
 
@@ -27,13 +28,13 @@ class AppRouter {
   static final GoRouter _router = GoRouter(
     debugLogDiagnostics: true,
     navigatorKey: _rootNavigatorKey,
-    initialLocation: Routes.register.path,
     refreshListenable: GoRouterRefreshStream(HiveBoxes.appStorageBox.watch(
       key: DbKeys.accessTokenKey,
     )),
     redirect: (BuildContext context, GoRouterState state) {
       String? accessToken = HiveBoxes.appStorageBox
           .get(DbKeys.accessTokenKey, defaultValue: null);
+
       // if the user is not logged in, they need to login
       bool loggedIn = accessToken != null;
 
