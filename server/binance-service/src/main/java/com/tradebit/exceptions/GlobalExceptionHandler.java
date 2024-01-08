@@ -65,4 +65,11 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidTopUpCoinException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidTopUpCoinException(InvalidTopUpCoinException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
+
 }

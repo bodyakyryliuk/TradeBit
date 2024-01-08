@@ -11,5 +11,5 @@ public interface BinanceAccountService {
     JsonNode getAllOrders(BinanceLinkDTO binanceLinkDTO, String symbol);
     JsonNode getAccountData(BinanceLinkDTO binanceLinkDTO);
     JsonNode getTotalBalanceHistory(BinanceLinkDTO binanceLinkDTO, int period);
-    JsonNode getTopUpCode(BinanceLinkDTO binanceLinkDTO, TopUpCoin coin);
+    JsonNode getTopUpCode(BinanceLinkDTO binanceLinkDTO, String coinStr);
 }
