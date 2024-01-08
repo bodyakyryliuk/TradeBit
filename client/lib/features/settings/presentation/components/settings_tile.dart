@@ -5,7 +5,7 @@ class SettingsTile extends StatelessWidget {
       {Key? key,
       required this.titleText,
       required this.onPressed,
-      required this.isDestructive})
+      this.isDestructive = false})
       : super(key: key);
 
   final String titleText;
@@ -16,7 +16,7 @@ class SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onPressed,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       title: Text(titleText,
           style: TextStyle(
               fontSize: 20, color: isDestructive ? Colors.red : Colors.white)),

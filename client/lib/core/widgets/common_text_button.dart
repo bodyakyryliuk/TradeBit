@@ -9,7 +9,8 @@ class CommonTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      style: TextButton.styleFrom( 
+      style: TextButton.styleFrom(
+        foregroundColor: Theme.of(context).colorScheme.background,
           backgroundColor: Theme.of(context).colorScheme.primary,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

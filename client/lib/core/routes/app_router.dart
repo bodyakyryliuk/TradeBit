@@ -8,6 +8,7 @@ import 'package:cointrade/features/auth/presentation/email_verification/email_ve
 import 'package:cointrade/features/auth/presentation/login/login_page.dart';
 import 'package:cointrade/features/auth/presentation/register/register_page.dart';
 import 'package:cointrade/features/home/presentation/home_page.dart';
+import 'package:cointrade/features/settings/presentation/pages/connect_binance_page.dart';
 import 'package:cointrade/features/settings/presentation/settings_page.dart';
 import 'package:cointrade/features/skeleton/presentation/skeleton_page.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import 'package:go_router/go_router.dart';
 enum Routes {
   root("/"),
   settings("/settings"),
+  connectBinance("/connect-binance"),
   login("/auth/login"),
   register("/auth/register"),
   emailConfirmation("/auth/email-confirmation");
@@ -78,6 +80,12 @@ class AppRouter {
               builder: (context, state) => const SettingsPage(),
             ),
           ]),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: Routes.connectBinance.path,
+        name: Routes.connectBinance.name,
+        builder: (context, state) => const ConnectBinancePage(),
+      ),
       GoRoute(
         path: Routes.login.path,
         name: Routes.login.name,
