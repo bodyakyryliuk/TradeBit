@@ -25,3 +25,12 @@ class LoginParams {
         "password": password,
       };
 }
+class ResetPasswordParams{
+  final String email;
+
+  ResetPasswordParams({required this.email});
+
+  Map<String, dynamic> toJson() => {
+        "email": email,
+      };
+}

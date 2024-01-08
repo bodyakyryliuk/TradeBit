@@ -1,4 +1,4 @@
-#Sun Jan 07 16:59:42 CET 2024
+#Mon Jan 08 15:27:56 CET 2024
 base.0=/Users/sergiyvergun/Documents/University/5 Semester/Software Engineering/Project/TradeBit/client/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 
 class CommonTextButton extends StatelessWidget {
-  const CommonTextButton({super.key, required this.title, this.onPressed});
+  const CommonTextButton({
+    super.key,
+    required this.title,
+    this.onPressed,
+    this.isPrimary = true,
+  });
+
   final String title;
   final VoidCallback? onPressed;
+
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: Theme.of(context).colorScheme.background,
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.background,
+          backgroundColor:isPrimary? Theme.of(context).colorScheme.primary: Colors.grey[900],
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.all(18)),

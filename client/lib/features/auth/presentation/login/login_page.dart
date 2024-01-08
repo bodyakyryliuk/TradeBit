@@ -1,4 +1,5 @@
 import 'package:cointrade/core/extensions/build_context_extensions.dart';
+import 'package:cointrade/core/extensions/string_extensions.dart';
 import 'package:cointrade/core/routes/app_router.dart';
 import 'package:cointrade/core/widgets/common_app_bar.dart';
 import 'package:cointrade/core/widgets/common_text_button.dart';
@@ -47,8 +48,7 @@ class _SignInPageState extends State<SignInPage> {
                 backgroundColor: context.theme.colorScheme.error,
               ));
             },
-            success: (LoginResponseEntity login) {
-            },
+            success: (LoginResponseEntity login) {},
           );
         },
         child: Padding(
@@ -62,6 +62,13 @@ class _SignInPageState extends State<SignInPage> {
                 CommonTextFormField(
                   placeholder: 'E-mail',
                   controller: emailTextEditingController,
+
+                  validator: (String? value) {
+                    if (value!.isValidEmail) {
+                      return null;
+                    }
+                    return 'Provide correct e-mail';
+                  },
                 ),
                 const SizedBox(height: 10),
                 CommonTextFormField(
@@ -84,18 +91,16 @@ class _SignInPageState extends State<SignInPage> {
                 const SizedBox(height: 15),
                 RichText(
                   text: TextSpan(
-                    text: 'Don\'t have an account? ',
+                    text: 'Forgot your password? ',
                     children: <TextSpan>[
                       TextSpan(
-                        text: 'Sign up',
+                        text: 'Reset',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Theme
-                                .of(context)
-                                .primaryColor),
+                            color: Theme.of(context).primaryColor),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            context.push(Routes.register.path);
+                            context.push(Routes.resetPassword.path);
                           },
                       ),
                     ],

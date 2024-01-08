@@ -5,8 +5,10 @@ import 'package:cointrade/core/db/hive_boxes.dart';
 import 'package:cointrade/core/db/keys.dart';
 import 'package:cointrade/core/routes/pages/not_found_page.dart';
 import 'package:cointrade/features/auth/presentation/email_verification/email_verification_page.dart';
+import 'package:cointrade/features/auth/presentation/landing/landing_page.dart';
 import 'package:cointrade/features/auth/presentation/login/login_page.dart';
 import 'package:cointrade/features/auth/presentation/register/register_page.dart';
+import 'package:cointrade/features/auth/presentation/reset_password/reset_password_page.dart';
 import 'package:cointrade/features/home/presentation/home_page.dart';
 import 'package:cointrade/features/settings/presentation/pages/connect_binance_page.dart';
 import 'package:cointrade/features/settings/presentation/settings_page.dart';
@@ -18,8 +20,10 @@ enum Routes {
   root("/"),
   settings("/settings"),
   connectBinance("/connect-binance"),
+  landing("/landing"),
   login("/auth/login"),
   register("/auth/register"),
+  resetPassword("/auth/reset-password"),
   emailConfirmation("/auth/email-confirmation");
 
   const Routes(this.path);
@@ -44,14 +48,16 @@ class AppRouter {
       bool loggedIn = accessToken != null;
 
       List<String> authRoutesPaths = [
+        Routes.landing,
         Routes.register,
         Routes.login,
         Routes.emailConfirmation,
+        Routes.resetPassword,
       ].map((e) => e.path).toList();
 
       final loggingIn = authRoutesPaths.contains(state.fullPath);
 
-      if (!loggedIn) return loggingIn ? null : Routes.login.path;
+      if (!loggedIn) return loggingIn ? null : Routes.landing.path;
 
       // if logged in but user email is null
       // if (loggedIn && currentUser.email == null) return Routes.provideEmail;
@@ -87,6 +93,11 @@ class AppRouter {
         builder: (context, state) => const ConnectBinancePage(),
       ),
       GoRoute(
+        path: Routes.landing.path,
+        name: Routes.landing.name,
+        builder: (context, state) => const LandingPage(),
+      ),
+      GoRoute(
         path: Routes.login.path,
         name: Routes.login.name,
         builder: (context, state) => const SignInPage(),
@@ -95,6 +106,11 @@ class AppRouter {
         path: Routes.register.path,
         name: Routes.register.name,
         builder: (context, state) => const SignUpPage(),
+      ),
+      GoRoute(
+        path: Routes.resetPassword.path,
+        name: Routes.resetPassword.name,
+        builder: (context, state) => const ResetPasswordPage(),
       ),
       GoRoute(
         path: Routes.emailConfirmation.path,

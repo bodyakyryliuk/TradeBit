@@ -1,6 +1,7 @@
 import 'package:cointrade/core/di/injector.dart';
 import 'package:cointrade/features/auth/presentation/login/cubit/login_cubit.dart';
 import 'package:cointrade/features/auth/presentation/register/cubit/register_cubit.dart';
+import 'package:cointrade/features/auth/presentation/reset_password/cubit/reset_password_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,6 +15,7 @@ class BlocsProviders extends StatelessWidget {
       providers: <BlocProvider>[
         BlocProvider<RegisterCubit>(create: (_) => sl<RegisterCubit>()),
         BlocProvider<LoginCubit>(create: (_) => sl<LoginCubit>()),
+        BlocProvider<ResetPasswordCubit>(create: (_) => sl<ResetPasswordCubit>()),
       ],
       child: child,
     );

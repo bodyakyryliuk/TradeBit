@@ -3,6 +3,7 @@ import 'package:cointrade/core/error/failures.dart';
 import 'package:cointrade/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:cointrade/features/auth/domain/entities/login_response_entity.dart';
 import 'package:cointrade/features/auth/domain/entities/register_response_entity.dart';
+import 'package:cointrade/features/auth/domain/entities/reset_password_response_entity.dart';
 import 'package:cointrade/features/auth/domain/repositories/auth_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -35,6 +36,18 @@ class AuthRepositoryImpl implements AuthRepository {
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch(e){
+      return const Left(ServerFailure('Unknown error occured'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, ResetPasswordResponseEntity>> resetPassword(ResetPasswordParams resetPasswordParams) async{
+    try {
+      final response = await authRemoteDatasource.resetPassword(resetPasswordParams);
+      return Right(response.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }catch(e){
       return const Left(ServerFailure('Unknown error occured'));
     }
   }
