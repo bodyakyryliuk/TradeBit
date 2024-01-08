@@ -4,18 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tradebit.exceptions.BinanceRequestException;
 import com.tradebit.exceptions.InsufficientBalanceException;
 import com.tradebit.exceptions.InvalidQuantityException;
 import com.tradebit.exceptions.UnexpectedException;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Service
 public class BinanceResponseProcessingServiceImpl implements BinanceResponseProcessingService {
 
     public JsonNode processClosePrices(String response) {
         ObjectMapper objectMapper = new ObjectMapper();
-        ArrayNode closePricesNode = objectMapper.createArrayNode();
+        ArrayNode closePricesWithTimeNode = objectMapper.createArrayNode();
 
         try {
             JsonNode rootNode = objectMapper.readTree(response);
@@ -23,11 +28,18 @@ public class BinanceResponseProcessingServiceImpl implements BinanceResponseProc
                 for (JsonNode klineNode : rootNode) {
                     // The close price is the 4th element in the kline array
                     JsonNode closePrice = klineNode.get(4);
-                    closePricesNode.add(closePrice);
+                    JsonNode timeStamp = klineNode.get(6);
+                    long timestamp = timeStamp.asLong();
+                    String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(timestamp));
+                    ObjectNode priceAndTimeNode = objectMapper.createObjectNode();
+                    priceAndTimeNode.put("closePrice", closePrice.asText());
+                    priceAndTimeNode.put("timestamp", formattedDate);
+
+                    closePricesWithTimeNode.add(priceAndTimeNode);
                 }
             }
 
-            return closePricesNode;
+            return closePricesWithTimeNode;
         } catch (JsonProcessingException e) {
             throw new UnexpectedException("Error processing JSON" + e);
         }

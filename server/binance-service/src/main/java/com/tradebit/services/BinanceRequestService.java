@@ -15,4 +15,5 @@ public interface BinanceRequestService {
     String hashHmac(String data, String secret);
     Request buildRequest(HttpUrl url, String apiKey, String method, RequestBody requestBody);
     Request buildRequest(HttpUrl url);
+    Long getTimeMillisFromDate(String date);
 }
