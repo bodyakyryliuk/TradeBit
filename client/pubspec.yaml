@@ -1,0 +1,48 @@
+name: cointrade
+description: A new Flutter project.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  go_router: ^11.1.3
+  flutter_bloc: ^8.1.3
+  dio: ^5.3.3
+  get_it: ^7.6.4
+  equatable: ^2.0.5
+  dartz: ^0.10.1
+  freezed_annotation: ^2.4.1
+  logger: ^2.0.2+1
+  theme_tailor_annotation: ^2.0.0
+  simple_animations: ^5.0.2
+  json_annotation: ^4.8.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.0.0
+
+
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.6
+  freezed: ^2.4.5
+  flutter_lints: ^2.0.0
+  theme_tailor: ^2.0.0
+  json_serializable: ^6.7.1
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
