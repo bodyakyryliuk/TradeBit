@@ -2,6 +2,7 @@ package com.tradebit.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.BinanceLinkDTO;
+import com.tradebit.models.TopUpCoin;
 import com.tradebit.models.wallet.WalletInfo;
 import com.tradebit.services.BinanceAccountService;
 import com.tradebit.services.BinanceLinkService;
@@ -61,6 +62,14 @@ public class AccountController {
             @RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
             @RequestParam (name = "period", required = false, defaultValue = "24") int period){
         JsonNode response = binanceAccountService.getTotalBalanceHistory(binanceLinkDTO, period);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/topUpCode")
+    public ResponseEntity<JsonNode> getTopUpCode(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
+                                                 @RequestParam (name = "coin") TopUpCoin coin){
+        JsonNode response = binanceAccountService.getTopUpCode(binanceLinkDTO, coin);
 
         return ResponseEntity.ok(response);
     }

@@ -8,6 +8,7 @@ import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.encryption.EncryptionUtil;
 import com.tradebit.exceptions.BinanceLinkException;
 import com.tradebit.models.BinanceAccountLink;
+import com.tradebit.models.TopUpCoin;
 import com.tradebit.models.TotalBalance;
 import com.tradebit.models.wallet.CryptoBalance;
 import com.tradebit.models.wallet.WalletInfo;
@@ -113,6 +114,17 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
         responseNode.set("balances", arrayNode);
 
         return responseNode;
+    }
+
+    @Override
+    public JsonNode getTopUpCode(BinanceLinkDTO binanceLinkDTO, TopUpCoin coin) {
+        long timeStamp = Instant.now().toEpochMilli();
+        String queryString = "coin=" + coin.name() + "&timestamp=" + timeStamp;
+        String signature = binanceRequestService.hashHmac(queryString, binanceLinkDTO.getSecretApiKey());
+        HttpUrl url = binanceRequestService.buildRequestUrl(queryString, signature,  "/sapi/v1/capital/deposit/address");
+        Request request = binanceRequestService.buildRequest(url, binanceLinkDTO.getApiKey(), "GET", null);
+
+        return responseProcessingService.processResponse(binanceRequestService.executeRequest(request));
     }
 
     @Override
