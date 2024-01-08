@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.encryption.EncryptionUtil;
+import com.tradebit.exceptions.BinanceLinkException;
 import com.tradebit.models.BinanceAccountLink;
 import com.tradebit.models.TotalBalance;
 import com.tradebit.models.wallet.CryptoBalance;
@@ -87,6 +88,9 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
         LocalDateTime periodDateTime = LocalDateTime.now().minusHours(period);
         String apiKeyHash = encryptionUtil.hashApiKey(binanceLinkDTO.getApiKey());
         BinanceAccountLink binanceAccountLink = binanceAccountLinkRepository.findByApiKeyHash(apiKeyHash);
+        if (binanceAccountLink == null)
+            throw new BinanceLinkException("Binance api or secret key is incorrect");
+
         String userId = binanceAccountLink.getUserId();
         List<TotalBalance> totalBalances = totalBalanceRepository.findAllByUserId(userId);
 
