@@ -2,6 +2,8 @@ package com.tradebit.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.BinanceLinkDTO;
+import com.tradebit.exceptions.InvalidTopUpCoinException;
+import com.tradebit.models.TopUpCoin;
 import com.tradebit.models.wallet.WalletInfo;
 import com.tradebit.services.BinanceAccountService;
 import com.tradebit.services.BinanceLinkService;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 @RestController
@@ -61,6 +64,15 @@ public class AccountController {
             @RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
             @RequestParam (name = "period", required = false, defaultValue = "24") int period){
         JsonNode response = binanceAccountService.getTotalBalanceHistory(binanceLinkDTO, period);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/topUpCode")
+    public ResponseEntity<JsonNode> getTopUpCode(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
+                                                 @RequestParam (name = "coin") String coinStr){
+
+        JsonNode response = binanceAccountService.getTopUpCode(binanceLinkDTO, coinStr);
 
         return ResponseEntity.ok(response);
     }

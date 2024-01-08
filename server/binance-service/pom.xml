@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>integration-service</artifactId>
+    <artifactId>binance-service</artifactId>
 
     <dependencies>
         <dependency>

@@ -6,9 +6,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class IntegrationServiceApplication {
+public class BinanceServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(IntegrationServiceApplication.class, args);
+        SpringApplication.run(BinanceServiceApplication.class, args);
     }
 
 }

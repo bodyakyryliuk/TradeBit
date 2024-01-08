@@ -9,6 +9,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 @Service
 public class BinanceRequestServiceImpl implements BinanceRequestService{
@@ -58,6 +60,7 @@ public class BinanceRequestServiceImpl implements BinanceRequestService{
                 .addEncodedQueryParameter("interval", interval)
                 .addEncodedQueryParameter("startTime", String.valueOf(startTime))
                 .addEncodedQueryParameter("endTime", String.valueOf(endTime))
+                .addEncodedQueryParameter("limit", String.valueOf(1000))
                 .build();
         return url;
     }
@@ -113,5 +116,15 @@ public class BinanceRequestServiceImpl implements BinanceRequestService{
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url);
         return requestBuilder.build();
+    }
+
+    @Override
+    public Long getTimeMillisFromDate(String date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            return dateFormat.parse(date).getTime();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

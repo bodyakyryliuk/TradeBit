@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.encryption.EncryptionUtil;
+import com.tradebit.exceptions.BinanceLinkException;
+import com.tradebit.exceptions.InvalidTopUpCoinException;
 import com.tradebit.models.BinanceAccountLink;
+import com.tradebit.models.TopUpCoin;
 import com.tradebit.models.TotalBalance;
 import com.tradebit.models.wallet.CryptoBalance;
 import com.tradebit.models.wallet.WalletInfo;
@@ -87,6 +90,9 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
         LocalDateTime periodDateTime = LocalDateTime.now().minusHours(period);
         String apiKeyHash = encryptionUtil.hashApiKey(binanceLinkDTO.getApiKey());
         BinanceAccountLink binanceAccountLink = binanceAccountLinkRepository.findByApiKeyHash(apiKeyHash);
+        if (binanceAccountLink == null)
+            throw new BinanceLinkException("Binance api or secret key is incorrect");
+
         String userId = binanceAccountLink.getUserId();
         List<TotalBalance> totalBalances = totalBalanceRepository.findAllByUserId(userId);
 
@@ -109,6 +115,19 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
         responseNode.set("balances", arrayNode);
 
         return responseNode;
+    }
+
+    @Override
+    public JsonNode getTopUpCode(BinanceLinkDTO binanceLinkDTO, String coinStr) {
+        TopUpCoin coin = validateAndConvertCoin(coinStr);
+
+        long timeStamp = Instant.now().toEpochMilli();
+        String queryString = "coin=" + coin.name() + "&timestamp=" + timeStamp;
+        String signature = binanceRequestService.hashHmac(queryString, binanceLinkDTO.getSecretApiKey());
+        HttpUrl url = binanceRequestService.buildRequestUrl(queryString, signature,  "/sapi/v1/capital/deposit/address");
+        Request request = binanceRequestService.buildRequest(url, binanceLinkDTO.getApiKey(), "GET", null);
+
+        return responseProcessingService.processResponse(binanceRequestService.executeRequest(request));
     }
 
     @Override
@@ -158,5 +177,13 @@ public class BinanceAccountServiceImpl implements BinanceAccountService{
         walletInfo.setCanDeposit(response.get("canDeposit").asBoolean());
 
         return walletInfo;
+    }
+
+    private TopUpCoin validateAndConvertCoin(String coinStr) {
+        try {
+            return TopUpCoin.valueOf(coinStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidTopUpCoinException("Invalid top-up coin: " + coinStr);
+        }
     }
 }

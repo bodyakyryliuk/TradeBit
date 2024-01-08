@@ -16,6 +16,7 @@ import java.time.Instant;
 public class BinanceApiServiceImpl implements BinanceApiService{
     private final BinanceRequestService binanceRequestService;
     private final BinanceResponseProcessingService responseProcessingService;
+    private final BinanceDataUtils binanceDataUtils;
     public JsonNode getCurrentPrices() {
         HttpUrl url = binanceRequestService.buildRequestUrl("/api/v3/ticker/price");
         Request request = binanceRequestService.buildRequest(url);
@@ -99,13 +100,28 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     public JsonNode getHistoricalPricesForPeriod(String tradingPair, int period) {
         long endTimeMillis = Instant.now().toEpochMilli();
         long startTimeMillis = Instant.now().minusMillis(period * 3600000L).toEpochMilli();
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        HttpUrl url = binanceRequestService.buildKlineUrl(tradingPair, "1m", startTimeMillis, endTimeMillis);
-        Request request = binanceRequestService.buildRequest(url);
-        String response = binanceRequestService.executeRequest(request);
+        ArrayNode allPricesNode = objectMapper.createArrayNode(); // Assuming objectMapper is initialized
+        String interval = binanceDataUtils.getIntervalFromPeriod(period);
+        while (startTimeMillis < endTimeMillis - binanceDataUtils.getMillisFromInterval(interval) ) {
+            HttpUrl url = binanceRequestService.buildKlineUrl(tradingPair, interval, startTimeMillis, endTimeMillis - binanceDataUtils.getMillisFromInterval(interval));
+            Request request = binanceRequestService.buildRequest(url);
+            String response = binanceRequestService.executeRequest(request);
 
-        return responseProcessingService.processClosePrices(response);
+            JsonNode pricesNode = responseProcessingService.processClosePrices(response);
+
+            // Append the retrieved prices to the allPricesNode
+            allPricesNode.addAll((ArrayNode) pricesNode);
+
+            // Update startTimeMillis for the next request
+            JsonNode lastNode = pricesNode.get(pricesNode.size() - 1);
+            startTimeMillis = binanceRequestService.getTimeMillisFromDate(lastNode.get("timestamp").asText()) + 60000;
+        }
+
+        return allPricesNode;
     }
+
 
 
 }
