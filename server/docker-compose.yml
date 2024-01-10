@@ -31,7 +31,7 @@ services:
       - microservices-network
 
   binance-integration:
-    image: 74b6e6657d786c81947d8108e9ec1beda85d770ddcb6927bc47a0645f32f8592
+    image: bodyakyryliuk/binance-service:v1
     ports:
       - "8086:8086"
     networks:
