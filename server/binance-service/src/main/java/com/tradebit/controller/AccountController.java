@@ -38,7 +38,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{userId}/unlink-binance")
-    public ResponseEntity<Map<String, String>> unlinkAccount(@RequestParam String userId){
+    public ResponseEntity<Map<String, String>> unlinkAccount(@PathVariable String userId){
         binanceLinkService.unlinkAccount(userId);
 
         return ResponseEntity.ok(
