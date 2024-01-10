@@ -31,7 +31,7 @@ services:
       - microservices-network
 
   binance-integration:
-    image: 9fa35c9c5c0085b00dcc36ca0e4c759f776f29dcbb7eca28ce87549b073f45dc
+    image: 74b6e6657d786c81947d8108e9ec1beda85d770ddcb6927bc47a0645f32f8592
     ports:
       - "8086:8086"
     networks:

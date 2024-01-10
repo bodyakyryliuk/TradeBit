@@ -42,6 +42,7 @@ public class BinanceLinkServiceImpl implements BinanceLinkService {
     }
 
     @Override
+    @Transactional
     public void unlinkAccount(String userId) {
         if (repository.existsByUserId(userId))
             repository.deleteByUserId(userId);
