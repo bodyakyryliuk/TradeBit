@@ -1,3 +1,4 @@
+import 'package:cointrade/core/extensions/build_context_extensions.dart';
 import 'package:cointrade/core/widgets/common_text_button.dart';
 import 'package:cointrade/core/widgets/common_text_form_field.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class _ConnectBinancePageState extends State<ConnectBinancePage> {
         child: CommonTextButton(
           title: 'Connect',
           onPressed: () {
-            if(_formKey.currentState!.validate()){
+            if (_formKey.currentState!.validate()) {
               // todo: connect binance
             }
           },
@@ -43,6 +44,13 @@ class _ConnectBinancePageState extends State<ConnectBinancePage> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           children: [
+            const SizedBox(height: 10),
+             Text(
+              'When creating API key make sure to enable trading and reading info options. Do NOT enable withdrawal option.',
+              style: TextStyle(color: context.theme.colorScheme.onInverseSurface.withOpacity(0.8), fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
             CommonTextFormField(
               placeholder: 'API Key',
               controller: _apiKeyController,
@@ -57,7 +65,7 @@ class _ConnectBinancePageState extends State<ConnectBinancePage> {
             CommonTextFormField(
               placeholder: 'Secret API Key',
               controller: _secretApiKeyController,
-              validator: (value){
+              validator: (value) {
                 if (value!.isEmpty) {
                   return 'Please enter a valid secret API Key';
                 }
