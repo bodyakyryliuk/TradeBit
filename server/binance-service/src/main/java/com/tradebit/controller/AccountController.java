@@ -25,7 +25,7 @@ public class AccountController {
 
     //TODO: add get mapping for getting account secret and api keys ?
 
-    @PostMapping("/link")
+    @PostMapping("/link-binance")
     public ResponseEntity<Map<String, String>> linkAccount(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,
                                                            Authentication authentication) {
         String userId = binanceLinkService.getUserIdFromAuthentication(authentication);
@@ -34,8 +34,19 @@ public class AccountController {
         return ResponseEntity.ok(
                 Map.of
                         ("status", "success",
-                                "message", "Binance wallet has been linked successfully!"));
+                                "message", "Binance account has been linked successfully!"));
     }
+
+    @DeleteMapping("/{userId}/unlink-binance")
+    public ResponseEntity<Map<String, String>> unlinkAccount(@RequestParam String userId){
+        binanceLinkService.unlinkAccount(userId);
+
+        return ResponseEntity.ok(
+                Map.of
+                        ("status", "success",
+                                "message", "Binance account has been unlinked successfully!"));
+    }
+
 
     @GetMapping("/myTrades")
     public ResponseEntity<JsonNode> getAllOrders(@RequestBody @Valid BinanceLinkDTO binanceLinkDTO,

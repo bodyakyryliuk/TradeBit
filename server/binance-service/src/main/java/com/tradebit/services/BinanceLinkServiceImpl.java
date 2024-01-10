@@ -30,8 +30,7 @@ public class BinanceLinkServiceImpl implements BinanceLinkService {
         if (!response.has("uid"))
             throw new BinanceLinkException("Invalid API or secret key");
 
-        if (repository.existsByUserId(userId))
-            repository.deleteByUserId(userId);
+        unlinkAccount(userId);
 
         BinanceAccountLink binanceAccountLink = BinanceAccountLink.builder()
                 .apiKey(encryptedApiKey)
@@ -40,6 +39,12 @@ public class BinanceLinkServiceImpl implements BinanceLinkService {
                 .apiKeyHash(encryptionUtil.hashApiKey(binanceLinkDTO.getApiKey()))
                 .build();
         repository.save(binanceAccountLink);
+    }
+
+    @Override
+    public void unlinkAccount(String userId) {
+        if (repository.existsByUserId(userId))
+            repository.deleteByUserId(userId);
     }
 
     @Override
