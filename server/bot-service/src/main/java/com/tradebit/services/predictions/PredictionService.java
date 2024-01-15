@@ -1,4 +1,4 @@
-package com.tradebit.services;
+package com.tradebit.services.predictions;
 
 import com.tradebit.dto.PredictionsDTO;
 import com.tradebit.models.Prediction;

@@ -1,8 +1,9 @@
-package com.tradebit.services;
+package com.tradebit.services.predictions;
 
 import com.tradebit.dto.PredictionsDTO;
 import com.tradebit.models.Prediction;
 import com.tradebit.repositories.PredictionRepository;
+import com.tradebit.services.predictions.PredictionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class PredictionServiceImpl implements PredictionService{
+public class PredictionServiceImpl implements PredictionService {
     private final PredictionRepository predictionRepository;
     @Override
     public void addPredictions(PredictionsDTO predictionsDTO) {
