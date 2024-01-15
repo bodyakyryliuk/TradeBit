@@ -16,6 +16,7 @@ public class BotServiceImpl implements BotService {
     private final BotRepository botRepository;
     private final ThreadPoolTaskExecutor botTaskExecutor;
     private final BotManager botManager;
+    private final BotTradingService botTradingService;
 
     @Override
     public void createBot(BotDTO botDTO, String userId) {
@@ -44,19 +45,6 @@ public class BotServiceImpl implements BotService {
         return jwtAuthenticationToken.getToken().getClaimAsString("sub");
     }
 
-    //TODO: implement trading strategy
-    private void executeTrading(Long botId) {
-        while (botManager.getBotEnabledState(botId)) {
-            try {
-                System.out.println("Bot" + botId + "is trading");
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return; // Exit if the thread is interrupted
-            }
-        }
-    }
-
     @Override
     public void toggleBot(Long botId, String userId) {
         Bot bot = botRepository.findByIdAndUserId(botId, userId);
@@ -66,7 +54,7 @@ public class BotServiceImpl implements BotService {
         bot.setEnabled(newState);
         botRepository.saveAndFlush(bot);
         if(newState){
-            botTaskExecutor.execute(() -> executeTrading(botId));
+            botTaskExecutor.execute(() -> botTradingService.trade(botId));
         }
     }
 }
