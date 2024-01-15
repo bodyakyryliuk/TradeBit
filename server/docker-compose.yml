@@ -17,6 +17,8 @@ services:
       JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled"
     ports:
       - "8180:8080"
+    volumes:
+      - keycloak_data:/opt/jboss/keycloak/standalone/data
     networks:
       - microservices-network
 
@@ -90,3 +92,4 @@ networks:
 
 volumes:
   my_db_data:
+  keycloak_data:
