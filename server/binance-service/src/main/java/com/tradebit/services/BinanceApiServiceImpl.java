@@ -50,6 +50,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
      */
     @Override
     public JsonNode getAllCryptocurrenciesWithUSDT() {
+        //TODO: now it gets only first 500 cryptos. Update to fetch all
         JsonNode allCryptos = getCurrentPrices();
         ObjectMapper mapper = new ObjectMapper();
         // This will hold the filtered results

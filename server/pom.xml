@@ -21,6 +21,8 @@
 		<module>amqp</module>
 		<module>identity-service</module>
 		<module>binance-service</module>
+		<module>bot-service</module>
+		<module>bot-service</module>
 	</modules>
 	<properties>
 		<java.version>17</java.version>
