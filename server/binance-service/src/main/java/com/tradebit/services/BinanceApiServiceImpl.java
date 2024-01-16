@@ -3,6 +3,7 @@ package com.tradebit.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tradebit.exceptions.BinanceRequestException;
 import lombok.RequiredArgsConstructor;
 import okhttp3.HttpUrl;
@@ -66,6 +67,29 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         }
 
         return result;
+    }
+
+    @Override
+    public JsonNode getHighestPriceByPeriod(String tradingPair, int period) {
+        double maxPrice = 0.0;
+        String maxTimestamp = "";
+        JsonNode historicalPrices = getHistoricalPricesForPeriod(tradingPair, period);
+
+        for(JsonNode priceNode: historicalPrices){
+            double price = priceNode.get("closePrice").asDouble();
+            String timestamp = priceNode.get("timestamp").asText();
+
+            if(price > maxPrice){
+                maxPrice = price;
+                maxTimestamp = timestamp;
+            }
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode resultNode = mapper.createObjectNode();
+        resultNode.put("highestPrice", maxPrice);
+        resultNode.put("timestamp", maxTimestamp);
+        return resultNode;
     }
 
 
