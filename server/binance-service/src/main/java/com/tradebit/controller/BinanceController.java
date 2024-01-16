@@ -36,4 +36,12 @@ public class BinanceController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/highestPriceByPeriod/{tradingPair}")
+    public ResponseEntity<JsonNode> getHighestPriceByPeriod(
+            @PathVariable String tradingPair,
+            @RequestParam (name = "period", required = false, defaultValue = "24") int period){
+        JsonNode response = binanceApiService.getHighestPriceByPeriod(tradingPair, period);
+        return ResponseEntity.ok(response);
+    }
+
 }
