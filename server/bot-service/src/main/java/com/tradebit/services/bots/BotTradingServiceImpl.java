@@ -1,8 +1,10 @@
 package com.tradebit.services.bots;
 
 import com.tradebit.exceptions.BotNotFoundException;
+import com.tradebit.exceptions.CurrentPriceFetchException;
 import com.tradebit.exceptions.HighestPriceFetchException;
 import com.tradebit.models.Bot;
+import com.tradebit.models.CurrentPriceResponse;
 import com.tradebit.models.HighestPriceResponse;
 import com.tradebit.repositories.BotRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +35,13 @@ public class BotTradingServiceImpl implements BotTradingService{
     @Override
     public void trade(Long botId) {
         Bot bot = botRepository.findById(botId).orElseThrow(() -> new BotNotFoundException(botId));
+        String tradingPair = bot.getTradingPair();
         while (botManager.getBotEnabledState(botId)) {
-            double highestPrice = getHighestPriceForTimePeriod(bot.getTradingPair(), 168);
+            double highestPrice = getHighestPriceForTimePeriod(tradingPair, 168);
+            double currentPrice = getCurrentPrice(tradingPair);
             try {
-                System.out.println("highest price: " + highestPrice);
+                System.out.println("highest price for " + tradingPair + ": " + highestPrice);
+                System.out.println("current price for " + tradingPair + ": " + currentPrice);
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -64,5 +69,26 @@ public class BotTradingServiceImpl implements BotTradingService{
         }
 
         return response.getHighestPrice();
+    }
+
+    private double getCurrentPrice(String tradingPair){
+        Mono<CurrentPriceResponse> responseMono = WebClient.builder()
+                .baseUrl(baseUrl)
+                .build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/binance-service/binance/currentPrice")
+                        .queryParam("tradingPair", tradingPair)
+                        .build(tradingPair))
+                .retrieve()
+                .bodyToMono(CurrentPriceResponse.class);
+
+        CurrentPriceResponse response = responseMono.block();
+
+        if (response == null) {
+            throw new CurrentPriceFetchException(tradingPair);
+        }
+
+        return response.getPrice();
     }
 }
