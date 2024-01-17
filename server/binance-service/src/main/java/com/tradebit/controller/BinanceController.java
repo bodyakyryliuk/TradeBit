@@ -44,4 +44,9 @@ public class BinanceController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/currentPrice")
+    public ResponseEntity<JsonNode> getCurrentPrice(@RequestParam String tradingPair){
+        JsonNode response = binanceApiService.getCurrentPriceForCrypto(tradingPair);
+        return ResponseEntity.ok(response);
+    }
 }
