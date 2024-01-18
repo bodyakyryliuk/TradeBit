@@ -16,7 +16,7 @@ class DioClient {
       _authToken = HiveBoxes.appStorageBox.get(DbKeys.accessTokenKey);
     } catch (_) {}
     _dio = _createDio();
-    if (!_isUnitTest) _dio.interceptors.add(DioInterceptor(accessToken: _authToken));
+    if (!_isUnitTest) _dio.interceptors.add(DioInterceptor(accessToken: _authToken, dio: _dio));
   }
 
   Dio get dio {
@@ -27,7 +27,7 @@ class DioClient {
         _authToken = HiveBoxes.appStorageBox.get(DbKeys.accessTokenKey);
       } catch (_) {}
       final _dio = _createDio();
-      if (!_isUnitTest) _dio.interceptors.add(DioInterceptor(accessToken: _authToken));
+      if (!_isUnitTest) _dio.interceptors.add(DioInterceptor(accessToken: _authToken, dio: _dio));
       return _dio;
     }
   }

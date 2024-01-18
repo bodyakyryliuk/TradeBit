@@ -4,6 +4,8 @@ import 'package:cointrade/core/db/keys.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/auth/domain/entities/login_response_entity.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_login_use_case.dart';
+import 'package:cointrade/features/auth/domain/usecase/save_access_token_use_case.dart';
+import 'package:cointrade/features/auth/domain/usecase/save_refresh_token_use_case.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'login_state.dart';
@@ -11,8 +13,10 @@ part 'login_state.dart';
 part 'login_cubit.freezed.dart';
 
 class LoginCubit extends Cubit<LoginState> {
-  LoginCubit(this.postLogin) : super(const LoginState.initial());
+  LoginCubit(this.postLogin, this.saveAccessToken, this.saveRefreshToken) : super(const LoginState.initial());
   final PostLoginUseCase postLogin;
+  final SaveAccessTokenUseCase saveAccessToken ;
+  final SaveRefreshTokenUseCase saveRefreshToken;
 
 
   Future<void> login({
@@ -29,7 +33,8 @@ class LoginCubit extends Cubit<LoginState> {
         emit(LoginState.failure(failure.message!));
       },
       (loginResponse) {
-        HiveBoxes.appStorageBox.put(DbKeys.accessTokenKey, loginResponse.token);
+        saveAccessToken.call(loginResponse.accessToken);
+        saveRefreshToken.call(loginResponse.refreshToken);
         emit(LoginState.success(loginResponse));
       },
     );

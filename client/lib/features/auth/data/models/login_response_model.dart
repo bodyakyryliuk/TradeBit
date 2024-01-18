@@ -31,7 +31,8 @@ class LoginResponse extends Equatable {
     return map;
   }
 
-  LoginResponseEntity toEntity() => LoginResponseEntity(accessToken);
+  LoginResponseEntity toEntity() =>
+      LoginResponseEntity(accessToken: accessToken, refreshToken: refreshToken);
 
   @override
   List<Object?> get props => [
