@@ -37,11 +37,17 @@ public class BotTradingServiceImpl implements BotTradingService{
         Bot bot = botRepository.findById(botId).orElseThrow(() -> new BotNotFoundException(botId));
         String tradingPair = bot.getTradingPair();
         while (botManager.getBotEnabledState(botId)) {
+            // firstly to check if bot has bought smth
             double highestPrice = getHighestPriceForTimePeriod(tradingPair, 168);
             double currentPrice = getCurrentPrice(tradingPair);
             try {
                 System.out.println("highest price for " + tradingPair + ": " + highestPrice);
                 System.out.println("current price for " + tradingPair + ": " + currentPrice);
+                if(shouldBuy(currentPrice, highestPrice, bot.getBuyThreshold())){
+                    // buy
+                }
+
+
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -49,6 +55,10 @@ public class BotTradingServiceImpl implements BotTradingService{
             }
 
         }
+    }
+
+    private boolean shouldBuy(double currentPrice, double highestPrice, double buyThreshold){
+        return currentPrice < highestPrice * (100 - buyThreshold);
     }
 
     private double getHighestPriceForTimePeriod(String tradingPair, int period){
