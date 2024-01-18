@@ -1,11 +1,14 @@
 package com.tradebit.services.bots;
 
+import com.tradebit.dto.order.BinanceOrderDTO;
 import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.exceptions.CurrentPriceFetchException;
 import com.tradebit.exceptions.HighestPriceFetchException;
 import com.tradebit.models.Bot;
 import com.tradebit.models.CurrentPriceResponse;
 import com.tradebit.models.HighestPriceResponse;
+import com.tradebit.models.order.OrderSide;
+import com.tradebit.models.order.OrderType;
 import com.tradebit.repositories.BotRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -14,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -59,6 +63,23 @@ public class BotTradingServiceImpl implements BotTradingService{
 
     private boolean shouldBuy(double currentPrice, double highestPrice, double buyThreshold){
         return currentPrice < highestPrice * (100 - buyThreshold);
+    }
+
+    private void executeBuyOrder(String userId, String tradingPair, BigDecimal quantity){
+        BinanceOrderDTO orderDTO = createBinanceOrderDto(
+                tradingPair, OrderSide.BUY, OrderType.MARKET, quantity);
+
+        //TODO: send a request to binance-service with orderDTO and userId
+    }
+
+    private BinanceOrderDTO createBinanceOrderDto(
+            String tradingPair, OrderSide side, OrderType type, BigDecimal quantity){
+        return BinanceOrderDTO.builder()
+                .symbol(tradingPair)
+                .side(side)
+                .type(type)
+                .quantity(quantity)
+                .build();
     }
 
     private double getHighestPriceForTimePeriod(String tradingPair, int period){
