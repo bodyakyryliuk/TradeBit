@@ -13,23 +13,21 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "buy_orders")
-public class BuyOrder {
+@Table(name = "sell_orders")
+public class SellOrder {
     @Column
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
-    @JoinColumn(name = "bot_id", referencedColumnName = "id")
-    private Bot bot;
+    @ManyToOne
+    @JoinColumn(name = "buy_order_id", referencedColumnName = "id")
+    private BuyOrder buyOrder;
     @Column(name = "trading_pair")
     private String tradingPair;
-    @Column(name = "buy_price")
-    private Double buyPrice;
+    @Column(name = "sell_price")
+    private Double sellPrice;
     @Column
     private Double quantity;
     @Column
     private LocalDateTime timestamp;
-    @Column
-    private Boolean sold;
 }
