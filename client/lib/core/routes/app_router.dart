@@ -10,7 +10,7 @@ import 'package:cointrade/features/auth/presentation/login/login_page.dart';
 import 'package:cointrade/features/auth/presentation/register/register_page.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/reset_password_page.dart';
 import 'package:cointrade/features/home/presentation/home_page.dart';
-import 'package:cointrade/features/settings/presentation/pages/connect_binance_page.dart';
+import 'package:cointrade/features/settings/presentation/connect_binance/connect_binance_page.dart';
 import 'package:cointrade/features/settings/presentation/settings_page.dart';
 import 'package:cointrade/features/skeleton/presentation/skeleton_page.dart';
 import 'package:flutter/material.dart';

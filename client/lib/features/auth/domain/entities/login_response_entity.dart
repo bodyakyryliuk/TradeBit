@@ -1,9 +1,10 @@
 import 'package:equatable/equatable.dart';
 
 class LoginResponseEntity extends Equatable{
-  final String? token;
-  const LoginResponseEntity(this.token);
+  final String? accessToken;
+  final String? refreshToken;
+  const LoginResponseEntity({ this.accessToken, this.refreshToken});
 
   @override
-  List<Object?> get props => [token];
+  List<Object?> get props => [accessToken];
 }

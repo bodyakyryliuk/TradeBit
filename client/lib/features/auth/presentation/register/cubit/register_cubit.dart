@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:cointrade/core/error/failures.dart';
+import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/auth/domain/entities/register_response_entity.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_register_use_case'
     '.dart';

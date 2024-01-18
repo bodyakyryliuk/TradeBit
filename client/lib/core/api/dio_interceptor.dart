@@ -5,8 +5,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class DioInterceptor extends Interceptor {
+  final String? accessToken;
+  final Dio dio;
+
+  DioInterceptor({required this.accessToken, required this.dio});
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (accessToken != null) {
+      options.headers['Authorization'] = 'Bearer ${accessToken ?? ''}';
+    }
     String headerMessage = "";
     options.headers
         .forEach((key, value) => headerMessage += '► $key: $value\n');
@@ -33,12 +41,24 @@ class DioInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException e, ErrorInterceptorHandler handler) async {
     log.e(
-      "<-- ${err.message} ${err.response?.requestOptions != null ? (err.response!.requestOptions.baseUrl + err.response!.requestOptions.path) : 'URL'}\n\n"
-      "${err.response != null ? err.response!.data : 'Unknown Error'}",
+      "<-- ${e.message} ${e.response?.requestOptions != null ? (e.response!.requestOptions.baseUrl + e.response!.requestOptions.path) : 'URL'}\n\n"
+      "${e.response != null ? e.response!.data : 'Unknown Error'}",
     );
-    super.onError(err, handler);
+
+    if (e.response?.statusCode == 401) {
+      // If a 401 response is received, refresh the access token
+      String newAccessToken = await refreshToken();
+
+      // Update the request header with the new access token
+      e.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+
+      // Repeat the request with the updated header
+      return handler.resolve(await dio.fetch(e.requestOptions));
+    }
+
+    super.onError(e, handler);
   }
 
   @override
@@ -57,5 +77,11 @@ class DioInterceptor extends Interceptor {
       "Response: $prettyJson",
     );
     super.onResponse(response, handler);
+  }
+
+  Future<String> refreshToken() async {
+    // Perform a request to the refresh token endpoint and return the new access token.
+    // You can replace this with your own implementation.
+    return 'your_new_access_token';
   }
 }

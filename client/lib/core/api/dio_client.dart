@@ -1,4 +1,6 @@
 import 'package:cointrade/core/api/end_points.dart';
+import 'package:cointrade/core/db/hive_boxes.dart';
+import 'package:cointrade/core/db/keys.dart';
 import 'package:cointrade/core/error/failures.dart';
 import 'package:cointrade/core/api/dio_interceptor.dart';
 import 'package:dio/dio.dart';
@@ -11,10 +13,10 @@ class DioClient {
   DioClient({bool isUnitTest = false}) {
     _isUnitTest = isUnitTest;
     try {
-      // todo _authToken = sl<PrefManager>().token;
+      _authToken = HiveBoxes.appStorageBox.get(DbKeys.accessTokenKey);
     } catch (_) {}
     _dio = _createDio();
-    if (!_isUnitTest) _dio.interceptors.add(DioInterceptor());
+    if (!_isUnitTest) _dio.interceptors.add(DioInterceptor(accessToken: _authToken, dio: _dio));
   }
 
   Dio get dio {
@@ -22,10 +24,10 @@ class DioClient {
       return _dio;
     } else {
       try {
-        //todo _authToken = sl<PrefManager>().token;
+        _authToken = HiveBoxes.appStorageBox.get(DbKeys.accessTokenKey);
       } catch (_) {}
       final _dio = _createDio();
-      if (!_isUnitTest) _dio.interceptors.add(DioInterceptor());
+      if (!_isUnitTest) _dio.interceptors.add(DioInterceptor(accessToken: _authToken, dio: _dio));
       return _dio;
     }
   }
@@ -35,9 +37,9 @@ class DioClient {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        if (_authToken != null) ...{
-          "Authorization": _authToken,
-        }
+        // if (_authToken != null) ...{
+        //   "Authorization": _authToken,
+        // }
       },
       receiveTimeout: const Duration(seconds: 25),
       connectTimeout: const Duration(seconds: 25),
