@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/auth/domain/entities/reset_password_response_entity.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_login_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_reset_password_use_case.dart';

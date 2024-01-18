@@ -5,8 +5,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class DioInterceptor extends Interceptor {
+  final String? accessToken;
+
+  DioInterceptor({required this.accessToken});
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (accessToken != null) {
+      options.headers['Authorization'] = 'Bearer ${accessToken ?? ''}';
+    }
     String headerMessage = "";
     options.headers
         .forEach((key, value) => headerMessage += '► $key: $value\n');

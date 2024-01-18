@@ -1,5 +1,6 @@
 import 'package:cointrade/core/api/end_points.dart';
 import 'package:cointrade/core/error/exceptions.dart';
+import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/auth/data/models/login_response_model.dart';
 import 'package:cointrade/features/auth/data/models/register_response_model.dart';
 import 'package:cointrade/features/auth/data/models/reset_password_response_model.dart';

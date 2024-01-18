@@ -5,4 +5,6 @@ class EndPoints {
   static const String register = "/identity-service/auth/register";
   static const String login = "/identity-service/auth/login/email";
   static const String resetPassword = "/identity-service/auth/forgot-password";
+
+  static const String linkBinance = "/binance-service/account/link-binance";
 }

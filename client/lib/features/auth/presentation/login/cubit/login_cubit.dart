@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:cointrade/core/db/hive_boxes.dart';
 import 'package:cointrade/core/db/keys.dart';
+import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/auth/domain/entities/login_response_entity.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_login_use_case.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

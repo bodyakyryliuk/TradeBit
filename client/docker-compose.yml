@@ -67,19 +67,22 @@ services:
     image: 52e6e1e2cacdbf1f62dd019101f1d0d25ed4cc2fd4018c6bb63161a1d5681ff6
     restart: always
     environment:
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-      DB_VENDOR: POSTGRES
-      DB_ADDR: postgres
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_PASSWORD: password
+#      KEYCLOAK_USER: admin
+#      KEYCLOAK_PASSWORD: admin
+      JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled"
     ports:
       - "8180:8080"
+    volumes:
+      - keycloak_data:/opt/jboss/keycloak/standalone/data
     networks:
       - microservices-network
-    depends_on:
-      - postgres
+
+  binance-integration:
+    image: bodyakyryliuk/binance-service:v1
+    ports:
+      - "8086:8086"
+    networks:
+      - microservices-network
 
   postgres: # New PostgreSQL service
     image: postgres
@@ -97,3 +100,4 @@ networks:
 
 volumes:
   my_db_data:
+  keycloak_data:

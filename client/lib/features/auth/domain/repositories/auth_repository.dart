@@ -1,4 +1,5 @@
 import 'package:cointrade/core/error/failures.dart';
+import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/auth/domain/entities/login_response_entity.dart';
 import 'package:cointrade/features/auth/domain/entities/register_response_entity.dart';
 import 'package:cointrade/features/auth/domain/entities/reset_password_response_entity.dart';
