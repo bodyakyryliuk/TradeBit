@@ -6,11 +6,13 @@ import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.exceptions.CurrentPriceFetchException;
 import com.tradebit.exceptions.HighestPriceFetchException;
 import com.tradebit.models.Bot;
+import com.tradebit.models.BuyOrder;
 import com.tradebit.models.CurrentPriceResponse;
 import com.tradebit.models.HighestPriceResponse;
 import com.tradebit.models.order.OrderSide;
 import com.tradebit.models.order.OrderType;
 import com.tradebit.repositories.BotRepository;
+import com.tradebit.repositories.BuyOrderRepository;
 import com.tradebit.services.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -23,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Service
@@ -31,6 +34,7 @@ public class BotTradingServiceImpl implements BotTradingService{
     private final BotManager botManager;
     private final BotRepository botRepository;
     private final AuthService authService;
+    private final BuyOrderRepository buyOrderRepository;
 //    @Value("${api.gateway.host}")
     private final String baseUrl = "http://localhost:8080";
 
@@ -52,12 +56,14 @@ public class BotTradingServiceImpl implements BotTradingService{
             try {
                 System.out.println("highest price for " + tradingPair + ": " + highestPrice);
                 System.out.println("current price for " + tradingPair + ": " + currentPrice);
-                System.out.println("current difference: " + (highestPrice * (100 - bot.getBuyThreshold()) - currentPrice) +
+                System.out.println("current difference: " + ((highestPrice - currentPrice) / highestPrice * 100) +
                         ", buyThreshold: " + bot.getBuyThreshold());
                 if(shouldBuy(currentPrice, highestPrice, bot.getBuyThreshold())){
                     // buy
-                    System.out.println("EXECUTED BUY ORDER");
                     executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
+                    System.out.println("EXECUTED BUY ORDER");
+                    saveBuyOrder(bot, currentPrice);
+                    System.out.println("Saved to database");
                 }
 
 
@@ -70,15 +76,28 @@ public class BotTradingServiceImpl implements BotTradingService{
         }
     }
 
-    private boolean shouldBuy(double currentPrice, double highestPrice, double buyThreshold){
-        return currentPrice < highestPrice * (100 - buyThreshold);
+    private void saveBuyOrder(Bot bot, double buyPrice){
+        BuyOrder buyOrder = BuyOrder.builder()
+                .bot(bot)
+                .buyPrice(buyPrice)
+                .tradingPair(bot.getTradingPair())
+                .quantity(bot.getTradeSize())
+                .timestamp(LocalDateTime.now())
+                .sold(Boolean.FALSE)
+                .build();
+
+        buyOrderRepository.save(buyOrder);
     }
 
-    private JsonNode executeBuyTestOrder(String userId, String tradingPair, BigDecimal quantity){
-        BinanceOrderDTO orderDTO = createBinanceOrderDto(
-                tradingPair, OrderSide.BUY, OrderType.MARKET, quantity);
+    private boolean shouldBuy(double currentPrice, double highestPrice, double buyThreshold){
+        return ((highestPrice - currentPrice) / highestPrice * 100) >= buyThreshold;
+    }
 
-        return sendBuyRequest("/order/testWithUser", orderDTO, userId);
+    private JsonNode executeBuyTestOrder(String userId, String tradingPair, double quantity){
+        BinanceOrderDTO orderDTO = createBinanceOrderDto(
+                tradingPair, OrderSide.BUY, OrderType.MARKET, BigDecimal.valueOf(quantity));
+
+        return sendBuyRequest("binance-service/order/testWithUser", orderDTO, userId);
     }
 
     private JsonNode sendBuyRequest(String path, BinanceOrderDTO orderDTO, String userId){

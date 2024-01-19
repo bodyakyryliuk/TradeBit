@@ -28,7 +28,7 @@ public class Bot {
     @Column(name = "stop_loss_percentage")
     private Double stopLossPercentage;
     @Column(name = "trade_size")
-    private BigDecimal tradeSize;
+    private Double tradeSize;
     @Column(name = "trading_pair")
     private String tradingPair;
     @Column(name = "user_id")
