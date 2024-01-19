@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.encryption.EncryptionUtil;
 import com.tradebit.exceptions.BinanceLinkException;
+import com.tradebit.exceptions.BinanceLinkNotFoundException;
 import com.tradebit.exceptions.InvalidTopUpCoinException;
 import com.tradebit.models.BinanceAccountLink;
 import com.tradebit.models.TopUpCoin;

@@ -72,4 +72,11 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BinanceLinkNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleBinanceLinkNotFoundException(BinanceLinkNotFoundException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.NOT_FOUND);
+    }
+
 }

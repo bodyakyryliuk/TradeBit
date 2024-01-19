@@ -2,6 +2,7 @@ package com.tradebit.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.BinanceLinkDTO;
+import com.tradebit.models.BinanceAccountLink;
 import com.tradebit.models.TopUpCoin;
 import com.tradebit.models.wallet.WalletInfo;
 
