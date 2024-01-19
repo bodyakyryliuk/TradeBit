@@ -1,5 +1,6 @@
 package com.tradebit.services.bots;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.order.BinanceOrderDTO;
 import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.exceptions.CurrentPriceFetchException;
@@ -10,22 +11,26 @@ import com.tradebit.models.HighestPriceResponse;
 import com.tradebit.models.order.OrderSide;
 import com.tradebit.models.order.OrderType;
 import com.tradebit.repositories.BotRepository;
+import com.tradebit.services.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+//import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
 public class BotTradingServiceImpl implements BotTradingService{
     private final BotManager botManager;
     private final BotRepository botRepository;
-
+    private final AuthService authService;
 //    @Value("${api.gateway.host}")
     private final String baseUrl = "http://localhost:8080";
 
@@ -47,8 +52,12 @@ public class BotTradingServiceImpl implements BotTradingService{
             try {
                 System.out.println("highest price for " + tradingPair + ": " + highestPrice);
                 System.out.println("current price for " + tradingPair + ": " + currentPrice);
+                System.out.println("current difference: " + (highestPrice * (100 - bot.getBuyThreshold()) - currentPrice) +
+                        ", buyThreshold: " + bot.getBuyThreshold());
                 if(shouldBuy(currentPrice, highestPrice, bot.getBuyThreshold())){
                     // buy
+                    System.out.println("EXECUTED BUY ORDER");
+                    executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
                 }
 
 
@@ -65,11 +74,32 @@ public class BotTradingServiceImpl implements BotTradingService{
         return currentPrice < highestPrice * (100 - buyThreshold);
     }
 
-    private void executeBuyOrder(String userId, String tradingPair, BigDecimal quantity){
+    private JsonNode executeBuyTestOrder(String userId, String tradingPair, BigDecimal quantity){
         BinanceOrderDTO orderDTO = createBinanceOrderDto(
                 tradingPair, OrderSide.BUY, OrderType.MARKET, quantity);
 
-        //TODO: send a request to binance-service with orderDTO and userId
+        return sendBuyRequest("/order/testWithUser", orderDTO, userId);
+    }
+
+    private JsonNode sendBuyRequest(String path, BinanceOrderDTO orderDTO, String userId){
+        String accessToken = authService.getAccessToken();
+
+        WebClient webClient = WebClient.builder()
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+
+        Mono<JsonNode> responseMono = webClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path(path)
+                        .build())
+                .attribute("userId", userId)
+                .bodyValue(orderDTO)
+                .retrieve()
+                .bodyToMono(JsonNode.class);
+
+        return responseMono.block();
     }
 
     private BinanceOrderDTO createBinanceOrderDto(
@@ -90,7 +120,8 @@ public class BotTradingServiceImpl implements BotTradingService{
                 .uri(uriBuilder -> uriBuilder
                         .path("/binance-service/binance/highestPriceByPeriod/{tradingPair}")
                         .queryParam("period", period)
-                        .build(tradingPair))                .retrieve()
+                        .build(tradingPair))
+                .retrieve()
                 .bodyToMono(HighestPriceResponse.class);
 
         HighestPriceResponse response = responseMono.block();

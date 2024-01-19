@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @RequiredArgsConstructor
@@ -26,7 +28,7 @@ public class Bot {
     @Column(name = "stop_loss_percentage")
     private Double stopLossPercentage;
     @Column(name = "trade_size")
-    private Double tradeSize;
+    private BigDecimal tradeSize;
     @Column(name = "trading_pair")
     private String tradingPair;
     @Column(name = "user_id")
