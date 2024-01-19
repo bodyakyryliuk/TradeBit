@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.BinanceLinkDTO;
 import com.tradebit.encryption.EncryptionUtil;
 import com.tradebit.exceptions.BinanceLinkException;
+import com.tradebit.exceptions.BinanceLinkNotFoundException;
 import com.tradebit.models.BinanceAccountLink;
 import com.tradebit.repositories.BinanceAccountLinkRepository;
 import jakarta.transaction.Transactional;
@@ -46,6 +47,17 @@ public class BinanceLinkServiceImpl implements BinanceLinkService {
     public void unlinkAccount(String userId) {
         if (repository.existsByUserId(userId))
             repository.deleteByUserId(userId);
+    }
+
+    @Override
+    public BinanceLinkDTO getBinanceLink(String userId) {
+        BinanceAccountLink encryptedLink = repository.findByUserId(userId)
+                .orElseThrow(() -> new BinanceLinkNotFoundException("Binance link not found by userId: " + userId));
+
+        return BinanceLinkDTO.builder()
+                .apiKey(encryptionUtil.decrypt(encryptedLink.getApiKey()))
+                .secretApiKey(encryptionUtil.decrypt(encryptedLink.getSecret_key()))
+                .build();
     }
 
     @Override
