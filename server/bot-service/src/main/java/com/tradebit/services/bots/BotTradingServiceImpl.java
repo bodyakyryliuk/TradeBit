@@ -112,8 +112,8 @@ public class BotTradingServiceImpl implements BotTradingService{
         Mono<JsonNode> responseMono = webClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .path(path)
+                        .queryParam("userId", userId)
                         .build())
-                .attribute("userId", userId)
                 .bodyValue(orderDTO)
                 .retrieve()
                 .bodyToMono(JsonNode.class);
