@@ -6,5 +6,6 @@ class EndPoints {
   static const String login = "/identity-service/auth/login/email";
   static const String resetPassword = "/identity-service/auth/forgot-password";
 
+  static const String refreshToken = "/identity-service/auth/refresh-token";
   static const String linkBinance = "/binance-service/account/link-binance";
 }

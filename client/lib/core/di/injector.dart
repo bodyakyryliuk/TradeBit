@@ -4,6 +4,7 @@ import 'package:cointrade/features/auth/data/repositories/auth_repository_impl.d
 import 'package:cointrade/features/auth/domain/repositories/auth_repository.dart';
 import 'package:cointrade/features/auth/domain/usecase/get_refresh_token_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_login_use_case.dart';
+import 'package:cointrade/features/auth/domain/usecase/post_refresh_token_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_reset_password_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/save_access_token_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/save_refresh_token_use_case.dart';
@@ -45,6 +46,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => SaveAccessTokenUseCase(sl()));
   sl.registerLazySingleton(() => SaveRefreshTokenUseCase(sl()));
   sl.registerLazySingleton(() => GetRefreshTokenUseCase(sl()));
+  sl.registerLazySingleton(() => PostRefreshTokenUseCase(sl()));
 }
 
 void registerRepositories() {

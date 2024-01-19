@@ -2,6 +2,7 @@ import 'package:cointrade/core/api/end_points.dart';
 import 'package:cointrade/core/error/exceptions.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/auth/data/models/login_response_model.dart';
+import 'package:cointrade/features/auth/data/models/refresh_token_response_model.dart';
 import 'package:cointrade/features/auth/data/models/register_response_model.dart';
 import 'package:cointrade/features/auth/data/models/reset_password_response_model.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_login_use_case.dart';
@@ -10,8 +11,14 @@ import 'package:cointrade/features/auth/domain/usecase/post_register_use_case.da
 
 abstract class AuthRemoteDataSource {
   Future<RegisterResponseModel> register(RegisterParams registerParams);
+
   Future<LoginResponse> login(LoginParams loginParams);
-  Future<ResetPasswordResponseModel> resetPassword(ResetPasswordParams loginParams);
+
+  Future<ResetPasswordResponseModel> resetPassword(
+      ResetPasswordParams loginParams);
+
+  Future<RefreshTokenResponseModel> refreshToken(
+      RefreshTokenParams refreshTokenParams);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -52,11 +59,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<ResetPasswordResponseModel> resetPassword(ResetPasswordParams resetPasswordParams) async{
+  Future<ResetPasswordResponseModel> resetPassword(
+      ResetPasswordParams resetPasswordParams) async {
     try {
       final response = await _client.postRequest(EndPoints.resetPassword,
           data: resetPasswordParams.toJson());
       final result = ResetPasswordResponseModel.fromJson(response.data);
+      if (response.statusCode == 200) {
+        return result;
+      } else {
+        throw ServerException(result.message.toString());
+      }
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  @override
+  Future<RefreshTokenResponseModel> refreshToken(
+      RefreshTokenParams refreshTokenParams) async {
+    try {
+      final response = await _client.postRequest(EndPoints.refreshToken,
+          queryParameters: refreshTokenParams.toJson(),
+          includeAuthorization: false);
+
+      final result = RefreshTokenResponseModel.fromJson(response.data);
       if (response.statusCode == 200) {
         return result;
       } else {

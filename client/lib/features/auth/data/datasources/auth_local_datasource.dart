@@ -5,6 +5,7 @@ class AuthLocalDataSource {
   void saveAccessToken(String? accessToken) {
     HiveBoxes.appStorageBox.put(DbKeys.accessTokenKey, accessToken);
   }
+
   void saveRefreshToken(String? refreshToken) {
     HiveBoxes.appStorageBox.put(DbKeys.refreshTokenKey, refreshToken);
   }

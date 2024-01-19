@@ -40,6 +40,16 @@ class ResetPasswordParams {
       };
 }
 
+class RefreshTokenParams {
+  final String refreshToken;
+
+  RefreshTokenParams({required this.refreshToken});
+
+  Map<String, dynamic> toJson() => {
+        "refreshToken": refreshToken,
+      };
+}
+
 class LinkBinanceParams {
   final String apiKey;
   final String secretApiKey;
