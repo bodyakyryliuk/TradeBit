@@ -42,4 +42,11 @@ public class OrderController {
         JsonNode response = binanceOrderService.makeOrder(orderDTO, linkDTO);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/order/testWithUser")
+    public ResponseEntity<JsonNode> testOrderWithUser(@RequestBody @Valid BinanceOrderDTO orderDTO, String userId){
+        BinanceLinkDTO linkDTO = binanceLinkService.getBinanceLink(userId);
+        JsonNode response = binanceOrderService.testNewOrder(orderDTO, linkDTO);
+        return ResponseEntity.ok(response);
+    }
 }
