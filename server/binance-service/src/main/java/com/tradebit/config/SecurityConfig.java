@@ -23,6 +23,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/order/createWithUser").hasAuthority("ROLE_BOT")
+                                .requestMatchers("/order/testWithUser").hasAuthority("ROLE_BOT")
                                 .requestMatchers("/binance/**").permitAll()
                                 .anyRequest().authenticated()
                 )
