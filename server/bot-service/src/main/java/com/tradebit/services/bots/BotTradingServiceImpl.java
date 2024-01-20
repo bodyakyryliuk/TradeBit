@@ -50,29 +50,34 @@ public class BotTradingServiceImpl implements BotTradingService {
 
     @Override
     public void trade(Bot bot) {
+        BuyOrder buyOrder = null;
+        if (bot.getIsReadyToSell())
+            buyOrder = buyOrderService.getRecentBuyOrderByBot(bot);
+
         while (botManager.getBotEnabledState(bot.getId())) {
             if (botManager.isBotReadyToSell(bot.getId())){
-                handleSelling(bot);
+                handleSelling(bot, buyOrder);
             } else if (botManager.isBotReadyToBuy(bot.getId())){
-                handleBuying(bot);
+                BuyOrder executedOrder = handleBuying(bot);
+                if (executedOrder != null)
+                    buyOrder = executedOrder;
             }
             sleep();
         }
     }
 
-    private void handleBuying(Bot bot){
+    private BuyOrder handleBuying(Bot bot){
         if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold())) {
             executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
             log.info("Executed buy order");
             //TODO: fetch buy price from previously executed order
-            buyOrderService.save(bot, getCurrentPrice(bot.getTradingPair()));
             botManager.updateBotTradingState(bot, false, true);
+            return buyOrderService.save(bot, getCurrentPrice(bot.getTradingPair()));
         }
+        return null;
     }
 
-    private void handleSelling(Bot bot){
-        BuyOrder buyOrder = buyOrderService.getRecentBuyOrderByBot(bot);
-
+    private void handleSelling(Bot bot, BuyOrder buyOrder){
         if (shouldSell(bot.getTradingPair(), buyOrder.getBuyPrice(), bot.getSellThreshold(), bot.getStopLossPercentage())){
             executeSellTestOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
             log.info("Executed sell order");
