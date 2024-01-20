@@ -1,7 +1,9 @@
 package com.tradebit.services.bots;
 
 import com.tradebit.dto.BotDTO;
+import com.tradebit.exceptions.BotNameAlreadyExistsException;
 import com.tradebit.exceptions.BotNotFoundException;
+import com.tradebit.exceptions.MaxBotsLimitExceededException;
 import com.tradebit.models.Bot;
 import com.tradebit.repositories.BotRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,33 +26,41 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public void createBot(BotDTO botDTO, String userId) {
-        // todo: check if user has sufficient balance
-        // todo: check if bot name already exists for that user
-        // todo: check if user has less than 10 bots
-        Bot bot = Bot.builder()
-                .name(botDTO.getName())
-                .buyThreshold(botDTO.getBuyThreshold())
-                .sellThreshold(botDTO.getSellThreshold())
-                .takeProfitPercentage(botDTO.getTakeProfitPercentage())
-                .stopLossPercentage(botDTO.getStopLossPercentage())
-                .tradeSize(botDTO.getTradeSize())
-                .tradingPair(botDTO.getTradingPair())
-                .userId(userId)
-                .enabled(false)
-                .isReadyToBuy(true)
-                .isReadyToSell(false)
-                .build();
+        if (canCreateBot(botDTO.getName(), userId)) {
+            Bot bot = Bot.builder()
+                    .name(botDTO.getName())
+                    .buyThreshold(botDTO.getBuyThreshold())
+                    .sellThreshold(botDTO.getSellThreshold())
+                    .takeProfitPercentage(botDTO.getTakeProfitPercentage())
+                    .stopLossPercentage(botDTO.getStopLossPercentage())
+                    .tradeSize(botDTO.getTradeSize())
+                    .tradingPair(botDTO.getTradingPair())
+                    .userId(userId)
+                    .enabled(false)
+                    .isReadyToBuy(true)
+                    .isReadyToSell(false)
+                    .build();
 
-        botRepository.save(bot);
+            botRepository.save(bot);
+        }
     }
 
-    private void checkUserBalanceForCurrency(String currency){
+    private boolean canCreateBot(String name, String userId){
+        int count = botRepository.countAllByUserId(userId);
+        boolean exists = botRepository.existsByNameAndUserId(name, userId);
 
+        if (count >= 10)
+            throw new MaxBotsLimitExceededException();
+        else if(exists)
+            throw new BotNameAlreadyExistsException();
+        return true;
     }
 
     @Override
-    public void deleteBotById(String botID) {
-
+    public void deleteBotById(Long botId) {
+        if (!botRepository.existsById(botId))
+            throw new BotNotFoundException("Bot with ID: " + botId + " not found");
+        botRepository.deleteById(botId);
     }
 
     @Override
