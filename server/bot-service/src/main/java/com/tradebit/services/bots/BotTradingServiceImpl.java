@@ -2,9 +2,7 @@ package com.tradebit.services.bots;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.order.BinanceOrderDTO;
-import com.tradebit.exceptions.BotNotFoundException;
-import com.tradebit.exceptions.CurrentPriceFetchException;
-import com.tradebit.exceptions.HighestPriceFetchException;
+import com.tradebit.exceptions.*;
 import com.tradebit.models.Bot;
 import com.tradebit.models.order.BuyOrder;
 import com.tradebit.models.CurrentPriceResponse;
@@ -19,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 //import org.springframework.web.reactive.function.client.WebClient;
@@ -140,6 +140,14 @@ public class BotTradingServiceImpl implements BotTradingService {
                         .build())
                 .bodyValue(orderDTO)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Client Error: " + errorBody, response.statusCode().value())))
+                )
+                .onStatus(HttpStatusCode::is5xxServerError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Server Error: " + errorBody, response.statusCode().value())))
+                )
                 .bodyToMono(JsonNode.class);
 
         return responseMono.block();
@@ -165,6 +173,14 @@ public class BotTradingServiceImpl implements BotTradingService {
                         .queryParam("period", period)
                         .build(tradingPair))
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Client Error: " + errorBody, response.statusCode().value())))
+                )
+                .onStatus(HttpStatusCode::is5xxServerError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Server Error: " + errorBody, response.statusCode().value())))
+                )
                 .bodyToMono(HighestPriceResponse.class);
 
         HighestPriceResponse response = responseMono.block();
@@ -186,6 +202,14 @@ public class BotTradingServiceImpl implements BotTradingService {
                         .queryParam("tradingPair", tradingPair)
                         .build(tradingPair))
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Client Error: " + errorBody, response.statusCode().value())))
+                )
+                .onStatus(HttpStatusCode::is5xxServerError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Server Error: " + errorBody, response.statusCode().value())))
+                )
                 .bodyToMono(CurrentPriceResponse.class);
 
         CurrentPriceResponse response = responseMono.block();
