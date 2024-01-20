@@ -51,36 +51,42 @@ public class BotTradingServiceImpl implements BotTradingService {
     @Override
     public void trade(Bot bot) {
         while (botManager.getBotEnabledState(bot.getId())) {
-            BuyOrder buyOrder = null;
-            if (botManager.isBotReadyToSell(bot.getId())) {
-                buyOrder = buyOrderService.getRecentBuyOrderByBot(bot);
+            if (botManager.isBotReadyToSell(bot.getId())){
+                handleSelling(bot);
+            } else if (botManager.isBotReadyToBuy(bot.getId())){
+                handleBuying(bot);
             }
+            sleep();
+        }
+    }
 
-            while (botManager.isBotReadyToSell(bot.getId())){
-                if (shouldSell(bot.getTradingPair(), buyOrder.getBuyPrice(), bot.getSellThreshold(), bot.getStopLossPercentage())){
-                    executeSellTestOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
-                    log.info("Executed sell order");
-                    //TODO: fetch sell price from previously executed order
-                    sellOrderService.save(bot, buyOrder, getCurrentPrice(bot.getTradingPair()));
-                    botManager.updateBotTradingState(bot, true, false);
-                }
-            }
-            while (botManager.isBotReadyToBuy(bot.getId())){
-                try {
-                    if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold())) {
-                        executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
-                        log.info("Executed buy order");
-                        //TODO: fetch buy price from previously executed order
-                        buyOrderService.save(bot, getCurrentPrice(bot.getTradingPair()));
-                        botManager.updateBotTradingState(bot, false, true);
-                    }
+    private void handleBuying(Bot bot){
+        if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold())) {
+            executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
+            log.info("Executed buy order");
+            //TODO: fetch buy price from previously executed order
+            buyOrderService.save(bot, getCurrentPrice(bot.getTradingPair()));
+            botManager.updateBotTradingState(bot, false, true);
+        }
+    }
 
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return; // Exit if the thread is interrupted
-                }
-            }
+    private void handleSelling(Bot bot){
+        BuyOrder buyOrder = buyOrderService.getRecentBuyOrderByBot(bot);
+
+        if (shouldSell(bot.getTradingPair(), buyOrder.getBuyPrice(), bot.getSellThreshold(), bot.getStopLossPercentage())){
+            executeSellTestOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
+            log.info("Executed sell order");
+            //TODO: fetch sell price from previously executed order
+            sellOrderService.save(bot, buyOrder, getCurrentPrice(bot.getTradingPair()));
+            botManager.updateBotTradingState(bot, true, false);
+        }
+    }
+
+    private void sleep(){
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e){
+            Thread.currentThread().interrupt();
         }
     }
 
