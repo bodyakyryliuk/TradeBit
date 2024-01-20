@@ -38,6 +38,7 @@ This parameter specifies the size of each trade, which could be the quantity of 
 It can be a fixed quantity or a percentage of the total portfolio size.
  */
 public class BotDTO {
+    private String name;
     private Double buyThreshold;
     private Double sellThreshold;
     private Double takeProfitPercentage;

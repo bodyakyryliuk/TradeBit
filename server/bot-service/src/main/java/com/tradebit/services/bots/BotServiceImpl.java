@@ -24,7 +24,11 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public void createBot(BotDTO botDTO, String userId) {
+        // todo: check if user has sufficient balance
+        // todo: check if bot name already exists for that user
+        // todo: check if user has less than 10 bots
         Bot bot = Bot.builder()
+                .name(botDTO.getName())
                 .buyThreshold(botDTO.getBuyThreshold())
                 .sellThreshold(botDTO.getSellThreshold())
                 .takeProfitPercentage(botDTO.getTakeProfitPercentage())
@@ -38,6 +42,10 @@ public class BotServiceImpl implements BotService {
                 .build();
 
         botRepository.save(bot);
+    }
+
+    private void checkUserBalanceForCurrency(String currency){
+
     }
 
     @Override

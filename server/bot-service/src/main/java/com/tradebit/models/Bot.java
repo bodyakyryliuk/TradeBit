@@ -19,6 +19,8 @@ public class Bot {
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
+    private String name;
     @Column(name = "buy_threshold")
     private Double buyThreshold;
     @Column(name = "sell_threshold")
