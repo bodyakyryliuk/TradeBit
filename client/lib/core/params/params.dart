@@ -61,3 +61,15 @@ class LinkBinanceParams {
         "secretApiKey": secretApiKey,
       };
 }
+
+class TotalBalanceParams {
+  final String apiKey;
+  final String secretApiKey;
+
+  TotalBalanceParams({required this.apiKey, required this.secretApiKey});
+
+  Map<String, dynamic> toJson() => {
+        "apiKey": apiKey,
+        "secretApiKey": secretApiKey,
+      };
+}

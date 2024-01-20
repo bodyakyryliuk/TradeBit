@@ -38,29 +38,30 @@ class DioClient {
   }
 
   Dio _createDio() => Dio(BaseOptions(
-        baseUrl: EndPoints.baseUrl,
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          // if (_authToken != null) ...{
-          //   "Authorization": _authToken,
-          // }
-        },
-        receiveTimeout: const Duration(seconds: 25),
-        connectTimeout: const Duration(seconds: 25),
-        validateStatus: (int? status) {
-          return status! > 0 && status <= 400;
-        }
-      ));
+      baseUrl: EndPoints.baseUrl,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        // if (_authToken != null) ...{
+        //   "Authorization": _authToken,
+        // }
+      },
+      receiveTimeout: const Duration(seconds: 25),
+      connectTimeout: const Duration(seconds: 25),
+      validateStatus: (int? status) {
+        return status! > 0 && status <= 400;
+      }));
 
   Future<Response> getRequest(
     String url, {
+    Map<String, dynamic>? data,
     Map<String, dynamic>? queryParameters,
     bool includeAuthorization = true,
   }) async {
     try {
       return await dio.get(url,
           queryParameters: queryParameters,
+          data: data,
           options:
               Options(extra: {'includeAuthorization': includeAuthorization}));
     } on DioException catch (e) {

@@ -12,6 +12,11 @@ import 'package:cointrade/features/auth/presentation/login/cubit/login_cubit.dar
 import 'package:cointrade/features/auth/presentation/register/cubit/register_cubit.dart';
 import 'package:cointrade/core/api/dio_client.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/cubit/reset_password_cubit.dart';
+import 'package:cointrade/features/home/data/datasources/wallet_remote_datasouce.dart';
+import 'package:cointrade/features/home/data/repositories/wallet_repository_impl.dart';
+import 'package:cointrade/features/home/domain/repositories/wallet_repository.dart';
+import 'package:cointrade/features/home/domain/usecases/fetch_total_balance_use_case.dart';
+import 'package:cointrade/features/home/presentation/total_balance/cubit/total_balance_cubit.dart';
 import 'package:cointrade/features/settings/data/datasources/link_binance_remote_datasource.dart';
 import 'package:cointrade/features/settings/data/repositories/link_binance_repository_impl.dart';
 import 'package:cointrade/features/settings/domain/repositories/link_binance_repository.dart';
@@ -36,6 +41,7 @@ void registerBlocs() {
   sl.registerFactory(() => LoginCubit(sl(), sl(), sl()));
   sl.registerFactory(() => ResetPasswordCubit(sl()));
   sl.registerFactory(() => ConnectBinanceCubit(sl()));
+  sl.registerFactory(() => TotalBalanceCubit(sl()));
 }
 
 void registerUseCases() {
@@ -47,6 +53,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => SaveRefreshTokenUseCase(sl()));
   sl.registerLazySingleton(() => GetRefreshTokenUseCase(sl()));
   sl.registerLazySingleton(() => PostRefreshTokenUseCase(sl()));
+  sl.registerLazySingleton(() => FetchTotalBalanceUseCase(sl()));
 }
 
 void registerRepositories() {
@@ -54,6 +61,8 @@ void registerRepositories() {
       () => AuthRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<LinkBinanceRepository>(
       () => LinkBinanceRepositoryImpl(sl()));
+  sl.registerLazySingleton<WalletRepository>(
+      () => WalletRepositoryImpl(sl()));
 }
 
 void registerDataSources() {
@@ -61,4 +70,5 @@ void registerDataSources() {
       () => AuthRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton(() => AuthLocalDataSource());
   sl.registerLazySingleton(() => LinkBinanceRemoteDataSource(sl()));
+  sl.registerLazySingleton(() => WalletRemoteDataSource(sl()));
 }
