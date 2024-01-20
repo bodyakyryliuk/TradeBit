@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:async/async.dart';
 import 'package:cointrade/core/db/hive_boxes.dart';
 import 'package:cointrade/core/db/keys.dart';
 import 'package:cointrade/core/routes/pages/not_found_page.dart';
@@ -33,16 +34,23 @@ enum Routes {
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
   static final GoRouter _router = GoRouter(
     debugLogDiagnostics: true,
     navigatorKey: _rootNavigatorKey,
-    refreshListenable: GoRouterRefreshStream(HiveBoxes.appStorageBox.watch(
-      key: DbKeys.accessTokenKey,
-    )),
+    refreshListenable: GoRouterRefreshStream(StreamGroup.merge([
+      HiveBoxes.appStorageBox.watch(key: DbKeys.accessTokenKey),
+      HiveBoxes.appStorageBox.watch(key: DbKeys.binanceApiKey),
+      HiveBoxes.appStorageBox.watch(key: DbKeys.binanceSecretApiKey),
+    ])),
     redirect: (BuildContext context, GoRouterState state) {
       String? accessToken = HiveBoxes.appStorageBox
           .get(DbKeys.accessTokenKey, defaultValue: null);
+      String? binanceApiKey =
+          HiveBoxes.appStorageBox.get(DbKeys.binanceApiKey, defaultValue: null);
+      String? binanceSecretApiKey = HiveBoxes.appStorageBox
+          .get(DbKeys.binanceSecretApiKey, defaultValue: null);
 
       // if the user is not logged in, they need to login
       bool loggedIn = accessToken != null;
@@ -64,18 +72,25 @@ class AppRouter {
 
       // if the user is logged in but still on the login page, send them to
       // the home page
-      if (loggingIn) return Routes.root.path;
+      if (loggingIn) {
+        if (binanceApiKey == null || binanceSecretApiKey == null) {
+          return Routes.connectBinance.path;
+        }
+        return Routes.root.path;
+      }
 
       // no need to redirect at all
       return null;
     },
     routes: [
       ShellRoute(
+          navigatorKey: _shellNavigatorKey,
           builder: (context, state, child) {
             return SkeletonPage(child: child);
           },
           routes: [
             GoRoute(
+              parentNavigatorKey: _shellNavigatorKey,
               path: Routes.root.path,
               name: Routes.root.name,
               builder: (context, state) => const HomePage(),

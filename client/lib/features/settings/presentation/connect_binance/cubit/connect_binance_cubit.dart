@@ -1,4 +1,6 @@
 import 'package:bloc/bloc.dart';
+import 'package:cointrade/core/db/hive_boxes.dart';
+import 'package:cointrade/core/db/keys.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/settings/domain/entities/link_binance_response_entity.dart';
 import 'package:cointrade/features/settings/domain/usecases/post_link_binance_use_case.dart';
@@ -9,7 +11,8 @@ part 'connect_binance_state.dart';
 part 'connect_binance_cubit.freezed.dart';
 
 class ConnectBinanceCubit extends Cubit<ConnectBinanceState> {
-  ConnectBinanceCubit(this.postLinkBinanceUseCase) : super(const ConnectBinanceState.initial());
+  ConnectBinanceCubit(this.postLinkBinanceUseCase)
+      : super(const ConnectBinanceState.initial());
 
   final PostLinkBinanceUseCase postLinkBinanceUseCase;
 
@@ -27,7 +30,9 @@ class ConnectBinanceCubit extends Cubit<ConnectBinanceState> {
         emit(ConnectBinanceState.failure(failure.message!));
       },
       (linkBinanceResponse) {
-        //todo usecase HiveBoxes.appStorageBox.put(DbKeys.accessTokenKey, loginResponse.token);
+        //todo create usecase
+        HiveBoxes.appStorageBox.put(DbKeys.binanceApiKey, apiKey);
+        HiveBoxes.appStorageBox.put(DbKeys.binanceSecretApiKey, secretApiKey);
         emit(ConnectBinanceState.success(linkBinanceResponse));
       },
     );
