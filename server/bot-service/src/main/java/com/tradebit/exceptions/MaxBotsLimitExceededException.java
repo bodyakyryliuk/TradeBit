@@ -1,7 +1,7 @@
 package com.tradebit.exceptions;
 
 public class MaxBotsLimitExceededException extends RuntimeException{
-    public MaxBotsLimitExceededException(){
-        super("Exceeded maximum number of bots allowed");
+    public MaxBotsLimitExceededException(String message){
+        super(message);
     }
 }

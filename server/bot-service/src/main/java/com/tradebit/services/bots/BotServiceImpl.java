@@ -7,7 +7,6 @@ import com.tradebit.exceptions.MaxBotsLimitExceededException;
 import com.tradebit.models.Bot;
 import com.tradebit.repositories.BotRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -50,10 +49,17 @@ public class BotServiceImpl implements BotService {
         boolean exists = botRepository.existsByNameAndUserId(name, userId);
 
         if (count >= 10)
-            throw new MaxBotsLimitExceededException();
+            throw new MaxBotsLimitExceededException("Exceeded limit of bots allowed");
         else if(exists)
             throw new BotNameAlreadyExistsException();
         return true;
+    }
+
+    private void canEnableBot(String userId){
+        int count = botRepository.countAllByUserIdAndEnabled(userId, true);
+
+        if (count >= 5)
+            throw new MaxBotsLimitExceededException("Exceeded limit of enabled bots allowed");
     }
 
     @Override
@@ -88,14 +94,20 @@ public class BotServiceImpl implements BotService {
     public boolean toggleBot(Long botId, String userId) {
         Bot bot = getBot(botId, userId);
         boolean newState = !bot.getEnabled();
+
+        if (newState)
+            canEnableBot(userId);
+
         botManager.setBotEnabledState(bot, newState);
         botManager.setBotReadyToBuyState(botId, bot.getIsReadyToBuy());
         botManager.setBotReadyToSellState(botId, bot.getIsReadyToSell());
         bot.setEnabled(newState);
         botRepository.saveAndFlush(bot);
+
         if (newState) {
             botTaskExecutor.execute(() -> botTradingService.trade(bot));
         }
+
         return newState;
     }
 }
