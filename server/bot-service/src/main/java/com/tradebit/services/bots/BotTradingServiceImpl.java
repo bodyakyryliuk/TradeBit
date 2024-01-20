@@ -6,35 +6,38 @@ import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.exceptions.CurrentPriceFetchException;
 import com.tradebit.exceptions.HighestPriceFetchException;
 import com.tradebit.models.Bot;
-import com.tradebit.models.BuyOrder;
+import com.tradebit.models.order.BuyOrder;
 import com.tradebit.models.CurrentPriceResponse;
 import com.tradebit.models.HighestPriceResponse;
 import com.tradebit.models.order.OrderSide;
 import com.tradebit.models.order.OrderType;
 import com.tradebit.repositories.BotRepository;
-import com.tradebit.repositories.BuyOrderRepository;
 import com.tradebit.services.auth.AuthService;
+import com.tradebit.services.orders.BuyOrderService;
+import com.tradebit.services.orders.SellOrderService;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationListener;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 //import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Service
 @RequiredArgsConstructor
-public class BotTradingServiceImpl implements BotTradingService{
+@Slf4j
+public class BotTradingServiceImpl implements BotTradingService {
     private final BotManager botManager;
-    private final BotRepository botRepository;
     private final AuthService authService;
-    private final BuyOrderRepository buyOrderRepository;
+    private final BuyOrderService buyOrderService;
+    private final SellOrderService sellOrderService;
 //    @Value("${api.gateway.host}")
     private final String baseUrl = "http://localhost:8080";
 
@@ -46,50 +49,53 @@ public class BotTradingServiceImpl implements BotTradingService{
     //      if current price < buy price by stop loss percentage -> sell
 
     @Override
-    public void trade(Long botId) {
-        Bot bot = botRepository.findById(botId).orElseThrow(() -> new BotNotFoundException(botId));
-        String tradingPair = bot.getTradingPair();
-        while (botManager.getBotEnabledState(botId)) {
-            // firstly to check if bot has bought smth
-            double highestPrice = getHighestPriceForTimePeriod(tradingPair, 168);
-            double currentPrice = getCurrentPrice(tradingPair);
-            try {
-                System.out.println("highest price for " + tradingPair + ": " + highestPrice);
-                System.out.println("current price for " + tradingPair + ": " + currentPrice);
-                System.out.println("current difference: " + ((highestPrice - currentPrice) / highestPrice * 100) +
-                        ", buyThreshold: " + bot.getBuyThreshold());
-                if(shouldBuy(currentPrice, highestPrice, bot.getBuyThreshold())){
-                    // buy
-                    executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
-                    System.out.println("EXECUTED BUY ORDER");
-                    saveBuyOrder(bot, currentPrice);
-                    System.out.println("Saved to database");
-                }
-
-
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return; // Exit if the thread is interrupted
+    public void trade(Bot bot) {
+        while (botManager.getBotEnabledState(bot.getId())) {
+            BuyOrder buyOrder = null;
+            if (botManager.isBotReadyToSell(bot.getId())) {
+                buyOrder = buyOrderService.getRecentBuyOrderByBot(bot);
             }
 
+            while (botManager.isBotReadyToSell(bot.getId())){
+                if (shouldSell(bot.getTradingPair(), buyOrder.getBuyPrice(), bot.getSellThreshold(), bot.getStopLossPercentage())){
+                    executeSellTestOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
+                    log.info("Executed sell order");
+                    //TODO: fetch sell price from previously executed order
+                    sellOrderService.save(bot, buyOrder, getCurrentPrice(bot.getTradingPair()));
+                    botManager.updateBotTradingState(bot, true, false);
+                }
+            }
+            while (botManager.isBotReadyToBuy(bot.getId())){
+                try {
+                    if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold())) {
+                        executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
+                        log.info("Executed buy order");
+                        //TODO: fetch buy price from previously executed order
+                        buyOrderService.save(bot, getCurrentPrice(bot.getTradingPair()));
+                        botManager.updateBotTradingState(bot, false, true);
+                    }
+
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return; // Exit if the thread is interrupted
+                }
+            }
         }
     }
 
-    private void saveBuyOrder(Bot bot, double buyPrice){
-        BuyOrder buyOrder = BuyOrder.builder()
-                .bot(bot)
-                .buyPrice(buyPrice)
-                .tradingPair(bot.getTradingPair())
-                .quantity(bot.getTradeSize())
-                .timestamp(LocalDateTime.now())
-                .sold(Boolean.FALSE)
-                .build();
 
-        buyOrderRepository.save(buyOrder);
+    private boolean shouldSell(String tradingPair, double buyPrice, double sellThreshold, double stopLossPercentage){
+        double currentPrice = getCurrentPrice(tradingPair);
+        if((currentPrice - buyPrice) / currentPrice * 100 >= sellThreshold)
+            return true;
+        else return (buyPrice - currentPrice) / buyPrice * 100 >= stopLossPercentage;
     }
 
-    private boolean shouldBuy(double currentPrice, double highestPrice, double buyThreshold){
+    private boolean shouldBuy(String tradingPair, double buyThreshold){
+        double highestPrice = getHighestPriceForTimePeriod(tradingPair, 168);
+        double currentPrice = getCurrentPrice(tradingPair);
+
         return ((highestPrice - currentPrice) / highestPrice * 100) >= buyThreshold;
     }
 
@@ -97,10 +103,17 @@ public class BotTradingServiceImpl implements BotTradingService{
         BinanceOrderDTO orderDTO = createBinanceOrderDto(
                 tradingPair, OrderSide.BUY, OrderType.MARKET, BigDecimal.valueOf(quantity));
 
-        return sendBuyRequest("binance-service/order/testWithUser", orderDTO, userId);
+        return sendOrderRequest("binance-service/order/testWithUser", orderDTO, userId);
     }
 
-    private JsonNode sendBuyRequest(String path, BinanceOrderDTO orderDTO, String userId){
+    private JsonNode executeSellTestOrder(String userId, String tradingPair, Double quantity) {
+        BinanceOrderDTO orderDTO = createBinanceOrderDto(
+                tradingPair, OrderSide.SELL, OrderType.MARKET, BigDecimal.valueOf(quantity));
+
+        return sendOrderRequest("binance-service/order/testWithUser", orderDTO, userId);
+    }
+
+    private JsonNode sendOrderRequest(String path, BinanceOrderDTO orderDTO, String userId){
         String accessToken = authService.getAccessToken();
 
         WebClient webClient = WebClient.builder()
@@ -172,4 +185,5 @@ public class BotTradingServiceImpl implements BotTradingService{
 
         return response.getPrice();
     }
+
 }

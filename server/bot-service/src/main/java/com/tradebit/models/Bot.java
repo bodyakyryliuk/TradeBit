@@ -33,6 +33,10 @@ public class Bot {
     private String tradingPair;
     @Column(name = "user_id")
     private String userId;
+    @Column(name = "ready_to_buy")
+    private Boolean isReadyToBuy;
+    @Column(name = "ready_to_sell")
+    private Boolean isReadyToSell;
     @Column
     private volatile Boolean enabled;
 }

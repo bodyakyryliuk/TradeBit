@@ -1,5 +1,6 @@
-package com.tradebit.models;
+package com.tradebit.models.order;
 
+import com.tradebit.models.Bot;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,17 +20,20 @@ public class BuyOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
+
+    @ManyToOne
     @JoinColumn(name = "bot_id", referencedColumnName = "id")
     private Bot bot;
+
     @Column(name = "trading_pair")
     private String tradingPair;
+
     @Column(name = "buy_price")
     private Double buyPrice;
+
     @Column
     private Double quantity;
+
     @Column
     private LocalDateTime timestamp;
-    @Column
-    private Boolean sold;
 }

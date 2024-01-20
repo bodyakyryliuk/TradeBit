@@ -1,5 +1,7 @@
 package com.tradebit.services.bots;
 
+import com.tradebit.models.Bot;
+
 public interface BotTradingService {
-    void trade(Long botId);
+    void trade(Bot bot);
 }
