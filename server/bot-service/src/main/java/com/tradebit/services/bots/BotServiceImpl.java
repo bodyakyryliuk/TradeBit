@@ -67,7 +67,7 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public void toggleBot(Long botId, String userId) {
+    public boolean toggleBot(Long botId, String userId) {
         Bot bot = getBot(botId, userId);
         boolean newState = !bot.getEnabled();
         botManager.setBotEnabledState(bot, newState);
@@ -78,6 +78,6 @@ public class BotServiceImpl implements BotService {
         if (newState) {
             botTaskExecutor.execute(() -> botTradingService.trade(bot));
         }
-
+        return newState;
     }
 }

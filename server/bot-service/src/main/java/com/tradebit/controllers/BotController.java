@@ -35,14 +35,14 @@ public class BotController {
     }
 
     @PostMapping("/toggleBot")
-    public ResponseEntity<Map<String, String>> toggleBot(@RequestParam Long botId,
+    public ResponseEntity<Map<String, ?>> toggleBot(@RequestParam Long botId,
                                                          Authentication authentication){
         try {
             String userId = botService.getUserIdFromAuthentication(authentication);
-            botService.toggleBot(botId, userId);
+            boolean botEnabled = botService.toggleBot(botId, userId);
             return ResponseEntity.ok(
                     Map.of("status", "success",
-                            "message", "Bot state has been toggled successfully!"));
+                            "enabled", botEnabled));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("status", "failure",
