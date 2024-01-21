@@ -34,7 +34,7 @@ enum Routes {
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final _shellNavigatorKey = GlobalKey<NavigatorState>();
+  // static final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
   static final GoRouter _router = GoRouter(
     debugLogDiagnostics: true,
@@ -83,23 +83,26 @@ class AppRouter {
       return null;
     },
     routes: [
-      ShellRoute(
-          navigatorKey: _shellNavigatorKey,
+      StatefulShellRoute.indexedStack(
           builder: (context, state, child) {
             return SkeletonPage(child: child);
           },
-          routes: [
-            GoRoute(
-              parentNavigatorKey: _shellNavigatorKey,
-              path: Routes.root.path,
-              name: Routes.root.name,
-              builder: (context, state) => const HomePage(),
-            ),
-            GoRoute(
-              path: Routes.settings.path,
-              name: Routes.settings.name,
-              builder: (context, state) => const SettingsPage(),
-            ),
+          branches: [
+            StatefulShellBranch(routes: [
+              GoRoute(
+                // parentNavigatorKey: _shellNavigatorKey,
+                path: Routes.root.path,
+                name: Routes.root.name,
+                builder: (context, state) => const HomePage(),
+              ),
+            ]),
+            StatefulShellBranch(routes: [
+              GoRoute(
+                path: Routes.settings.path,
+                name: Routes.settings.name,
+                builder: (context, state) => const SettingsPage(),
+              ),
+            ])
           ]),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,
