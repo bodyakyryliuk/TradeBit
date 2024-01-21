@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.tradebit.exceptions.BinanceRequestException;
-import com.tradebit.exceptions.InsufficientBalanceException;
-import com.tradebit.exceptions.InvalidQuantityException;
-import com.tradebit.exceptions.UnexpectedException;
+import com.tradebit.exceptions.*;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -26,6 +23,7 @@ public class BinanceResponseProcessingServiceImpl implements BinanceResponseProc
 
         try {
             JsonNode rootNode = objectMapper.readTree(response);
+            handleError(rootNode);
             if (rootNode.isArray()) {
                 Map<Integer, String> fieldMapping = new HashMap<>();
                 fieldMapping.put(1, "openPrice");
@@ -49,6 +47,18 @@ public class BinanceResponseProcessingServiceImpl implements BinanceResponseProc
             return closePricesWithTimeNode;
         } catch (JsonProcessingException e) {
             throw new UnexpectedException("Error processing JSON" + e);
+        }
+    }
+
+    private void handleError(JsonNode rootNode){
+        if (rootNode.has("code")) {
+            int errorCode = rootNode.get("code").asInt();
+            switch (errorCode) {
+                case -1121:
+                    throw new InvalidSymbolException("Invalid trading pair");
+                default:
+                    throw new UnexpectedException(rootNode.get("msg").asText());
+            }
         }
     }
 
