@@ -1,13 +1,9 @@
 package com.tradebit.requests;
 
-import com.tradebit.EmailType;
-import com.tradebit.requests.OrderEmailRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder

@@ -7,6 +7,7 @@ import com.tradebit.models.order.BuyOrder;
 import com.tradebit.models.order.OrderSide;
 import com.tradebit.models.order.OrderType;
 import com.tradebit.services.BinanceUtilService;
+import com.tradebit.services.EmailService;
 import com.tradebit.services.orders.BuyOrderService;
 import com.tradebit.services.orders.SellOrderService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class BotTradingServiceImpl implements BotTradingService {
     private final BuyOrderService buyOrderService;
     private final SellOrderService sellOrderService;
     private final BinanceUtilService binanceUtilService;
+    private final EmailService emailService;
 //    @Value("${api.gateway.host}")
     private final String baseUrl = "http://localhost:8080";
 
