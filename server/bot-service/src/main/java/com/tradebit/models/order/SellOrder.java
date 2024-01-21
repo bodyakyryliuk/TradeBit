@@ -40,5 +40,8 @@ public class SellOrder {
     private Double quantity;
 
     @Column
+    private Double profit;
+
+    @Column
     private LocalDateTime timestamp;
 }

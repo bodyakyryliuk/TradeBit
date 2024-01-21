@@ -16,16 +16,25 @@ public class SellOrderServiceImpl implements SellOrderService{
     private final SellOrderRepository sellOrderRepository;
     @Override
     public SellOrder save(Bot bot, BuyOrder buyOrder, double sellPrice) {
+        double quantity = bot.getTradeSize();
+
         SellOrder sellOrder = SellOrder.builder()
                 .bot(bot)
                 .buyOrder(buyOrder)
                 .tradingPair(bot.getTradingPair())
-                .quantity(bot.getTradeSize())
+                .quantity(quantity)
                 .timestamp(LocalDateTime.now())
                 .sellPrice(sellPrice)
+                .profit(getProfit(buyOrder, quantity, sellPrice))
                 .build();
 
         return sellOrderRepository.save(sellOrder);
+    }
+
+    private double getProfit(BuyOrder buyOrder, double quantity, double sellPrice){
+        Double buyOrderAmount = buyOrder.getBuyPrice() * buyOrder.getQuantity();
+        Double sellOrderAmount = sellPrice * quantity;
+        return sellOrderAmount - buyOrderAmount;
     }
 
     @Override
