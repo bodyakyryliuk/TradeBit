@@ -1,4 +1,6 @@
 import 'package:cointrade/core/widgets/text_divider.dart';
+import 'package:cointrade/features/home/presentation/components/all_cryptocurrencies/all_cryptocurrencies.dart';
+import 'package:cointrade/features/home/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
 import 'package:cointrade/features/home/presentation/components/total_balance/cubit/total_balance_cubit.dart';
 import 'package:cointrade/features/home/presentation/components/total_balance/total_balance.dart';
 import 'package:cointrade/features/home/presentation/components/wallet/cubit/wallet_cubit.dart';
@@ -16,31 +18,45 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    context.read<TotalBalanceCubit>().fetchTotalBalance();
-    context.read<WalletCubit>().fetchWallet();
+    fetchDashboardData();
     super.initState();
+  }
+
+  Future fetchDashboardData() async {
+    return Future.wait([
+      context.read<TotalBalanceCubit>().fetchTotalBalance(),
+      context.read<WalletCubit>().fetchWallet(),
+      context.read<AllCryptocurrenciesCubit>().fetchAllCryptocurrencies(),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        children: const [
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 80.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TotalBalance(),
-              ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          return await fetchDashboardData();
+        },
+        child: ListView(
+          children: const [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 80.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TotalBalance(),
+                ],
+              ),
             ),
-          ),
-          TextDivider(titleText: 'Wallet'),
-          SizedBox(height: 15),
-          Wallet(),
-          SizedBox(height: 15),
-          TextDivider(titleText: 'All cryptocurrencies'),
-        ],
+            TextDivider(titleText: 'Wallet'),
+            SizedBox(height: 15),
+            Wallet(),
+            SizedBox(height: 15),
+            TextDivider(titleText: 'All cryptocurrencies'),
+            SizedBox(height: 15),
+            AllCryptocurrencies(),
+          ],
+        ),
       ),
     );
   }

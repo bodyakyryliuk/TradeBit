@@ -10,4 +10,5 @@ class EndPoints {
   static const String linkBinance = "/binance-service/account/link-binance";
   static const String totalBalance = "/binance-service/account/totalBalance";
   static const String wallet = "/binance-service/account/wallet";
+  static const String allCryptocurrencies = "/binance-service/binance/cryptocurrencies";
 }

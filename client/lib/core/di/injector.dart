@@ -15,8 +15,10 @@ import 'package:cointrade/features/auth/presentation/reset_password/cubit/reset_
 import 'package:cointrade/features/home/data/datasources/wallet_remote_datasouce.dart';
 import 'package:cointrade/features/home/data/repositories/wallet_repository_impl.dart';
 import 'package:cointrade/features/home/domain/repositories/wallet_repository.dart';
+import 'package:cointrade/features/home/domain/usecases/fetch_all_cryptocurrencies_use_case.dart';
 import 'package:cointrade/features/home/domain/usecases/fetch_total_balance_use_case.dart';
 import 'package:cointrade/features/home/domain/usecases/fetch_wallet_use_case.dart';
+import 'package:cointrade/features/home/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
 import 'package:cointrade/features/home/presentation/components/total_balance/cubit/total_balance_cubit.dart';
 import 'package:cointrade/features/home/presentation/components/wallet/cubit/wallet_cubit.dart';
 import 'package:cointrade/features/settings/data/datasources/link_binance_remote_datasource.dart';
@@ -45,6 +47,7 @@ void registerBlocs() {
   sl.registerFactory(() => ConnectBinanceCubit(sl()));
   sl.registerFactory(() => TotalBalanceCubit(sl()));
   sl.registerFactory(() => WalletCubit(sl()));
+  sl.registerFactory(() => AllCryptocurrenciesCubit(sl()));
 }
 
 void registerUseCases() {
@@ -58,6 +61,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => PostRefreshTokenUseCase(sl()));
   sl.registerLazySingleton(() => FetchTotalBalanceUseCase(sl()));
   sl.registerLazySingleton(() => FetchWalletUseCase(sl()));
+  sl.registerLazySingleton(() => FetchAllCryptocurrenciesUseCase(sl()));
 }
 
 void registerRepositories() {
