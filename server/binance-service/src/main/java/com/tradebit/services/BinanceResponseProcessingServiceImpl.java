@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class BinanceResponseProcessingServiceImpl implements BinanceResponseProcessingService {
@@ -25,15 +27,20 @@ public class BinanceResponseProcessingServiceImpl implements BinanceResponseProc
         try {
             JsonNode rootNode = objectMapper.readTree(response);
             if (rootNode.isArray()) {
+                Map<Integer, String> fieldMapping = new HashMap<>();
+                fieldMapping.put(1, "openPrice");
+                fieldMapping.put(2, "highPrice");
+                fieldMapping.put(3, "lowPrice");
+                fieldMapping.put(4, "closePrice");
+                fieldMapping.put(5, "volume");
+
                 for (JsonNode klineNode : rootNode) {
-                    // The close price is the 4th element in the kline array
-                    JsonNode closePrice = klineNode.get(4);
-                    JsonNode timeStamp = klineNode.get(6);
-                    long timestamp = timeStamp.asLong();
-                    String formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(timestamp));
+                    long timestamp = klineNode.get(6).asLong();
                     ObjectNode priceAndTimeNode = objectMapper.createObjectNode();
-                    priceAndTimeNode.put("closePrice", closePrice.asText());
-                    priceAndTimeNode.put("timestamp", formattedDate);
+                    for (Map.Entry<Integer, String> entry : fieldMapping.entrySet()) {
+                        priceAndTimeNode.put(entry.getValue(), klineNode.get(entry.getKey()).asDouble());
+                    }
+                    priceAndTimeNode.put("timestamp", timestamp);
 
                     closePricesWithTimeNode.add(priceAndTimeNode);
                 }
@@ -46,6 +53,7 @@ public class BinanceResponseProcessingServiceImpl implements BinanceResponseProc
     }
 
     public JsonNode processResponse(String response) {
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             if (response.startsWith("["))

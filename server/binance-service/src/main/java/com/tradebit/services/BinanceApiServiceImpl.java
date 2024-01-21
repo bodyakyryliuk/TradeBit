@@ -128,20 +128,14 @@ public class BinanceApiServiceImpl implements BinanceApiService{
 
         ArrayNode allPricesNode = objectMapper.createArrayNode(); // Assuming objectMapper is initialized
         String interval = binanceDataUtils.getIntervalFromPeriod(period);
-        while (startTimeMillis < endTimeMillis - binanceDataUtils.getMillisFromInterval(interval) ) {
-            HttpUrl url = binanceRequestService.buildKlineUrl(tradingPair, interval, startTimeMillis, endTimeMillis - binanceDataUtils.getMillisFromInterval(interval));
-            Request request = binanceRequestService.buildRequest(url);
-            String response = binanceRequestService.executeRequest(request);
+        HttpUrl url = binanceRequestService.buildKlineUrl(tradingPair, interval, startTimeMillis, endTimeMillis - binanceDataUtils.getMillisFromInterval(interval));
+        Request request = binanceRequestService.buildRequest(url);
+        String response = binanceRequestService.executeRequest(request);
 
-            JsonNode pricesNode = responseProcessingService.processClosePrices(response);
+        JsonNode pricesNode = responseProcessingService.processClosePrices(response);
 
-            // Append the retrieved prices to the allPricesNode
-            allPricesNode.addAll((ArrayNode) pricesNode);
-
-            // Update startTimeMillis for the next request
-            JsonNode lastNode = pricesNode.get(pricesNode.size() - 1);
-            startTimeMillis = binanceRequestService.getTimeMillisFromDate(lastNode.get("timestamp").asText()) + 60000;
-        }
+        // Append the retrieved prices to the allPricesNode
+        allPricesNode.addAll((ArrayNode) pricesNode);
 
         return allPricesNode;
     }
