@@ -15,17 +15,25 @@ class SettingsPage extends StatelessWidget {
           title: const Text('Settings'),
         ),
         body: ListView(
-          children: ListTile.divideTiles(color: Colors.grey[900],
+          children: ListTile.divideTiles(
+              color: Colors.grey[900],
               context: context,
               tiles: [
                 SettingsTile(
-                    titleText: 'Connect Binance', onPressed: () {
+                    titleText: 'Connect Binance',
+                    onPressed: () {
                       context.push(Routes.connectBinance.path);
-                }),
+                    }),
                 SettingsTile(
-                    titleText: 'Log out', isDestructive: true, onPressed: () {
+                    titleText: 'Log out',
+                    isDestructive: true,
+                    onPressed: () {
                       HiveBoxes.appStorageBox.delete(DbKeys.accessTokenKey);
-                }),
+                      HiveBoxes.appStorageBox.delete(DbKeys.refreshTokenKey);
+                      HiveBoxes.appStorageBox
+                          .delete(DbKeys.binanceSecretApiKey);
+                      HiveBoxes.appStorageBox.delete(DbKeys.binanceApiKey);
+                    }),
               ]).toList(),
         ));
   }

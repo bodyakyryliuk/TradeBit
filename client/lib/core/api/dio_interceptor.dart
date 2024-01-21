@@ -6,6 +6,7 @@ import 'package:cointrade/core/di/injector.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/core/usecase/usecase.dart';
 import 'package:cointrade/core/utils/logger.dart';
+import 'package:cointrade/features/auth/data/models/refresh_token_response_model.dart';
 import 'package:cointrade/features/auth/domain/usecase/get_refresh_token_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/post_refresh_token_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/save_access_token_use_case.dart';
@@ -13,20 +14,15 @@ import 'package:cointrade/features/auth/domain/usecase/save_refresh_token_use_ca
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-class DioInterceptor extends Interceptor {
-  final String? accessToken;
+class DioLogInterceptor extends Interceptor {
+  String? accessToken;
   final Dio dio;
 
-  DioInterceptor({required this.accessToken, required this.dio});
+  DioLogInterceptor({required this.accessToken, required this.dio});
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (options.extra.containsKey("includeAuthorization") &&
-        options.extra["includeAuthorization"] == true) {
-      if (accessToken != null) {
-        options.headers['Authorization'] = 'Bearer $accessToken';
-      }
-    }
+
 
     String headerMessage = "";
     options.headers
@@ -68,12 +64,14 @@ class DioInterceptor extends Interceptor {
     if (err.response?.statusCode == 401) {
       // If a 401 response is received, refresh the access token
       String? newAccessToken = await refreshToken();
+      this.accessToken = newAccessToken;
 
       if (newAccessToken != null) {
         // Update the request header with the new access token
         err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
 
         log.i('Old token: $accessToken\n new token: $newAccessToken');
+        log.i(accessToken == newAccessToken);
 
         // Repeat the request with the updated header
         return handler.resolve(await dio.fetch(err.requestOptions));
@@ -102,27 +100,43 @@ class DioInterceptor extends Interceptor {
   }
 
   Future<String?> refreshToken() async {
-    var currRefreshTokenResult = sl<GetRefreshTokenUseCase>().call(NoParams());
+    var currRefreshTokenResult =
+        await sl<GetRefreshTokenUseCase>().call(NoParams());
     String? currRefreshToken;
+
     currRefreshTokenResult.fold(
-        (l) => null, (refreshToken) => currRefreshToken = refreshToken);
+      (failure) {
+        currRefreshToken = null;
+      },
+      (rToken) => currRefreshToken = rToken,
+    );
 
     if (currRefreshToken == null) return null;
 
     var postRefreshTokenResult = await sl<PostRefreshTokenUseCase>()
         .call(RefreshTokenParams(refreshToken: currRefreshToken!));
 
-    postRefreshTokenResult.fold((l) {
-      // Sign out the user if the refresh token is invalid
-      HiveBoxes.appStorageBox.delete(DbKeys.accessTokenKey);
-    }, (refreshTokenResponseModel) async{
-      await sl<SaveAccessTokenUseCase>().call(refreshTokenResponseModel.accessToken);
+    String? newAccessToken;
+    RefreshTokenResponseModel? refreshTokenResponseModel;
+
+    postRefreshTokenResult.fold(
+      (failure) {
+        HiveBoxes.appStorageBox.delete(DbKeys.accessTokenKey);
+      },
+      (responseModel) {
+        refreshTokenResponseModel =
+            responseModel; // Assign to outer scope variable
+        newAccessToken = responseModel.accessToken;
+      },
+    );
+
+    if (refreshTokenResponseModel != null) {
+      await sl<SaveAccessTokenUseCase>()
+          .call(refreshTokenResponseModel!.accessToken);
       await sl<SaveRefreshTokenUseCase>()
-          .call(refreshTokenResponseModel.refreshToken);
+          .call(refreshTokenResponseModel!.refreshToken);
+    }
 
-      return refreshTokenResponseModel.accessToken;
-    });
-
-    return null;
+    return newAccessToken;
   }
 }
