@@ -33,29 +33,31 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          return await fetchDashboardData();
-        },
-        child: ListView(
-          children: const [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 80.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TotalBalance(),
-                ],
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: () async {
+            return await fetchDashboardData();
+          },
+          child: ListView(
+            children: const [
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 80.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TotalBalance(),
+                  ],
+                ),
               ),
-            ),
-            TextDivider(titleText: 'Wallet'),
-            SizedBox(height: 15),
-            Wallet(),
-            SizedBox(height: 15),
-            TextDivider(titleText: 'All cryptocurrencies'),
-            SizedBox(height: 15),
-            AllCryptocurrencies(),
-          ],
+              TextDivider(titleText: 'Wallet'),
+              SizedBox(height: 15),
+              Wallet(),
+              SizedBox(height: 15),
+              TextDivider(titleText: 'All cryptocurrencies'),
+              SizedBox(height: 15),
+              AllCryptocurrencies(),
+            ],
+          ),
         ),
       ),
     );
