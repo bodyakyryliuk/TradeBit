@@ -10,7 +10,8 @@ import 'package:cointrade/features/auth/presentation/landing/landing_page.dart';
 import 'package:cointrade/features/auth/presentation/login/login_page.dart';
 import 'package:cointrade/features/auth/presentation/register/register_page.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/reset_password_page.dart';
-import 'package:cointrade/features/home/presentation/home/home_page.dart';
+import 'package:cointrade/features/wallet/presentation/cryptocurrency_pair_detailed/cryptocurrency_pair_detailed_page.dart';
+import 'package:cointrade/features/wallet/presentation/home/home_page.dart';
 import 'package:cointrade/features/settings/presentation/connect_binance/connect_binance_page.dart';
 import 'package:cointrade/features/settings/presentation/settings_page.dart';
 import 'package:cointrade/features/skeleton/presentation/skeleton_page.dart';
@@ -25,7 +26,8 @@ enum Routes {
   login("/auth/login"),
   register("/auth/register"),
   resetPassword("/auth/reset-password"),
-  emailConfirmation("/auth/email-confirmation");
+  emailConfirmation("/auth/email-confirmation"),
+  cryptocurrencyPairDetailed("/cryptocurrency-pair-detailed/:currencyPair");
 
   const Routes(this.path);
 
@@ -34,6 +36,7 @@ enum Routes {
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+
   // static final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
   static final GoRouter _router = GoRouter(
@@ -109,6 +112,17 @@ class AppRouter {
         path: Routes.connectBinance.path,
         name: Routes.connectBinance.name,
         builder: (context, state) => const ConnectBinancePage(),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: Routes.cryptocurrencyPairDetailed.path,
+        name: Routes.cryptocurrencyPairDetailed.name,
+        builder: (context, state) {
+          return CryptocurrencyPairDetailedPage(
+            key: state.pageKey,
+            currencyPair: state.pathParameters['currencyPair']!,
+          );
+        },
       ),
       GoRoute(
         path: Routes.landing.path,

@@ -12,15 +12,17 @@ import 'package:cointrade/features/auth/presentation/login/cubit/login_cubit.dar
 import 'package:cointrade/features/auth/presentation/register/cubit/register_cubit.dart';
 import 'package:cointrade/core/api/dio_client.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/cubit/reset_password_cubit.dart';
-import 'package:cointrade/features/home/data/datasources/wallet_remote_datasouce.dart';
-import 'package:cointrade/features/home/data/repositories/wallet_repository_impl.dart';
-import 'package:cointrade/features/home/domain/repositories/wallet_repository.dart';
-import 'package:cointrade/features/home/domain/usecases/fetch_all_cryptocurrencies_use_case.dart';
-import 'package:cointrade/features/home/domain/usecases/fetch_total_balance_use_case.dart';
-import 'package:cointrade/features/home/domain/usecases/fetch_wallet_use_case.dart';
-import 'package:cointrade/features/home/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
-import 'package:cointrade/features/home/presentation/components/total_balance/cubit/total_balance_cubit.dart';
-import 'package:cointrade/features/home/presentation/components/wallet/cubit/wallet_cubit.dart';
+import 'package:cointrade/features/wallet/data/datasources/wallet_remote_datasouce.dart';
+import 'package:cointrade/features/wallet/data/repositories/wallet_repository_impl.dart';
+import 'package:cointrade/features/wallet/domain/repositories/wallet_repository.dart';
+import 'package:cointrade/features/wallet/domain/usecases/fetch_all_cryptocurrencies_use_case.dart';
+import 'package:cointrade/features/wallet/domain/usecases/fetch_historical_prices_use_case.dart';
+import 'package:cointrade/features/wallet/domain/usecases/fetch_total_balance_use_case.dart';
+import 'package:cointrade/features/wallet/domain/usecases/fetch_wallet_use_case.dart';
+import 'package:cointrade/features/wallet/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/total_balance/cubit/total_balance_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/wallet/cubit/wallet_cubit.dart';
 import 'package:cointrade/features/settings/data/datasources/link_binance_remote_datasource.dart';
 import 'package:cointrade/features/settings/data/repositories/link_binance_repository_impl.dart';
 import 'package:cointrade/features/settings/domain/repositories/link_binance_repository.dart';
@@ -48,6 +50,7 @@ void registerBlocs() {
   sl.registerFactory(() => TotalBalanceCubit(sl()));
   sl.registerFactory(() => WalletCubit(sl()));
   sl.registerFactory(() => AllCryptocurrenciesCubit(sl()));
+  sl.registerFactory(() => HistoricalPricesCubit(sl()));
 }
 
 void registerUseCases() {
@@ -62,6 +65,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => FetchTotalBalanceUseCase(sl()));
   sl.registerLazySingleton(() => FetchWalletUseCase(sl()));
   sl.registerLazySingleton(() => FetchAllCryptocurrenciesUseCase(sl()));
+  sl.registerLazySingleton(() => FetchHistoricalPricesUseCase(sl()));
 }
 
 void registerRepositories() {

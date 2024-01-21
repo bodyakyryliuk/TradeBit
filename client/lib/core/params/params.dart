@@ -84,3 +84,12 @@ class WalletParams {
         "secretApiKey": secretApiKey,
       };
 }
+
+
+class HistoricalPricesParams {
+  final String currencyPair;
+  final int period;
+
+  HistoricalPricesParams({required this.currencyPair, required this.period});
+
+}

@@ -9,12 +9,13 @@ class App extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocsProviders(
-      child: MaterialApp.router(
-        title: 'TradeBit',
-        darkTheme: darkTheme(context),
-        routerConfig: AppRouter.router,
-      ),
+    return MaterialApp.router(
+      title: 'TradeBit',
+      darkTheme: darkTheme(context),
+      routerConfig: AppRouter.router,
+      builder: (context, child) {
+        return BlocsProviders(child: child!);
+      }
     );
   }
 }

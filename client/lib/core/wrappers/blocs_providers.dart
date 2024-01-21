@@ -2,9 +2,10 @@ import 'package:cointrade/core/di/injector.dart';
 import 'package:cointrade/features/auth/presentation/login/cubit/login_cubit.dart';
 import 'package:cointrade/features/auth/presentation/register/cubit/register_cubit.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/cubit/reset_password_cubit.dart';
-import 'package:cointrade/features/home/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
-import 'package:cointrade/features/home/presentation/components/total_balance/cubit/total_balance_cubit.dart';
-import 'package:cointrade/features/home/presentation/components/wallet/cubit/wallet_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/total_balance/cubit/total_balance_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/wallet/cubit/wallet_cubit.dart';
 import 'package:cointrade/features/settings/presentation/connect_binance/cubit/connect_binance_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,6 +25,7 @@ class BlocsProviders extends StatelessWidget {
         BlocProvider<TotalBalanceCubit>(create: (_) => sl<TotalBalanceCubit>()),
         BlocProvider<WalletCubit>(create: (_) => sl<WalletCubit>()),
         BlocProvider<AllCryptocurrenciesCubit>(create: (_) => sl<AllCryptocurrenciesCubit>()),
+        BlocProvider<HistoricalPricesCubit>(create: (_) => sl<HistoricalPricesCubit>()),
       ],
       child: child,
     );
