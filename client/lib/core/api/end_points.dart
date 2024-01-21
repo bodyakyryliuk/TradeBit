@@ -9,4 +9,5 @@ class EndPoints {
   static const String refreshToken = "/identity-service/auth/refresh-token";
   static const String linkBinance = "/binance-service/account/link-binance";
   static const String totalBalance = "/binance-service/account/totalBalance";
+  static const String wallet = "/binance-service/account/wallet";
 }

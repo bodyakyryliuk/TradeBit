@@ -73,3 +73,14 @@ class TotalBalanceParams {
         "secretApiKey": secretApiKey,
       };
 }
+class WalletParams {
+  final String apiKey;
+  final String secretApiKey;
+
+  WalletParams({required this.apiKey, required this.secretApiKey});
+
+  Map<String, dynamic> toJson() => {
+        "apiKey": apiKey,
+        "secretApiKey": secretApiKey,
+      };
+}
