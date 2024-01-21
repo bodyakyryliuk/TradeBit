@@ -126,4 +126,16 @@ public class BinanceUtilServiceImpl implements BinanceUtilService{
 
         return responseMono.block();
     }
+
+    @Override
+    public Double getPriceFromOrder(JsonNode jsonNode) {
+        if (jsonNode.has("fills") &&  jsonNode.get("fills").isArray() && jsonNode.get("fills").size() > 0) {
+            JsonNode fillsFirstNode = jsonNode.get("fills").get(0);
+
+            if (fillsFirstNode.has("price"))
+                return fillsFirstNode.get("price").asDouble();
+        }
+        return null;
+    }
+
 }

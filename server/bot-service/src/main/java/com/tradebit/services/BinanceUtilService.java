@@ -19,4 +19,6 @@ public interface BinanceUtilService {
     BinanceOrderDTO createBinanceOrderDto(
             String tradingPair, OrderSide side, OrderType type, BigDecimal quantity);
     JsonNode sendOrderRequest(String path, BinanceOrderDTO orderDTO, String userId);
+
+    Double getPriceFromOrder(JsonNode jsonNode);
 }

@@ -54,21 +54,23 @@ public class BotTradingServiceImpl implements BotTradingService {
 
     private BuyOrder handleBuying(Bot bot){
         if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold())) {
-            executeBuyTestOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
+            JsonNode order = executeBuyOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
             log.info("Executed buy order");
-            //TODO: fetch buy price from previously executed order
+            //TODO: send message to user's email
+            Double buyPrice = binanceUtilService.getPriceFromOrder(order);
             botManager.updateBotTradingState(bot, false, true);
-            return buyOrderService.save(bot, binanceUtilService.getCurrentPrice(bot.getTradingPair()));
+            return buyOrderService.save(bot, buyPrice);
         }
         return null;
     }
 
     private void handleSelling(Bot bot, BuyOrder buyOrder){
         if (shouldSell(bot.getTradingPair(), buyOrder.getBuyPrice(), bot.getSellThreshold(), bot.getStopLossPercentage())){
-            executeSellTestOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
+            JsonNode order = executeSellOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
             log.info("Executed sell order");
-            //TODO: fetch sell price from previously executed order
-            sellOrderService.save(bot, buyOrder, binanceUtilService.getCurrentPrice(bot.getTradingPair()));
+            //TODO: send message to user's email
+            Double sellPrice = binanceUtilService.getPriceFromOrder(order);
+            sellOrderService.save(bot, buyOrder, sellPrice);
             botManager.updateBotTradingState(bot, true, false);
         }
     }
@@ -94,6 +96,20 @@ public class BotTradingServiceImpl implements BotTradingService {
         double currentPrice = binanceUtilService.getCurrentPrice(tradingPair);
 
         return ((highestPrice - currentPrice) / highestPrice * 100) >= buyThreshold;
+    }
+
+    private JsonNode executeBuyOrder(String userId, String tradingPair, double quantity) {
+        BinanceOrderDTO orderDTO = binanceUtilService.createBinanceOrderDto(
+                tradingPair, OrderSide.BUY, OrderType.MARKET, BigDecimal.valueOf(quantity));
+
+        return binanceUtilService.sendOrderRequest("binance-service/order/createWithUser", orderDTO, userId);
+    }
+
+    private JsonNode executeSellOrder(String userId, String tradingPair, Double quantity) {
+        BinanceOrderDTO orderDTO = binanceUtilService.createBinanceOrderDto(
+                tradingPair, OrderSide.SELL, OrderType.MARKET, BigDecimal.valueOf(quantity));
+
+        return binanceUtilService.sendOrderRequest("binance-service/order/createWithUser", orderDTO, userId);
     }
 
     private JsonNode executeBuyTestOrder(String userId, String tradingPair, double quantity){
