@@ -1,6 +1,6 @@
 package com.tradebit.rabbitmq;
 
-import com.tradebit.EmailRequest;
+import com.tradebit.requests.EmailRequest;
 import com.tradebit.services.EmailService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background-color: #ffffff;
+      width: 80%;
+      margin: 20px auto;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .content {
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+    .footer {
+      background-color: #ddd;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.8em;
+    }
+    .order-details {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    .order-details th, .order-details td {
+      text-align: left;
+      padding: 5px;
+    }
+    .order-details th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Order Execution Confirmation</h1>
+  </div>
+  <div class="content">
+    <p>Your buy order has been successfully executed by the bot. Here are the details of your transaction:</p>
+
+    <!-- Bot Details -->
+    <p>Executed by Bot:</p>
+    <table class="order-details">
+      <tr>
+        <th>Bot Name</th>
+        <td>[BotName]</td>
+      </tr>
+      <tr>
+        <th>Bot ID</th>
+        <td>[BotID]</td>
+      </tr>
+    </table>
+
+    <!-- Order Details -->
+    <p>Order Details:</p>
+    <table class="order-details">
+      <tr>
+        <th>Trading Pair</th>
+        <td>[TradingPair]</td>
+      </tr>
+      <tr>
+        <th>Buy Price</th>
+        <td>[BuyPrice]</td>
+      </tr>
+      <tr>
+        <th>Quantity</th>
+        <td>[Quantity]</td>
+      </tr>
+      <tr>
+        <th>Timestamp</th>
+        <td>[Timestamp]</td>
+      </tr>
+    </table>
+  </div>
+  <div class="footer">
+    <p>Thank you for using our TradeBit service.</p>
+    <p>&copy; [Current Year] TradeBit</p>
+  </div>
+</div>
+</body>
+</html>
