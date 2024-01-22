@@ -66,4 +66,11 @@ public class GlobalExceptionHandler {
                 HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(BotEnabledException.class)
+    public ResponseEntity<Map<String, String>> handleBotEnabledException(BotEnabledException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.FORBIDDEN);
+    }
+
 }

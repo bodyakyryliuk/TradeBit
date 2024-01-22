@@ -20,25 +20,20 @@ public class BotController {
     private final BotService botService;
 // todo: rename endpoint without create
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createBot(@RequestBody BotDTO botDTO,
+    public ResponseEntity<Bot> createBot(@RequestBody BotDTO botDTO,
                                                          Authentication authentication){
         //TODO: add validation to botDTO
         String userId = botService.getUserIdFromAuthentication(authentication);
-        botService.createBot(botDTO, userId);
-        return ResponseEntity.ok(
-                Map.of
-                        ("status", "success",
-                                "message", "Bot has been created successfully!"));
+        Bot bot = botService.createBot(botDTO, userId);
+        return ResponseEntity.ok(bot);
     }
 
     @PostMapping("/toggleBot")
-    public ResponseEntity<Map<String, ?>> toggleBot(@RequestParam Long botId,
+    public ResponseEntity<Boolean> toggleBot(@RequestParam Long botId,
                                                          Authentication authentication){
         String userId = botService.getUserIdFromAuthentication(authentication);
         boolean botEnabled = botService.toggleBot(botId, userId);
-        return ResponseEntity.ok(
-                Map.of("status", "success",
-                        "enabled", botEnabled));
+        return ResponseEntity.ok(botEnabled);
     }
 
     @GetMapping("/user/{userId}")
@@ -57,5 +52,11 @@ public class BotController {
         return ResponseEntity.ok(
                 Map.of("status", "success",
                         "message", "Bot with id: " + botId + " has been successfully deleted"));
+    }
+
+    @PutMapping("/{botId}")
+    public ResponseEntity<Bot> updateBot(@PathVariable Long botId, @RequestBody BotDTO botDTO){
+        Bot bot = botService.updateBot(botId, botDTO);
+        return ResponseEntity.ok(bot);
     }
 }

@@ -1,6 +1,7 @@
 package com.tradebit.services.bots;
 
 import com.tradebit.dto.BotDTO;
+import com.tradebit.exceptions.BotEnabledException;
 import com.tradebit.exceptions.BotNameAlreadyExistsException;
 import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.exceptions.MaxBotsLimitExceededException;
@@ -29,7 +30,7 @@ public class BotServiceImpl implements BotService {
     private final SellOrderRepository sellOrderRepository;
 
     @Override
-    public void createBot(BotDTO botDTO, String userId) {
+    public Bot createBot(BotDTO botDTO, String userId) {
         if (canCreateBot(botDTO.getName(), userId)) {
             Bot bot = Bot.builder()
                     .name(botDTO.getName())
@@ -46,8 +47,9 @@ public class BotServiceImpl implements BotService {
                     .hidden(false)
                     .build();
 
-            botRepository.save(bot);
+           return botRepository.save(bot);
         }
+        return null;
     }
 
     private boolean canCreateBot(String name, String userId){
@@ -110,6 +112,23 @@ public class BotServiceImpl implements BotService {
             throw new BotNotFoundException("No bot found by userId: " + userId);
 
         return bots;
+    }
+
+    @Override
+    public Bot updateBot(Long botId, BotDTO botDTO) {
+        Bot bot = getBot(botId);
+        if (bot.getEnabled())
+            throw new BotEnabledException("Cannot update a bot while it is enabled");
+
+        bot.setName(botDTO.getName());
+        bot.setBuyThreshold(botDTO.getBuyThreshold());
+        bot.setSellThreshold(botDTO.getSellThreshold());
+        bot.setTakeProfitPercentage(botDTO.getTakeProfitPercentage());
+        bot.setStopLossPercentage(botDTO.getStopLossPercentage());
+        bot.setTradeSize(botDTO.getTradeSize());
+        bot.setTradingPair(botDTO.getTradingPair());
+
+        return botRepository.save(bot);
     }
 
     @Override
