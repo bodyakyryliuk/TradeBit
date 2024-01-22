@@ -5,6 +5,7 @@ import 'package:cointrade/features/wallet/data/datasources/wallet_remote_datasou
 import 'package:cointrade/features/wallet/data/models/all_cryptocurrencies_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/current_price_for_trading_pair_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/historical_prices_response_model.dart';
+import 'package:cointrade/features/wallet/data/models/make_order_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/total_balance_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/wallet_response_model.dart';
 import 'package:cointrade/features/wallet/domain/repositories/wallet_repository.dart';
@@ -77,6 +78,19 @@ class WalletRepositoryImpl implements WalletRepository {
     try {
       final response = await walletRemoteDataSource
           .fetchCurrentPriceForTradingPair(currentPriceForTradingPairParams);
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return const Left(ServerFailure('Unknown error occured'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, MakeOrderResponseModel>> makeOrder(
+      MakeOrderParams makeOrderParams) async {
+    try {
+      final response = await walletRemoteDataSource.makeOrder(makeOrderParams);
       return Right(response);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

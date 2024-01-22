@@ -1,3 +1,7 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'params.g.dart';
+
 class RegisterParams {
   final String email;
   final String password;
@@ -102,3 +106,61 @@ class CurrentPriceForTradingPairParams {
         "tradingPair": tradingPair,
       };
 }
+
+@JsonSerializable(explicitToJson: true)
+class MakeOrderParams {
+  @JsonKey(name: "orderDTO")
+  final OrderDto? orderDto;
+  @JsonKey(name: "linkDTO")
+  final LinkDto? linkDto;
+
+  MakeOrderParams({
+    this.orderDto,
+    this.linkDto,
+  });
+
+  factory MakeOrderParams.fromJson(Map<String, dynamic> json) => _$MakeOrderParamsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MakeOrderParamsToJson(this);
+}
+
+@JsonSerializable()
+class LinkDto {
+  @JsonKey(name: "apiKey")
+  final String? apiKey;
+  @JsonKey(name: "secretApiKey")
+  final String? secretApiKey;
+
+  LinkDto({
+    this.apiKey,
+    this.secretApiKey,
+  });
+
+  factory LinkDto.fromJson(Map<String, dynamic> json) => _$LinkDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LinkDtoToJson(this);
+}
+
+@JsonSerializable()
+class OrderDto {
+  @JsonKey(name: "symbol")
+  final String? symbol;
+  @JsonKey(name: "side")
+  final String? side;
+  @JsonKey(name: "type")
+  final String? type;
+  @JsonKey(name: "quantity")
+  final String? quantity;
+
+  OrderDto({
+    this.symbol,
+    this.side,
+    this.type,
+    this.quantity,
+  });
+
+  factory OrderDto.fromJson(Map<String, dynamic> json) => _$OrderDtoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$OrderDtoToJson(this);
+}
+

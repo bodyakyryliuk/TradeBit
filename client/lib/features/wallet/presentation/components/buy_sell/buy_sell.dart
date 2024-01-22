@@ -3,6 +3,7 @@ import 'package:cointrade/core/widgets/common_text_form_field.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/converter_cubit/buy_sell_trading_pair_price_converter_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/current_price_trading_pair_cubit/current_price_trading_pair_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/current_price_trading_pair_cubit/current_price_trading_pair_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/buy_sell/make_order_cubit/make_order_cubit.dart';
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -75,80 +76,16 @@ class _BuySellState extends State<BuySell> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CurrentPriceTradingPairCubit,
-        CurrentPriceTradingPairState>(
-      builder: (context, state) {
-        Widget child = Container(
-          color: Colors.black,
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: BlocListener<BuySellTradingPairPriceConverterCubit,
-              BuySellTradingPairPriceConverterState>(
-            listener: (context, state) {
-              state.whenOrNull(
-                updateAmount: (amount) {
-                  _amountController.text =
-                      Decimal.parse(amount.toString()).toString();
-                },
-                updateTotal: (total) {
-                  _totalController.text =
-                      Decimal.parse(total.toString()).toString();
-                },
-              );
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CommonTextFormField(
-                  prefixText: '${widget.currencyPair.split('USDT')[0]}  ',
-                  keyboardType: TextInputType.number,
-                  controller: _amountController,
-                  focusNode: _amountFocusNode,
-                ),
-                const SizedBox(height: 10),
-                CommonTextFormField(
-                  prefixText: 'USDT  ',
-                  focusNode: _totalFocusNode,
-                  controller: _totalController,
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 10),
-                const Row(
-                  children: [
-                    Expanded(
-                        child: CommonTextButton(
-                      title: 'Buy',
-                      color: Colors.green,
-                    )),
-                    SizedBox(width: 10),
-                    Expanded(
-                        child: CommonTextButton(
-                      title: 'Sell',
-                      color: Colors.red,
-                    )),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-
-        Widget disabledChild =
-            IgnorePointer(child: Opacity(opacity: 0.6, child: child));
-
-        return state.when(
-            initial: () => disabledChild,
-            loading: () => disabledChild,
-            success: (currentPriceTradingPairResponseModel) {
-              return child;
-            },
-            failure: (String message) => disabledChild);
-      }, listener: (BuildContext context, CurrentPriceTradingPairState state) {
-        state.whenOrNull(
-          success: (currentPriceTradingPairResponseModel) {
-            context
-                .read<BuySellTradingPairPriceConverterCubit>()
-                .updatePrice(currentPriceTradingPairResponseModel.price);
+    return BlocListener<MakeOrderCubit, MakeOrderState>(
+      listener: (context, makeOrderState) {
+        makeOrderState.whenOrNull(
+          success: (_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Order placed successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
           },
           failure: (message) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -159,7 +96,105 @@ class _BuySellState extends State<BuySell> {
             );
           },
         );
-    },
+      },
+      child: BlocConsumer<CurrentPriceTradingPairCubit,
+          CurrentPriceTradingPairState>(
+        builder: (context, state) {
+          Widget child = Container(
+            color: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: BlocListener<BuySellTradingPairPriceConverterCubit,
+                BuySellTradingPairPriceConverterState>(
+              listener: (context, state) {
+                state.whenOrNull(
+                  updateAmount: (amount) {
+                    _amountController.text =
+                        Decimal.parse(amount.toString()).toString();
+                  },
+                  updateTotal: (total) {
+                    _totalController.text =
+                        Decimal.parse(total.toString()).toString();
+                  },
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CommonTextFormField(
+                    prefixText: '${widget.currencyPair.split('USDT')[0]}  ',
+                    keyboardType: TextInputType.number,
+                    controller: _amountController,
+                    focusNode: _amountFocusNode,
+                  ),
+                  const SizedBox(height: 10),
+                  CommonTextFormField(
+                    prefixText: 'USDT  ',
+                    focusNode: _totalFocusNode,
+                    controller: _totalController,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: CommonTextButton(
+                            title: 'Buy',
+                            color: Colors.green,
+                            onPressed: () {
+                              context.read<MakeOrderCubit>().makeOrder(
+                                  orderSide: OrderSide.buy,
+                                  quantity: _amountController.text,
+                                  symbol: widget.currencyPair);
+                            },
+                          )),
+                      const SizedBox(width: 10),
+                      Expanded(
+                          child: CommonTextButton(
+                              title: 'Sell',
+                              color: Colors.red,
+                              onPressed: () {
+                                context.read<MakeOrderCubit>().makeOrder(
+                                    orderSide: OrderSide.sell,
+                                    quantity: _amountController.text,
+                                    symbol: widget.currencyPair);
+                              })),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+
+          Widget disabledChild =
+          IgnorePointer(child: Opacity(opacity: 0.6, child: child));
+
+          return state.when(
+              initial: () => disabledChild,
+              loading: () => disabledChild,
+              success: (currentPriceTradingPairResponseModel) {
+                return child;
+              },
+              failure: (String message) => disabledChild);
+        },
+        listener: (BuildContext context, CurrentPriceTradingPairState state) {
+          state.whenOrNull(
+            success: (currentPriceTradingPairResponseModel) {
+              context
+                  .read<BuySellTradingPairPriceConverterCubit>()
+                  .updatePrice(currentPriceTradingPairResponseModel.price);
+            },
+            failure: (message) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

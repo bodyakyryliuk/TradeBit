@@ -5,6 +5,7 @@ import 'package:cointrade/core/usecase/usecase.dart';
 import 'package:cointrade/features/wallet/data/models/all_cryptocurrencies_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/current_price_for_trading_pair_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/historical_prices_response_model.dart';
+import 'package:cointrade/features/wallet/data/models/make_order_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/total_balance_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/wallet_response_model.dart';
 
@@ -94,6 +95,26 @@ class WalletRemoteDataSource {
         return result;
       } else {
         throw ServerException('Error fetching all cryptocurrencies');
+      }
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  Future<MakeOrderResponseModel>
+  makeOrder(
+      MakeOrderParams makeOrderParams) async {
+    try {
+      final response = await _client.postRequest(
+        EndPoints.makeOrder,
+        data: makeOrderParams.toJson(),
+      );
+      final result =
+      MakeOrderResponseModel.fromJson(response.data);
+      if (response.statusCode == 200) {
+        return result;
+      } else {
+        throw ServerException(result.message);
       }
     } on ServerException catch (e) {
       throw ServerException(e.message);

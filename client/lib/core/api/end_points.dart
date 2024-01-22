@@ -13,4 +13,6 @@ class EndPoints {
   static const String allCryptocurrencies = "/binance-service/binance/cryptocurrencies";
   static const String historicalPrices = "/binance-service/binance/historicalPrices";
   static const String currentPriceForTradingPair = "/binance-service/binance/currentPrice";
+
+  static const String makeOrder = "/binance-service/order";
 }

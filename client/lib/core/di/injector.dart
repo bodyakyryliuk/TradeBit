@@ -20,9 +20,11 @@ import 'package:cointrade/features/wallet/domain/usecases/fetch_current_price_fo
 import 'package:cointrade/features/wallet/domain/usecases/fetch_historical_prices_use_case.dart';
 import 'package:cointrade/features/wallet/domain/usecases/fetch_total_balance_use_case.dart';
 import 'package:cointrade/features/wallet/domain/usecases/fetch_wallet_use_case.dart';
+import 'package:cointrade/features/wallet/domain/usecases/make_order_use_case.dart';
 import 'package:cointrade/features/wallet/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/converter_cubit/buy_sell_trading_pair_price_converter_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/current_price_trading_pair_cubit/current_price_trading_pair_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/buy_sell/make_order_cubit/make_order_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/total_balance/cubit/total_balance_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/wallet/cubit/wallet_cubit.dart';
@@ -56,6 +58,7 @@ void registerBlocs() {
   sl.registerFactory(() => HistoricalPricesCubit(sl()));
   sl.registerFactory(() => BuySellTradingPairPriceConverterCubit());
   sl.registerFactory(() => CurrentPriceTradingPairCubit(sl()));
+  sl.registerFactory(() => MakeOrderCubit(sl()));
 }
 
 void registerUseCases() {
@@ -72,6 +75,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => FetchAllCryptocurrenciesUseCase(sl()));
   sl.registerLazySingleton(() => FetchHistoricalPricesUseCase(sl()));
   sl.registerLazySingleton(() => FetchCurrentPriceForTradingPairUseCase(sl()));
+  sl.registerLazySingleton(() => MakeOrderUseCase(sl()));
 }
 
 void registerRepositories() {
