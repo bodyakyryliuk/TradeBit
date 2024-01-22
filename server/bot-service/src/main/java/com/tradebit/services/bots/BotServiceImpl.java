@@ -101,8 +101,6 @@ public class BotServiceImpl implements BotService {
         botManager.setBotEnabledState(bot, newState);
         botManager.setBotReadyToBuyState(botId, bot.getIsReadyToBuy());
         botManager.setBotReadyToSellState(botId, bot.getIsReadyToSell());
-        bot.setEnabled(newState);
-        botRepository.saveAndFlush(bot);
 
         if (newState) {
             botTaskExecutor.execute(() -> botTradingService.trade(bot));
