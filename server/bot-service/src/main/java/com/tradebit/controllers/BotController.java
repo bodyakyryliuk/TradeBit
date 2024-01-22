@@ -23,53 +23,32 @@ public class BotController {
     public ResponseEntity<Map<String, String>> createBot(@RequestBody BotDTO botDTO,
                                                          Authentication authentication){
         //TODO: add validation to botDTO
-        try {
-            String userId = botService.getUserIdFromAuthentication(authentication);
-            botService.createBot(botDTO, userId);
-            return ResponseEntity.ok(
-                    Map.of
-                            ("status", "success",
-                                    "message", "Bot has been created successfully!"));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "failure",
-                            "message", e.getMessage()));
-        }
+        String userId = botService.getUserIdFromAuthentication(authentication);
+        botService.createBot(botDTO, userId);
+        return ResponseEntity.ok(
+                Map.of
+                        ("status", "success",
+                                "message", "Bot has been created successfully!"));
     }
 
     @PostMapping("/toggleBot")
     public ResponseEntity<Map<String, ?>> toggleBot(@RequestParam Long botId,
                                                          Authentication authentication){
-        try {
-            String userId = botService.getUserIdFromAuthentication(authentication);
-            boolean botEnabled = botService.toggleBot(botId, userId);
-            return ResponseEntity.ok(
-                    Map.of("status", "success",
-                            "enabled", botEnabled));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "failure",
-                            "message", e.getMessage()));
-        }
-
+        String userId = botService.getUserIdFromAuthentication(authentication);
+        boolean botEnabled = botService.toggleBot(botId, userId);
+        return ResponseEntity.ok(
+                Map.of("status", "success",
+                        "enabled", botEnabled));
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<Bot>> getBotsByUserId(@PathVariable String userId){
-        List<Bot> bots = botService.getAllByUserId(userId);
-        if (bots.isEmpty())
-            return ResponseEntity.notFound().build();
-
-        return ResponseEntity.ok(bots);
+        return ResponseEntity.ok(botService.getAllByUserId(userId));
     }
 
-    @GetMapping("/{botId}")
+    @GetMapping("/bot/{botId}")
     public ResponseEntity<Bot> getBotById(@PathVariable Long botId){
-        Bot bot = botService.getBot(botId);
-        if (bot == null)
-            return ResponseEntity.notFound().build();
-
-        return  ResponseEntity.ok(bot);
+        return  ResponseEntity.ok(botService.getBot(botId));
     }
 
     @DeleteMapping("/{botId}")

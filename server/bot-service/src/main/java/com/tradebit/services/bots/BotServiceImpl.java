@@ -6,6 +6,8 @@ import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.exceptions.MaxBotsLimitExceededException;
 import com.tradebit.models.Bot;
 import com.tradebit.repositories.BotRepository;
+import com.tradebit.repositories.BuyOrderRepository;
+import com.tradebit.repositories.SellOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,8 @@ public class BotServiceImpl implements BotService {
     private final BotManager botManager;
     private final ThreadPoolTaskExecutor botTaskExecutor;
     private final BotTradingService botTradingService;
+    private final BuyOrderRepository buyOrderRepository;
+    private final SellOrderRepository sellOrderRepository;
 
     @Override
     public void createBot(BotDTO botDTO, String userId) {
@@ -39,6 +43,7 @@ public class BotServiceImpl implements BotService {
                     .enabled(false)
                     .isReadyToBuy(true)
                     .isReadyToSell(false)
+                    .hidden(false)
                     .build();
 
             botRepository.save(bot);
@@ -46,8 +51,8 @@ public class BotServiceImpl implements BotService {
     }
 
     private boolean canCreateBot(String name, String userId){
-        int count = botRepository.countAllByUserId(userId);
-        boolean exists = botRepository.existsByNameAndUserId(name, userId);
+        int count = botRepository.countAllByUserIdAndHidden(userId, false);
+        boolean exists = botRepository.existsByNameAndUserIdAndHidden(name, userId, false);
 
         if (count >= 10)
             throw new MaxBotsLimitExceededException("Exceeded limit of bots allowed");
@@ -65,9 +70,16 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public void deleteBotById(Long botId) {
-        if (!botRepository.existsById(botId))
-            throw new BotNotFoundException("Bot with ID: " + botId + " not found");
-        botRepository.deleteById(botId);
+        Bot bot = botRepository.findById(botId)
+                .orElseThrow(() -> new BotNotFoundException("Bot with ID: " + botId + " not found"));
+
+        if (buyOrderRepository.existsByBot(bot) || sellOrderRepository.existsByBot(bot)){
+            bot.setHidden(true);
+            botManager.setBotEnabledState(bot, false);
+            botRepository.save(bot);
+        }else
+            botRepository.deleteById(botId);
+
     }
 
     @Override
@@ -93,7 +105,11 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public List<Bot> getAllByUserId(String userId) {
-        return botRepository.findAllByUserId(userId);
+        List<Bot> bots = botRepository.findAllByUserId(userId);
+        if (bots.isEmpty())
+            throw new BotNotFoundException("No bot found by userId: " + userId);
+
+        return bots;
     }
 
     @Override
