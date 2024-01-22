@@ -1,5 +1,9 @@
 package com.tradebit.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,12 +42,30 @@ This parameter specifies the size of each trade, which could be the quantity of 
 It can be a fixed quantity or a percentage of the total portfolio size.
  */
 public class BotDTO {
-    //todo: add constraints
+    @NotEmpty(message = "Name must not be empty")
+    @Pattern(regexp = "^[A-Za-z0-9]+$", message = "Name must contain only letters and digits")
     private String name;
+
+    @NotNull(message = "Buy threshold must not be null")
+    @Positive(message = "Buy threshold must be positive")
     private Double buyThreshold;
+
+    @NotNull(message = "Sell threshold must not be null")
+    @Positive(message = "Sell threshold must be positive")
     private Double sellThreshold;
+
+    @NotNull(message = "Take profit percentage must not be null")
+    @Positive(message = "Take profit percentage must be positive")
     private Double takeProfitPercentage;
+
+    @NotNull(message = "Stop loss percentage must not be null")
+    @Positive(message = "Stop loss percentage must be positive")
     private Double stopLossPercentage;
+
+    @NotNull(message = "Trade size must not be null")
+    @Positive(message = "Trade size must be positive")
     private Double tradeSize;
+
+    @NotEmpty(message = "Trading pair must not be empty")
     private String tradingPair;
 }

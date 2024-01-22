@@ -4,6 +4,7 @@ import com.tradebit.dto.BotDTO;
 import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.models.Bot;
 import com.tradebit.services.bots.BotService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,9 @@ import java.util.Map;
 public class BotController {
     private final BotService botService;
 // todo: rename endpoint without create
-    @PostMapping("/create")
-    public ResponseEntity<Bot> createBot(@RequestBody BotDTO botDTO,
+    @PostMapping
+    public ResponseEntity<Bot> createBot(@Valid @RequestBody BotDTO botDTO,
                                                          Authentication authentication){
-        //TODO: add validation to botDTO
         String userId = botService.getUserIdFromAuthentication(authentication);
         Bot bot = botService.createBot(botDTO, userId);
         return ResponseEntity.ok(bot);
@@ -53,7 +53,7 @@ public class BotController {
     }
 
     @PutMapping("/{botId}")
-    public ResponseEntity<Bot> updateBot(@PathVariable Long botId, @RequestBody BotDTO botDTO){
+    public ResponseEntity<Bot> updateBot(@PathVariable Long botId, @Valid @RequestBody BotDTO botDTO){
         Bot bot = botService.updateBot(botId, botDTO);
         return ResponseEntity.ok(bot);
     }
