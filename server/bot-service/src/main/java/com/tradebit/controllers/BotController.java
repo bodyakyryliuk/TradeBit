@@ -47,11 +47,9 @@ public class BotController {
     }
 
     @DeleteMapping("/{botId}")
-    public ResponseEntity<Map<String, String>> deleteBotById(@PathVariable Long botId){
+    public ResponseEntity<Void> deleteBotById(@PathVariable Long botId){
         botService.deleteBotById(botId);
-        return ResponseEntity.ok(
-                Map.of("status", "success",
-                        "message", "Bot with id: " + botId + " has been successfully deleted"));
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{botId}")
