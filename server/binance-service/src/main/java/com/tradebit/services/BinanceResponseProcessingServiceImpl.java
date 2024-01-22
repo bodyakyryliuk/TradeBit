@@ -10,9 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class BinanceResponseProcessingServiceImpl implements BinanceResponseProcessingService {
@@ -60,6 +58,25 @@ public class BinanceResponseProcessingServiceImpl implements BinanceResponseProc
                     throw new UnexpectedException(rootNode.get("msg").asText());
             }
         }
+    }
+
+    public JsonNode processAllTradingPairsResponse(String response){
+        ObjectMapper mapper = new ObjectMapper();
+        List<String> tradingPairs = new ArrayList<>();
+        try {
+            JsonNode rootNode = mapper.readTree(response);
+            JsonNode symbolsArray = rootNode.path("symbols");
+            if (symbolsArray.isArray()) {
+                for (JsonNode symbolNode : symbolsArray) {
+                    String symbol = symbolNode.path("symbol").asText();
+                    tradingPairs.add(symbol);
+                }
+            }
+            return mapper.valueToTree(tradingPairs);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return mapper.createArrayNode();
     }
 
     public JsonNode processResponse(String response) {
