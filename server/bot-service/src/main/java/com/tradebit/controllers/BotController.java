@@ -1,6 +1,8 @@
 package com.tradebit.controllers;
 
 import com.tradebit.dto.BotDTO;
+import com.tradebit.exceptions.BotNotFoundException;
+import com.tradebit.models.Bot;
 import com.tradebit.services.bots.BotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,11 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/bot")
+@RequestMapping("/bots")
 public class BotController {
     private final BotService botService;
 // todo: rename endpoint without create
@@ -49,5 +52,31 @@ public class BotController {
                             "message", e.getMessage()));
         }
 
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Bot>> getBotsByUserId(@PathVariable String userId){
+        List<Bot> bots = botService.getAllByUserId(userId);
+        if (bots.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(bots);
+    }
+
+    @GetMapping("/{botId}")
+    public ResponseEntity<Bot> getBotById(@PathVariable Long botId){
+        Bot bot = botService.getBot(botId);
+        if (bot == null)
+            return ResponseEntity.notFound().build();
+
+        return  ResponseEntity.ok(bot);
+    }
+
+    @DeleteMapping("/{botId}")
+    public ResponseEntity<Map<String, String>> deleteBotById(@PathVariable Long botId){
+        botService.deleteBotById(botId);
+        return ResponseEntity.ok(
+                Map.of("status", "success",
+                        "message", "Bot with id: " + botId + " has been successfully deleted"));
     }
 }

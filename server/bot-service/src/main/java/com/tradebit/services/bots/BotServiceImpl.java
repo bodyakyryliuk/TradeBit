@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -88,6 +89,11 @@ public class BotServiceImpl implements BotService {
         Optional<Bot> botOptional = botRepository.findById(botId);
         return botOptional.orElseThrow(() ->
                 new BotNotFoundException("Bot " + botId + " not found!"));
+    }
+
+    @Override
+    public List<Bot> getAllByUserId(String userId) {
+        return botRepository.findAllByUserId(userId);
     }
 
     @Override
