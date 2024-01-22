@@ -91,6 +91,15 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         return resultNode;
     }
 
+    @Override
+    public JsonNode getAllTradingPairs() {
+        HttpUrl url = binanceRequestService.buildRequestUrl("/api/v3/exchangeInfo");
+        Request request = binanceRequestService.buildRequest(url);
+        String response = binanceRequestService.executeRequest(request);
+
+        return responseProcessingService.processAllTradingPairsResponse(response);
+    }
+
 
     @Override
     public Double getPriceChange(String tradingPair, int period) {

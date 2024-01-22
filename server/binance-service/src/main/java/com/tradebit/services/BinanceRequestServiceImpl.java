@@ -42,6 +42,11 @@ public class BinanceRequestServiceImpl implements BinanceRequestService{
         return urlBuilder.build();
     }
 
+    public HttpUrl buildRequestUrl(String endpoint) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + endpoint).newBuilder();
+        return urlBuilder.build();
+    }
+
     @Override
     public HttpUrl buildKlineUrl(String tradingPair, String interval, long timeStamp) {
         HttpUrl url = HttpUrl.parse(API_URL + "/api/v3/klines").newBuilder()
@@ -63,11 +68,6 @@ public class BinanceRequestServiceImpl implements BinanceRequestService{
                 .addEncodedQueryParameter("limit", String.valueOf(1000))
                 .build();
         return url;
-    }
-
-    public HttpUrl buildRequestUrl(String endpoint) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(API_URL + endpoint).newBuilder();
-        return urlBuilder.build();
     }
 
     public String buildQueryString(BinanceOrderDTO orderDTO, long timeStamp) {

@@ -17,4 +17,7 @@ public interface BinanceApiService {
     JsonNode getAllCryptocurrenciesWithUSDT();
 
     JsonNode getHighestPriceByPeriod(String tradingPair, int period);
+
+    JsonNode getAllTradingPairs();
+
 }
