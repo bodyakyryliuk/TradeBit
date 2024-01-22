@@ -1,6 +1,5 @@
 package com.tradebit.dto.order;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tradebit.models.order.OrderSide;
 import com.tradebit.models.order.OrderType;
 import lombok.AllArgsConstructor;

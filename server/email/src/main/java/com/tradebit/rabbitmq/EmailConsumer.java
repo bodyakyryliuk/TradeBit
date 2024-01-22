@@ -14,12 +14,23 @@ public class EmailConsumer {
     private final EmailService emailService;
 
     @RabbitListener(queues = "${rabbitmq.queue.email}")
-    public void consumer(EmailRequest emailRequest){
-        log.info("Consumed {} from queue", emailRequest);
-        switch (emailRequest.getEmailType()){
-            case VERIFICATION_EMAIL -> emailService.sendVerificationMail(emailRequest);
-            case RESET_PASSWORD_EMAIL -> emailService.sendResetPasswordMail(emailRequest);
-
+    public void consumer(EmailRequest emailRequest) {
+        try {
+            log.info("Sending message of " + emailRequest.getEmailType() + " type");
+            switch (emailRequest.getEmailType()) {
+                case VERIFICATION_EMAIL:
+                    emailService.sendVerificationMail(emailRequest);
+                case RESET_PASSWORD_EMAIL:
+                    emailService.sendResetPasswordMail(emailRequest);
+                case BUY_ORDER:
+                    emailService.sendBuyOrderMail(emailRequest);
+                case SELL_ORDER:
+                    emailService.sendSellOrderMail(emailRequest);
+                default:
+                    log.warn("Unhandled email type: {}", emailRequest.getEmailType());
+            }
+        } catch (Exception e) {
+            log.error("Error processing message", e);
         }
     }
 

@@ -1,9 +1,6 @@
 package com.tradebit.services;
 
-import com.tradebit.requests.BuyOrderEmailRequest;
 import com.tradebit.requests.EmailRequest;
-import com.tradebit.requests.OrderEmailRequest;
-import com.tradebit.requests.SellOrderEmailRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +66,39 @@ public class EmailServiceImpl implements EmailService{
         }
     }
 
-    private void sendOrderMail(OrderEmailRequest emailRequest, String templateName) {
+//    private void sendOrderMail(OrderEmailRequest emailRequest, String templateName) {
+//        MimeMessage mail = mailSender.createMimeMessage();
+//
+//        try {
+//            MimeMessageHelper helper = new MimeMessageHelper(mail, true);
+//            helper.setTo(emailRequest.getTo());
+//            helper.setSubject("Order executed");
+//
+//            String content = loadTemplate(templateName);
+//
+//            content = content.replace("[BotName]", emailRequest.getBotName());
+//            content = content.replace("[BotID]", String.valueOf(emailRequest.getBotId()));
+//            content = content.replace("[TradingPair]", emailRequest.getTradingPair());
+//            content = content.replace("[BuyPrice]", String.valueOf(emailRequest.getBuyPrice()));
+//            content = content.replace("[Quantity]", String.valueOf(emailRequest.getQuantity()));
+//            content = content.replace("[Timestamp]", emailRequest.getTimestamp().toString());
+//            content = content.replace("[Current Year]", String.valueOf(Year.now().getValue()));
+//
+//            if (emailRequest instanceof SellOrderEmailRequest sellRequest) {
+//                content = content.replace("[Profit]", String.valueOf(sellRequest.getProfit()));
+//            }
+//
+//            helper.setText(content, true); // set to true to indicate the text content is HTML
+//
+//            mailSender.send(mail);
+//        } catch (MessagingException e) {
+//            throw new RuntimeException("Failed to send email", e);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
+    private void sendOrderMail(EmailRequest emailRequest, String templateName) {
         MimeMessage mail = mailSender.createMimeMessage();
 
         try {
@@ -84,11 +113,11 @@ public class EmailServiceImpl implements EmailService{
             content = content.replace("[TradingPair]", emailRequest.getTradingPair());
             content = content.replace("[BuyPrice]", String.valueOf(emailRequest.getBuyPrice()));
             content = content.replace("[Quantity]", String.valueOf(emailRequest.getQuantity()));
-            content = content.replace("[Timestamp]", emailRequest.getTimestamp().toString());
+            content = content.replace("[Timestamp]", emailRequest.getTimestamp());
             content = content.replace("[Current Year]", String.valueOf(Year.now().getValue()));
 
-            if (emailRequest instanceof SellOrderEmailRequest sellRequest) {
-                content = content.replace("[Profit]", String.valueOf(sellRequest.getProfit()));
+            if (emailRequest.getProfit() != null){
+                content = content.replace("[Profit]", String.valueOf(emailRequest.getProfit()));
             }
 
             helper.setText(content, true); // set to true to indicate the text content is HTML
@@ -103,12 +132,12 @@ public class EmailServiceImpl implements EmailService{
 
 
     @Override
-    public void sendBuyOrderMail(BuyOrderEmailRequest emailRequest) {
+    public void sendBuyOrderMail(EmailRequest emailRequest) {
         sendOrderMail(emailRequest, "buy-order.html");
     }
 
     @Override
-    public void sendSellOrderMail(SellOrderEmailRequest emailRequest) {
+    public void sendSellOrderMail(EmailRequest emailRequest) {
        sendOrderMail(emailRequest, "sell-order.html");
     }
 

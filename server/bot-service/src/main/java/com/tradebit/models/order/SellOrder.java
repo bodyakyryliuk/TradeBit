@@ -1,7 +1,6 @@
 package com.tradebit.models.order;
 
 import com.tradebit.models.Bot;
-import com.tradebit.models.order.BuyOrder;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

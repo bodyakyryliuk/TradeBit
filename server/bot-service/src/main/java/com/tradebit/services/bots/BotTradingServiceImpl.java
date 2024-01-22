@@ -2,10 +2,13 @@ package com.tradebit.services.bots;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.order.BinanceOrderDTO;
+import com.tradebit.exceptions.CustomClientException;
+import com.tradebit.exceptions.CustomServerException;
 import com.tradebit.models.Bot;
 import com.tradebit.models.order.BuyOrder;
 import com.tradebit.models.order.OrderSide;
 import com.tradebit.models.order.OrderType;
+import com.tradebit.models.order.SellOrder;
 import com.tradebit.services.BinanceUtilService;
 import com.tradebit.services.EmailService;
 import com.tradebit.services.orders.BuyOrderService;
@@ -26,8 +29,6 @@ public class BotTradingServiceImpl implements BotTradingService {
     private final SellOrderService sellOrderService;
     private final BinanceUtilService binanceUtilService;
     private final EmailService emailService;
-//    @Value("${api.gateway.host}")
-    private final String baseUrl = "http://localhost:8080";
 
     // The bot monitors the trading pair's price.
     // if price < recent highest price by buyThreshold percents -> bot buys tradeSize of tradingPair
@@ -56,24 +57,36 @@ public class BotTradingServiceImpl implements BotTradingService {
 
     private BuyOrder handleBuying(Bot bot){
         if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold())) {
-            JsonNode order = executeBuyOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
-            log.info("Executed buy order");
-            //TODO: send message to user's email
-            Double buyPrice = binanceUtilService.getPriceFromOrder(order);
-            botManager.updateBotTradingState(bot, false, true);
-            return buyOrderService.save(bot, buyPrice);
+            try {
+                JsonNode order = executeBuyOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
+                log.info("Executed buy order");
+                Double buyPrice = binanceUtilService.getPriceFromOrder(order);
+                BuyOrder buyOrder = buyOrderService.save(bot, buyPrice);
+                botManager.updateBotTradingState(bot, false, true);
+                emailService.sendBuyOrderEmail(buyOrder, bot.getUserId());
+                return buyOrder;
+            }catch (CustomClientException | CustomServerException e){
+                log.warn(e.getMessage());
+                botManager.setBotEnabledState(bot, false);
+            }
+
         }
         return null;
     }
 
     private void handleSelling(Bot bot, BuyOrder buyOrder){
         if (shouldSell(bot.getTradingPair(), buyOrder.getBuyPrice(), bot.getSellThreshold(), bot.getStopLossPercentage())){
-            JsonNode order = executeSellOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
-            log.info("Executed sell order");
-            //TODO: send message to user's email
-            Double sellPrice = binanceUtilService.getPriceFromOrder(order);
-            sellOrderService.save(bot, buyOrder, sellPrice);
-            botManager.updateBotTradingState(bot, true, false);
+            try {
+                JsonNode order = executeSellOrder(bot.getUserId(), buyOrder.getTradingPair(), buyOrder.getQuantity());
+                log.info("Executed sell order");
+                Double sellPrice = binanceUtilService.getPriceFromOrder(order);
+                SellOrder sellOrder = sellOrderService.save(bot, buyOrder, sellPrice);
+                botManager.updateBotTradingState(bot, true, false);
+                emailService.sendSellOrderEmail(sellOrder, bot.getUserId());
+            }catch (CustomClientException e){
+                log.warn(e.getMessage());
+                botManager.setBotEnabledState(bot, false);
+            }
         }
     }
 

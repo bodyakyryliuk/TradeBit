@@ -6,19 +6,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
-
 @Data
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
-public class OrderEmailRequest {
+public class EmailRequest {
     private EmailType emailType;
     private String to;
+    private String message;
     private String botName;
     private Long botId;
     private String tradingPair;
-    private double buyPrice;
-    private double quantity;
-    private LocalDateTime timestamp;
+    private Double buyPrice;
+    private Double quantity;
+    private String timestamp;
+    private Double profit;
 }

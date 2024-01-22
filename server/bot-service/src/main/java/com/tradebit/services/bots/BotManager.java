@@ -1,13 +1,11 @@
 package com.tradebit.services.bots;
 
-import com.tradebit.exceptions.BotNotFoundException;
 import com.tradebit.models.Bot;
 import com.tradebit.repositories.BotRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
