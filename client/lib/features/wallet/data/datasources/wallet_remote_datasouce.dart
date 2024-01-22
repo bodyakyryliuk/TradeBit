@@ -3,6 +3,7 @@ import 'package:cointrade/core/api/end_points.dart';
 import 'package:cointrade/core/error/exceptions.dart';
 import 'package:cointrade/core/usecase/usecase.dart';
 import 'package:cointrade/features/wallet/data/models/all_cryptocurrencies_response_model.dart';
+import 'package:cointrade/features/wallet/data/models/current_price_for_trading_pair_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/historical_prices_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/total_balance_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/wallet_response_model.dart';
@@ -56,6 +57,27 @@ class WalletRemoteDataSource {
         return result;
       } else {
         throw ServerException('Error fetching historical prices');
+      }
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  Future<CurrentPriceForTradingPairResponseModel>
+      fetchCurrentPriceForTradingPair(
+          CurrentPriceForTradingPairParams
+              currentPriceForTradingPairParams) async {
+    try {
+      final response = await _client.getRequest(
+        EndPoints.currentPriceForTradingPair,
+        queryParameters: currentPriceForTradingPairParams.toJson(),
+      );
+      final result =
+          CurrentPriceForTradingPairResponseModel.fromJson(response.data);
+      if (response.statusCode == 200) {
+        return result;
+      } else {
+        throw ServerException('Error fetching current price for trading pair');
       }
     } on ServerException catch (e) {
       throw ServerException(e.message);

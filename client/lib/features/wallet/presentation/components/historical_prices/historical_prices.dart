@@ -13,10 +13,12 @@ class HistoricalPrices extends StatelessWidget {
       builder: (context, state) {
         return state.when<Widget>(
             loading: () => const Padding(
-              padding: EdgeInsets.all(30.0),
-              child: SizedBox(
-                  height: 20, width: 20, child: FittedBox(child: CircularProgressIndicator())),
-            ),
+                  padding: EdgeInsets.all(30.0),
+                  child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: FittedBox(child: CircularProgressIndicator())),
+                ),
             success:
                 (HistoricalPricesResponseModel historicalPricesResponseModel) {
               final List<CandleData> data = historicalPricesResponseModel
@@ -32,17 +34,18 @@ class HistoricalPrices extends StatelessWidget {
                 );
               }).toList();
 
-              return SizedBox(
-                height: 400,
-                child: InteractiveChart(
-                  style: ChartStyle(volumeHeightFactor: 0.1,
-                      priceLossColor: Colors.red,
-                      priceGainColor: Colors.green,
-                      priceGridLineColor: Colors.grey[800]!,
-                      timeLabelHeight: 0.0,
-                      volumeColor: Colors.transparent,),initialVisibleCandleCount: 35,
-                  candles: data,
+              return InteractiveChart(
+                style: ChartStyle(
+                  volumeHeightFactor: 0.1,
+                  priceLossColor: Colors.red,
+                  priceGainColor: Colors.green,
+                  priceGridLineColor: Colors.grey[800]!,
+                  timeLabelHeight: 0.0,
+                  overlayBackgroundColor: Colors.grey[900]!,
+                  volumeColor: Colors.transparent,
                 ),
+                initialVisibleCandleCount: 35,
+                candles: data,
               );
             },
             initial: () {

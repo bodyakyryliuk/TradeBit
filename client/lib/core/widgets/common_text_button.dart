@@ -6,6 +6,7 @@ class CommonTextButton extends StatelessWidget {
     required this.title,
     this.onPressed,
     this.isPrimary = true,
+    this.color,
   });
 
   final String title;
@@ -13,13 +14,18 @@ class CommonTextButton extends StatelessWidget {
 
   final bool isPrimary;
 
+  final Color? color;
+
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
           foregroundColor: Theme.of(context).colorScheme.background,
-          backgroundColor:isPrimary? Theme.of(context).colorScheme.primary: Colors.grey[900],
+          backgroundColor: color ??
+              (isPrimary
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey[900]),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.all(18)),

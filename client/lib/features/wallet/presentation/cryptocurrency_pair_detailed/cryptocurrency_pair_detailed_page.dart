@@ -1,16 +1,13 @@
+import 'package:cointrade/core/widgets/common_text_button.dart';
+import 'package:cointrade/core/widgets/common_text_form_field.dart';
+import 'package:cointrade/features/wallet/presentation/components/buy_sell/buy_sell.dart';
+import 'package:cointrade/features/wallet/presentation/components/buy_sell/current_price_trading_pair_cubit/current_price_trading_pair_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/historical_prices/historical_prices.dart';
+import 'package:cointrade/features/wallet/presentation/components/historical_prices/historical_prices_period_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-class CryptocurrencyPairDetailedArgs {
-  final String currencyPair;
-  final double price;
-
-  CryptocurrencyPairDetailedArgs(
-      {required this.currencyPair, required this.price});
-}
 
 class CryptocurrencyPairDetailedPage extends StatefulWidget {
   const CryptocurrencyPairDetailedPage({Key? key, required this.currencyPair})
@@ -29,11 +26,12 @@ class _CryptocurrencyPairDetailedPageState
   void initState() {
     context
         .read<HistoricalPricesCubit>()
-        .fetchHistoricalPrices(currencyPair: widget.currencyPair, period: 168);
+        .fetchHistoricalPrices(currencyPair: widget.currencyPair, period: 1);
+    context
+        .read<CurrentPriceTradingPairCubit>()
+        .fetchCurrentPriceForTradingPair(tradingPair: widget.currencyPair);
     super.initState();
   }
-
-  int selectedSegment = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -41,51 +39,14 @@ class _CryptocurrencyPairDetailedPageState
       appBar: AppBar(
         title: Text(widget.currencyPair),
       ),
-      body: ListView(
+      body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: CupertinoSlidingSegmentedControl(
-              padding: const EdgeInsets.all(10),
-              children: const {
-                0: Text('1h'),
-                1: Text('1d'),
-                2: Text('3d'),
-                3: Text('1w'),
-                4: Text('1m'),
-              },
-              thumbColor: Colors.grey[900]!,
-              onValueChanged: (value) {
-                int period = 1;
-                switch (value) {
-                  case 0:
-                    period = 1;
-                    break;
-                  case 1:
-                    period = 24;
-                    break;
-                  case 2:
-                    period = 72;
-                    break;
-                  case 3:
-                    period = 168;
-                    break;
-                  case 4:
-                    period = 720;
-                    break;
-                }
-
-                context.read<HistoricalPricesCubit>().fetchHistoricalPrices(
-                    currencyPair: widget.currencyPair, period: period);
-
-                setState(() {
-                  selectedSegment = value!;
-                });
-              },
-              groupValue: selectedSegment,
-            ),
-          ),
-          const HistoricalPrices()
+          const SizedBox(height: 5),
+          HistoricalPricesPeriodControl(currencyPair: widget.currencyPair),
+          const SizedBox(height: 20),
+          const Expanded(child: HistoricalPrices()),
+          const SizedBox(height: 20),
+          BuySell(currencyPair: widget.currencyPair),
         ],
       ),
     );

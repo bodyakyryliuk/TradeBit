@@ -16,10 +16,13 @@ import 'package:cointrade/features/wallet/data/datasources/wallet_remote_datasou
 import 'package:cointrade/features/wallet/data/repositories/wallet_repository_impl.dart';
 import 'package:cointrade/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:cointrade/features/wallet/domain/usecases/fetch_all_cryptocurrencies_use_case.dart';
+import 'package:cointrade/features/wallet/domain/usecases/fetch_current_price_for_trading_pair_use_case.dart';
 import 'package:cointrade/features/wallet/domain/usecases/fetch_historical_prices_use_case.dart';
 import 'package:cointrade/features/wallet/domain/usecases/fetch_total_balance_use_case.dart';
 import 'package:cointrade/features/wallet/domain/usecases/fetch_wallet_use_case.dart';
 import 'package:cointrade/features/wallet/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/buy_sell/converter_cubit/buy_sell_trading_pair_price_converter_cubit.dart';
+import 'package:cointrade/features/wallet/presentation/components/buy_sell/current_price_trading_pair_cubit/current_price_trading_pair_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/total_balance/cubit/total_balance_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/wallet/cubit/wallet_cubit.dart';
@@ -51,6 +54,8 @@ void registerBlocs() {
   sl.registerFactory(() => WalletCubit(sl()));
   sl.registerFactory(() => AllCryptocurrenciesCubit(sl()));
   sl.registerFactory(() => HistoricalPricesCubit(sl()));
+  sl.registerFactory(() => BuySellTradingPairPriceConverterCubit());
+  sl.registerFactory(() => CurrentPriceTradingPairCubit(sl()));
 }
 
 void registerUseCases() {
@@ -66,6 +71,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => FetchWalletUseCase(sl()));
   sl.registerLazySingleton(() => FetchAllCryptocurrenciesUseCase(sl()));
   sl.registerLazySingleton(() => FetchHistoricalPricesUseCase(sl()));
+  sl.registerLazySingleton(() => FetchCurrentPriceForTradingPairUseCase(sl()));
 }
 
 void registerRepositories() {
@@ -73,8 +79,7 @@ void registerRepositories() {
       () => AuthRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<LinkBinanceRepository>(
       () => LinkBinanceRepositoryImpl(sl()));
-  sl.registerLazySingleton<WalletRepository>(
-      () => WalletRepositoryImpl(sl()));
+  sl.registerLazySingleton<WalletRepository>(() => WalletRepositoryImpl(sl()));
 }
 
 void registerDataSources() {

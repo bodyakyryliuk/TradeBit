@@ -1,6 +1,7 @@
 import 'package:cointrade/core/error/failures.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/wallet/data/models/all_cryptocurrencies_response_model.dart';
+import 'package:cointrade/features/wallet/data/models/current_price_for_trading_pair_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/historical_prices_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/total_balance_response_model.dart';
 import 'package:cointrade/features/wallet/data/models/wallet_response_model.dart';
@@ -15,6 +16,10 @@ abstract class WalletRepository {
 
   Future<Either<Failure, HistoricalPricesResponseModel>> fetchHistoricalPrices(
       HistoricalPricesParams historicalPricesParams);
+
+  Future<Either<Failure, CurrentPriceForTradingPairResponseModel>>
+      fetchCurrentPriceForTradingPair(
+          CurrentPriceForTradingPairParams currentPriceForTradingPairParams);
 
   Future<Either<Failure, AllCryptocurrenciesResponseModel>>
       fetchAllCryptocurrencies();

@@ -73,6 +73,7 @@ class TotalBalanceParams {
         "secretApiKey": secretApiKey,
       };
 }
+
 class WalletParams {
   final String apiKey;
   final String secretApiKey;
@@ -85,11 +86,19 @@ class WalletParams {
       };
 }
 
-
 class HistoricalPricesParams {
   final String currencyPair;
   final int period;
 
   HistoricalPricesParams({required this.currencyPair, required this.period});
+}
 
+class CurrentPriceForTradingPairParams {
+  final String tradingPair;
+
+  CurrentPriceForTradingPairParams({required this.tradingPair});
+
+  Map<String, dynamic> toJson() => {
+        "tradingPair": tradingPair,
+      };
 }

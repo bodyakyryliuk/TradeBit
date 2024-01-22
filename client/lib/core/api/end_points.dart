@@ -12,4 +12,5 @@ class EndPoints {
   static const String wallet = "/binance-service/account/wallet";
   static const String allCryptocurrencies = "/binance-service/binance/cryptocurrencies";
   static const String historicalPrices = "/binance-service/binance/historicalPrices";
+  static const String currentPriceForTradingPair = "/binance-service/binance/currentPrice";
 }
