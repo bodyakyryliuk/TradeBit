@@ -53,7 +53,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 
     @Override
-    public void register(RegistrationRequest registrationRequest) {
+    public String register(RegistrationRequest registrationRequest) {
         try {
             UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
             UserRepresentation kcUser = createKeycloakUser(registrationRequest);
@@ -63,6 +63,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 assignClientRole(userId, usersResource);
                 User user = userService.getUserFromRepresentation(kcUser, userId, Role.USER);
                 sendVerificationLink(user);
+                return userId;
             }
             else {
                 String errorMessage = new JSONObject(response.readEntity(String.class)).getString("errorMessage");
@@ -71,7 +72,6 @@ public class RegistrationServiceImpl implements RegistrationService {
         }catch (WebApplicationException e){
             String errorMessage = e.getResponse().readEntity(String.class);
             throw new UserCreationException(errorMessage, e.getResponse().getStatus());
-
         }
     }
 

@@ -35,9 +35,10 @@ public class AuthController {
     private final KeycloakService keycloakService;
     @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
-        registrationService.register(registrationRequest);
+        String userId = registrationService.register(registrationRequest);
         return new ResponseEntity<>(Map.of("status", "success",
-                "message", "User has been registered successfully!"),
+                "message", "User has been registered successfully!",
+                "userId", userId),
                 HttpStatus.CREATED);
     }
 
