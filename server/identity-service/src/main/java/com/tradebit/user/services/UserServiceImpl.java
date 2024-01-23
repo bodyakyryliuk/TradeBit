@@ -63,4 +63,15 @@ public class UserServiceImpl implements UserService{
                 .build();
 
         return user;    }
+
+    @Override
+    public User getUserById(String userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new UserNotFoundException("User with id:" + userId + " not found!"));
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

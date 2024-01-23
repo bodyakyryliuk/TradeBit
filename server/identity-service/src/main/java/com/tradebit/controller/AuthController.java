@@ -69,18 +69,6 @@ public class AuthController {
                 +"/identity-service/auth");
     }
 
-    @GetMapping("/registrationConfirm")
-    public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token){
-        try {
-            registrationService.confirmRegistration(token);
-            return new ResponseEntity<>(Map.of("status", "success",
-                    "message", "User email verified successfully. Please log in to continue."),
-                    HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshAccessToken(@RequestParam String refreshToken) {
         try {
@@ -131,6 +119,13 @@ public class AuthController {
         keycloakService.updatePassword(token, passwordRequest);
         return new ResponseEntity<>(Map.of("status", "success", "message", "Password has been successfully updated."), HttpStatus.OK);
 
+    }
+
+
+    @PostMapping("/sendConfirmationMail")
+    public ResponseEntity<Map<String, String>> sendConfirmationMail(@RequestParam("userId") String userId){
+        registrationService.sendVerificationLink(userId);
+        return new ResponseEntity<>(Map.of("status", "success", "message", "Verification link has been sent."), HttpStatus.OK);
     }
 
 

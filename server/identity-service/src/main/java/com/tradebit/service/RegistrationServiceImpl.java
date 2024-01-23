@@ -3,6 +3,7 @@ package com.tradebit.service;
 import com.tradebit.RabbitMQMessageProducer;
 import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.InvalidTokenException;
+import com.tradebit.exception.UserAlreadyVerifiedException;
 import com.tradebit.exception.UserCreationException;
 import com.tradebit.exception.UserNotFoundException;
 import com.tradebit.requests.MailRequest;
@@ -10,7 +11,6 @@ import com.tradebit.requests.RegistrationRequest;
 import com.tradebit.user.models.EmailType;
 import com.tradebit.user.models.Role;
 import com.tradebit.user.models.User;
-import com.tradebit.user.repositories.UserRepository;
 import com.tradebit.user.services.UserService;
 import com.tradebit.verificationToken.VerificationToken;
 import com.tradebit.verificationToken.VerificationTokenService;
@@ -47,7 +47,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     private String clientId;
 
     private final KeycloakProvider kcProvider;
-    private final UserRepository userRepository;
     private final VerificationTokenService verificationTokenService;
     private final RabbitMQMessageProducer messageProducer;
     private final UserService userService;
@@ -76,7 +75,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
     }
 
-    private void sendVerificationLink(User user){
+    @Override
+    public void sendVerificationLink(User user){
         VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
 
         messageProducer.publish(
@@ -85,6 +85,23 @@ public class RegistrationServiceImpl implements RegistrationService {
                 "internal.email.routing-key"
         );
     }
+
+    @Override
+    public void sendVerificationLink(String userId){
+        User user = userService.getUserById(userId);
+        if (user.isEmailVerified())
+            throw new UserAlreadyVerifiedException(userId);
+
+        verificationTokenService.deleteVerificationTokenIfExists(user);
+        VerificationToken verificationToken = verificationTokenService.generateVerificationToken(user);
+
+        messageProducer.publish(
+                generateEmailRequest(user.getEmail(), verificationToken.getToken(), EmailType.VERIFICATION_EMAIL),
+                "internal.exchange",
+                "internal.email.routing-key"
+        );
+    }
+
 
     private String assignClientRole(String userId, UsersResource usersResource){
         // Fetch the client UUID from Keycloak
@@ -148,7 +165,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         user.setEmailVerified(true);
         setKeycloakEmailVerified(user.getId());
         verificationTokenService.deleteVerificationToken(verificationToken);
-        userRepository.save(user);
+        userService.save(user);
     }
 
 

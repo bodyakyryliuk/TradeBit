@@ -72,5 +72,17 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(VerificationTokenNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleVerificationTokenNotFoundException(VerificationTokenNotFoundException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.NOT_FOUND);
+    }
 
+    @ExceptionHandler(UserAlreadyVerifiedException.class)
+    public ResponseEntity<Map<String, String>> handleUserAlreadyVerifiedException(UserAlreadyVerifiedException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.CONFLICT);
+    }
 }

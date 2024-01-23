@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Confirmation Failed</title>
+  <link rel="stylesheet" th:href="@{/email-confirm.css}" />
+</head>
+<body>
+<div class="container">
+  <h1>Email Confirmation Failed</h1>
+  <p>Unfortunately, we were unable to confirm your email. Please try the confirmation process again.</p>
+  <a th:href="@{/resend-confirmation}" class="btn">Resend Confirmation Email</a>
+</div>
+</body>
+</html>
