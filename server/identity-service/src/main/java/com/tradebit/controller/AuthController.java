@@ -1,13 +1,14 @@
 package com.tradebit.controller;
 
 import com.tradebit.requests.AuthorizationRequest;
+import com.tradebit.requests.EmailRequest;
+import com.tradebit.requests.PasswordRequest;
 import com.tradebit.requests.RegistrationRequest;
 import com.tradebit.resetToken.ResetTokenService;
+import com.tradebit.responses.TokenResponse;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.KeycloakService;
 import com.tradebit.service.RegistrationService;
-import com.tradebit.requests.EmailRequest;
-import com.tradebit.requests.PasswordRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -46,7 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/login/email")
-    public ResponseEntity<AccessTokenResponse> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
+    public ResponseEntity<TokenResponse> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authorizationService.login(authorizationRequest));
     }
 
@@ -68,7 +69,7 @@ public class AuthController {
                 +"/identity-service/auth");
     }
 
-    @PostMapping("/registrationConfirm")
+    @GetMapping("/registrationConfirm")
     public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token){
         try {
             registrationService.confirmRegistration(token);

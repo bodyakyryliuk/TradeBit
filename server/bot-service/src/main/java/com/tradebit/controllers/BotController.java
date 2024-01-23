@@ -19,7 +19,6 @@ import java.util.Map;
 @RequestMapping("/bots")
 public class BotController {
     private final BotService botService;
-// todo: rename endpoint without create
     @PostMapping
     public ResponseEntity<Bot> createBot(@Valid @RequestBody BotDTO botDTO,
                                                          Authentication authentication){

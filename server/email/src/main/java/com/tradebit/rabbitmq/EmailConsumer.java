@@ -20,12 +20,16 @@ public class EmailConsumer {
             switch (emailRequest.getEmailType()) {
                 case VERIFICATION_EMAIL:
                     emailService.sendVerificationMail(emailRequest);
+                    break;
                 case RESET_PASSWORD_EMAIL:
                     emailService.sendResetPasswordMail(emailRequest);
+                    break;
                 case BUY_ORDER:
                     emailService.sendBuyOrderMail(emailRequest);
+                    break;
                 case SELL_ORDER:
                     emailService.sendSellOrderMail(emailRequest);
+                    break;
                 default:
                     log.warn("Unhandled email type: {}", emailRequest.getEmailType());
             }

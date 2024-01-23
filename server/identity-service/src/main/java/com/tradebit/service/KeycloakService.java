@@ -6,10 +6,8 @@ import com.tradebit.requests.PasswordRequest;
 import com.tradebit.user.models.User;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 public interface KeycloakService {
     AccessTokenResponse refreshToken(String refreshToken) throws UnirestException;

@@ -1,7 +1,6 @@
 package com.tradebit.controller;
 
 import com.tradebit.service.KeycloakService;
-import com.tradebit.user.repositories.UserRepository;
 import com.tradebit.user.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.idm.UserRepresentation;

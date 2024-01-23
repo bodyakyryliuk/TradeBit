@@ -7,9 +7,9 @@ import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.InternalErrorException;
 import com.tradebit.exception.InvalidTokenException;
 import com.tradebit.exception.UserNotFoundException;
+import com.tradebit.requests.PasswordRequest;
 import com.tradebit.resetToken.ResetToken;
 import com.tradebit.resetToken.ResetTokenService;
-import com.tradebit.requests.PasswordRequest;
 import com.tradebit.user.models.User;
 import com.tradebit.user.services.UserService;
 import jakarta.ws.rs.NotFoundException;
@@ -22,12 +22,9 @@ import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor

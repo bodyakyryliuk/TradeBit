@@ -11,6 +11,7 @@ import com.tradebit.models.order.OrderSide;
 import com.tradebit.models.order.OrderType;
 import com.tradebit.services.auth.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
@@ -24,8 +25,9 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class BinanceUtilServiceImpl implements BinanceUtilService{
     private final AuthService authService;
-    //    @Value("${api.gateway.host}")
-    private final String baseUrl = "http://localhost:8080";
+
+    @Value("${api.gateway.host}")
+    private String baseUrl;
     @Override
     public Double getCurrentPrice(String tradingPair){
         Mono<CurrentPriceResponse> responseMono = WebClient.builder()

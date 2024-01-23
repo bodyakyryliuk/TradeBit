@@ -1,9 +1,9 @@
 package com.tradebit.verificationToken;
 
 import com.tradebit.user.models.User;
+import jakarta.persistence.*;
 import lombok.Data;
 
-import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;

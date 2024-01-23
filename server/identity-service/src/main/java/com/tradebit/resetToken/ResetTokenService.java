@@ -1,7 +1,6 @@
 package com.tradebit.resetToken;
 
 import com.tradebit.user.models.User;
-import com.tradebit.verificationToken.VerificationToken;
 
 public interface ResetTokenService {
     ResetToken generateResetToken(User user);

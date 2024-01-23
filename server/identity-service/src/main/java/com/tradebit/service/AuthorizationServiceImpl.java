@@ -9,6 +9,7 @@ import com.tradebit.requests.AuthorizationRequest;
 import com.tradebit.requests.MailRequest;
 import com.tradebit.resetToken.ResetToken;
 import com.tradebit.resetToken.ResetTokenService;
+import com.tradebit.responses.TokenResponse;
 import com.tradebit.user.models.EmailType;
 import com.tradebit.user.models.User;
 import jakarta.ws.rs.BadRequestException;
@@ -19,8 +20,6 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class AuthorizationServiceImpl implements AuthorizationService{
     private final ResetTokenService resetTokenService;
 
     @Override
-    public AccessTokenResponse login(AuthorizationRequest authorizationRequest) {
+    public TokenResponse login(AuthorizationRequest authorizationRequest) {
         Keycloak keycloak = kcProvider.getInstance();
 
         // Check if the user's email is verified
@@ -57,7 +56,8 @@ public class AuthorizationServiceImpl implements AuthorizationService{
             if (!user.isEmailVerified()) {
                 throw new AccountNotVerifiedException();
             }
-            return accessTokenResponse;
+
+            return generateTokenResponse(accessTokenResponse, user);
         } catch (NotAuthorizedException ex) {
             throw new InvalidCredentialsException("Invalid credentials");
         } catch (BadRequestException ex) {
@@ -70,6 +70,19 @@ public class AuthorizationServiceImpl implements AuthorizationService{
         } catch (Exception ex){
             throw new InternalErrorException(ex.getMessage());
         }
+    }
+
+    private TokenResponse generateTokenResponse(AccessTokenResponse accessTokenResponse, UserRepresentation user){
+        TokenResponse response = TokenResponse.builder()
+                .access_token(accessTokenResponse.getToken())
+                .expires_in(accessTokenResponse.getExpiresIn())
+                .refresh_token(accessTokenResponse.getRefreshToken())
+                .refresh_expires_in(accessTokenResponse.getRefreshExpiresIn())
+                .token_type(accessTokenResponse.getTokenType())
+                .userId(user.getId())
+                .build();
+
+        return response;
     }
 
     public void forgotPassword(String email){
