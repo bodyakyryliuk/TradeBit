@@ -164,3 +164,36 @@ class OrderDto {
   Map<String, dynamic> toJson() => _$OrderDtoToJson(this);
 }
 
+@JsonSerializable()
+class CreateBotParams {
+  @JsonKey(name: "name")
+  final String name;
+  @JsonKey(name: "buyThreshold")
+  final double buyThreshold;
+  @JsonKey(name: "sellThreshold")
+  final double sellThreshold;
+  @JsonKey(name: "takeProfitPercentage")
+  final double takeProfitPercentage;
+  @JsonKey(name: "stopLossPercentage")
+  final double stopLossPercentage;
+  @JsonKey(name: "tradeSize")
+  final double tradeSize;
+  @JsonKey(name: "tradingPair")
+  final String tradingPair;
+
+  CreateBotParams({
+    required this.name,
+    required this.buyThreshold,
+    required this.sellThreshold,
+    required this.takeProfitPercentage,
+    required this.stopLossPercentage,
+    required this.tradeSize,
+    required this.tradingPair,
+  });
+
+  factory CreateBotParams.fromJson(Map<String, dynamic> json) => _$CreateBotParamsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CreateBotParamsToJson(this);
+}
+
+

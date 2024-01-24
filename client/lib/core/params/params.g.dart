@@ -45,3 +45,25 @@ Map<String, dynamic> _$OrderDtoToJson(OrderDto instance) => <String, dynamic>{
       'type': instance.type,
       'quantity': instance.quantity,
     };
+
+CreateBotParams _$CreateBotParamsFromJson(Map<String, dynamic> json) =>
+    CreateBotParams(
+      name: json['name'] as String,
+      buyThreshold: (json['buyThreshold'] as num).toDouble(),
+      sellThreshold: (json['sellThreshold'] as num).toDouble(),
+      takeProfitPercentage: (json['takeProfitPercentage'] as num).toDouble(),
+      stopLossPercentage: (json['stopLossPercentage'] as num).toDouble(),
+      tradeSize: (json['tradeSize'] as num).toDouble(),
+      tradingPair: json['tradingPair'] as String,
+    );
+
+Map<String, dynamic> _$CreateBotParamsToJson(CreateBotParams instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'buyThreshold': instance.buyThreshold,
+      'sellThreshold': instance.sellThreshold,
+      'takeProfitPercentage': instance.takeProfitPercentage,
+      'stopLossPercentage': instance.stopLossPercentage,
+      'tradeSize': instance.tradeSize,
+      'tradingPair': instance.tradingPair,
+    };

@@ -10,6 +10,8 @@ import 'package:cointrade/features/auth/presentation/landing/landing_page.dart';
 import 'package:cointrade/features/auth/presentation/login/login_page.dart';
 import 'package:cointrade/features/auth/presentation/register/register_page.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/reset_password_page.dart';
+import 'package:cointrade/features/bots/presentation/add_bot/add_bot_page.dart';
+import 'package:cointrade/features/bots/presentation/bots/bots_page.dart';
 import 'package:cointrade/features/wallet/presentation/cryptocurrency_pair_detailed/cryptocurrency_pair_detailed_page.dart';
 import 'package:cointrade/features/wallet/presentation/home/home_page.dart';
 import 'package:cointrade/features/settings/presentation/connect_binance/connect_binance_page.dart';
@@ -27,7 +29,9 @@ enum Routes {
   register("/auth/register"),
   resetPassword("/auth/reset-password"),
   emailConfirmation("/auth/email-confirmation"),
-  cryptocurrencyPairDetailed("/cryptocurrency-pair-detailed/:currencyPair");
+  cryptocurrencyPairDetailed("/cryptocurrency-pair-detailed/:currencyPair"),
+  bots("/bots"),
+  addBot("/add-bot");
 
   const Routes(this.path);
 
@@ -93,10 +97,16 @@ class AppRouter {
           branches: [
             StatefulShellBranch(routes: [
               GoRoute(
-                // parentNavigatorKey: _shellNavigatorKey,
                 path: Routes.root.path,
                 name: Routes.root.name,
                 builder: (context, state) => const HomePage(),
+              ),
+            ]),
+            StatefulShellBranch(routes: [
+              GoRoute(
+                path: Routes.bots.path,
+                name: Routes.bots.name,
+                builder: (context, state) => const BotsPage(),
               ),
             ]),
             StatefulShellBranch(routes: [
@@ -105,13 +115,19 @@ class AppRouter {
                 name: Routes.settings.name,
                 builder: (context, state) => const SettingsPage(),
               ),
-            ])
+            ]),
           ]),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,
         path: Routes.connectBinance.path,
         name: Routes.connectBinance.name,
         builder: (context, state) => const ConnectBinancePage(),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: Routes.addBot.path,
+        name: Routes.addBot.name,
+        builder: (context, state) => const AddBotPage(),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

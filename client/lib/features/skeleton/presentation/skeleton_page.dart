@@ -28,7 +28,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
                 context.go(Routes.root.path);
                 break;
               case 1:
-                context.go(Routes.root.path);
+                context.go(Routes.bots.path);
                 break;
               case 2:
                 context.go(Routes.settings.path);
@@ -42,7 +42,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
               label: 'Dashboard',
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.smart_toy_outlined), label: 'Bot'),
+                icon: Icon(Icons.smart_toy_outlined), label: 'Bots'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.more_horiz), label: 'Settings'),
           ],

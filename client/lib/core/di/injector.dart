@@ -12,6 +12,11 @@ import 'package:cointrade/features/auth/presentation/login/cubit/login_cubit.dar
 import 'package:cointrade/features/auth/presentation/register/cubit/register_cubit.dart';
 import 'package:cointrade/core/api/dio_client.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/cubit/reset_password_cubit.dart';
+import 'package:cointrade/features/bots/data/datasources/bot_remote_datasource.dart';
+import 'package:cointrade/features/bots/data/repositories/bot_repository_impl.dart';
+import 'package:cointrade/features/bots/domain/repositories/bot_repository.dart';
+import 'package:cointrade/features/bots/domain/usecases/create_bot_use_case.dart';
+import 'package:cointrade/features/bots/presentation/add_bot/cubit/add_bot_cubit.dart';
 import 'package:cointrade/features/wallet/data/datasources/wallet_remote_datasouce.dart';
 import 'package:cointrade/features/wallet/data/repositories/wallet_repository_impl.dart';
 import 'package:cointrade/features/wallet/domain/repositories/wallet_repository.dart';
@@ -59,6 +64,7 @@ void registerBlocs() {
   sl.registerFactory(() => BuySellTradingPairPriceConverterCubit());
   sl.registerFactory(() => CurrentPriceTradingPairCubit(sl()));
   sl.registerFactory(() => MakeOrderCubit(sl()));
+  sl.registerFactory(() => AddBotCubit(sl()));
 }
 
 void registerUseCases() {
@@ -76,6 +82,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => FetchHistoricalPricesUseCase(sl()));
   sl.registerLazySingleton(() => FetchCurrentPriceForTradingPairUseCase(sl()));
   sl.registerLazySingleton(() => MakeOrderUseCase(sl()));
+  sl.registerLazySingleton(() => CreateBotUseCase(sl()));
 }
 
 void registerRepositories() {
@@ -84,6 +91,7 @@ void registerRepositories() {
   sl.registerLazySingleton<LinkBinanceRepository>(
       () => LinkBinanceRepositoryImpl(sl()));
   sl.registerLazySingleton<WalletRepository>(() => WalletRepositoryImpl(sl()));
+  sl.registerLazySingleton<BotRepository>(() => BotRepositoryImpl(sl()));
 }
 
 void registerDataSources() {
@@ -92,4 +100,5 @@ void registerDataSources() {
   sl.registerLazySingleton(() => AuthLocalDataSource());
   sl.registerLazySingleton(() => LinkBinanceRemoteDataSource(sl()));
   sl.registerLazySingleton(() => WalletRemoteDataSource(sl()));
+  sl.registerLazySingleton(() => BotRemoteDataSource(sl()));
 }
