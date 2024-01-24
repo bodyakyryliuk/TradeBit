@@ -15,7 +15,10 @@ public class IdentityServiceClientImpl implements IdentityServiceClient{
     @Override
     public Mono<String> getUserEmail(String userId) {
         return webClient.get()
-                .uri("/identity-service" + "/users/" + userId)
+                .uri(uriBuilder -> uriBuilder
+                        .path("/identity-service/users")
+                        .queryParam("userId", userId)
+                        .build())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                 .map(response -> (String) response.get("username"));

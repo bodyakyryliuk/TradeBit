@@ -35,11 +35,6 @@ public class BuyOrderServiceImpl implements BuyOrderService{
     }
 
     @Override
-    public void updateBuyOrder(BuyOrder buyOrder) {
-
-    }
-
-    @Override
     public List<BuyOrder> getBuyOrdersByBotId(Long botId) {
         List<BuyOrder> buyOrders = buyOrderRepository.findAllByBotId(botId);
         if (buyOrders.isEmpty())

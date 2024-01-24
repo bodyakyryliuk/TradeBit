@@ -8,6 +8,5 @@ import java.util.List;
 public interface BuyOrderService {
     BuyOrder save(Bot bot, double buyPrice);
     BuyOrder getRecentBuyOrderByBot(Bot bot);
-    void updateBuyOrder(BuyOrder buyOrder);
     List<BuyOrder> getBuyOrdersByBotId(Long botId);
 }

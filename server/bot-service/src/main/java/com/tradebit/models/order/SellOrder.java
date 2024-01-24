@@ -1,5 +1,6 @@
 package com.tradebit.models.order;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tradebit.models.Bot;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,13 +22,21 @@ public class SellOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buy_order_id", referencedColumnName = "id")
     private BuyOrder buyOrder;
 
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bot_id", referencedColumnName = "id")
     private Bot bot;
+
+    @Column(name = "buy_order_id", insertable = false, updatable = false)
+    private Long buyOrderId;
+
+    @Column(name = "bot_id", insertable = false, updatable = false)
+    private Long botId;
 
     @Column(name = "trading_pair")
     private String tradingPair;
