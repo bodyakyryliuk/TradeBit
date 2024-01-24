@@ -44,6 +44,14 @@ public class BinanceController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/averagePriceByPeriod/{tradingPair}")
+    public ResponseEntity<JsonNode> getAveragePriceByPeriod(
+            @PathVariable String tradingPair,
+            @RequestParam (name = "period", required = false, defaultValue = "24") int period){
+        JsonNode response = binanceApiService.getAveragePriceByPeriod(tradingPair, period);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/currentPrice")
     public ResponseEntity<JsonNode> getCurrentPrice(@RequestParam String tradingPair){
         JsonNode response = binanceApiService.getCurrentPriceForCrypto(tradingPair);

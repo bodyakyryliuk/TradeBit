@@ -18,6 +18,8 @@ public interface BinanceApiService {
 
     JsonNode getHighestPriceByPeriod(String tradingPair, int period);
 
+    JsonNode getAveragePriceByPeriod(String tradingPair, int period);
+
     JsonNode getAllTradingPairs();
 
 }
