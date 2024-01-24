@@ -22,37 +22,35 @@ public class BotController {
     @PostMapping
     public ResponseEntity<Bot> createBot(@Valid @RequestBody BotDTO botDTO,
                                                          Authentication authentication){
-        String userId = botService.getUserIdFromAuthentication(authentication);
-        Bot bot = botService.createBot(botDTO, userId);
+        Bot bot = botService.createBot(botDTO, authentication);
         return ResponseEntity.ok(bot);
     }
 
     @PostMapping("/toggleBot")
     public ResponseEntity<Boolean> toggleBot(@RequestParam Long botId,
                                                          Authentication authentication){
-        String userId = botService.getUserIdFromAuthentication(authentication);
-        boolean botEnabled = botService.toggleBot(botId, userId);
+        boolean botEnabled = botService.toggleBot(botId, authentication);
         return ResponseEntity.ok(botEnabled);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Bot>> getBotsByUserId(@PathVariable String userId){
-        return ResponseEntity.ok(botService.getAllByUserId(userId));
+    @GetMapping
+    public ResponseEntity<List<Bot>> getBotsByUser(Authentication authentication){
+        return ResponseEntity.ok(botService.getAllByUserId(authentication));
     }
 
-    @GetMapping("/bot/{botId}")
-    public ResponseEntity<Bot> getBotById(@PathVariable Long botId){
-        return  ResponseEntity.ok(botService.getBot(botId));
+    @GetMapping("/bot")
+    public ResponseEntity<Bot> getBotById(@RequestParam Long botId){
+        return ResponseEntity.ok(botService.getBot(botId));
     }
 
-    @DeleteMapping("/{botId}")
-    public ResponseEntity<Void> deleteBotById(@PathVariable Long botId){
+    @DeleteMapping
+    public ResponseEntity<Void> deleteBotById(@RequestParam Long botId){
         botService.deleteBotById(botId);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{botId}")
-    public ResponseEntity<Bot> updateBot(@PathVariable Long botId, @Valid @RequestBody BotDTO botDTO){
+    @PutMapping
+    public ResponseEntity<Bot> updateBot(@RequestParam Long botId, @Valid @RequestBody BotDTO botDTO){
         Bot bot = botService.updateBot(botId, botDTO);
         return ResponseEntity.ok(bot);
     }

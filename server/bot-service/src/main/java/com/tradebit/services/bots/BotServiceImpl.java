@@ -30,7 +30,9 @@ public class BotServiceImpl implements BotService {
     private final SellOrderRepository sellOrderRepository;
 
     @Override
-    public Bot createBot(BotDTO botDTO, String userId) {
+    public Bot createBot(BotDTO botDTO, Authentication authentication) {
+        String userId = getUserIdFromAuthentication(authentication);
+
         if (canCreateBot(botDTO.getName(), userId)) {
             Bot bot = Bot.builder()
                     .name(botDTO.getName())
@@ -84,8 +86,7 @@ public class BotServiceImpl implements BotService {
 
     }
 
-    @Override
-    public String getUserIdFromAuthentication(Authentication authentication) {
+    private String getUserIdFromAuthentication(Authentication authentication) {
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
         return jwtAuthenticationToken.getToken().getClaimAsString("sub");
     }
@@ -106,7 +107,9 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public List<Bot> getAllByUserId(String userId) {
+    public List<Bot> getAllByUserId(Authentication authentication) {
+        String userId = getUserIdFromAuthentication(authentication);
+
         List<Bot> bots = botRepository.findAllByUserId(userId);
         if (bots.isEmpty())
             throw new BotNotFoundException("No bot found by userId: " + userId);
@@ -132,7 +135,8 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public boolean toggleBot(Long botId, String userId) {
+    public boolean toggleBot(Long botId, Authentication authentication) {
+        String userId = getUserIdFromAuthentication(authentication);
         Bot bot = getBot(botId, userId);
         boolean newState = !bot.getEnabled();
 

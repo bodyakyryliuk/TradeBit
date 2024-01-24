@@ -17,8 +17,8 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private final KeycloakService keycloakService;
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable String userId){
+    @DeleteMapping("/user")
+    public ResponseEntity<Map<String, String>> deleteUser(@RequestParam String userId){
         userService.deleteUser(userId);
         keycloakService.deleteUser(userId);
         return new ResponseEntity<>(Map.of("status", "success",
@@ -26,7 +26,7 @@ public class UserController {
                 HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public ResponseEntity<Map<String, String>> deleteAllUsers(){
         userService.deleteAllUsers();
         keycloakService.deleteAllUsers();
@@ -41,8 +41,8 @@ public class UserController {
         return keycloakService.getAllUsers();
     }
 
-    @GetMapping("/{userId}")
-    public UserRepresentation getUser(@PathVariable String userId){
+    @GetMapping("/user")
+    public UserRepresentation getUser(@RequestParam String userId){
         return keycloakService.getUser(userId);
     }
 
