@@ -4,10 +4,12 @@ import com.tradebit.exceptions.BuyOrderNotFoundException;
 import com.tradebit.models.Bot;
 import com.tradebit.models.order.BuyOrder;
 import com.tradebit.repositories.BuyOrderRepository;
+import com.tradebit.services.bots.BotService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,5 +37,14 @@ public class BuyOrderServiceImpl implements BuyOrderService{
     @Override
     public void updateBuyOrder(BuyOrder buyOrder) {
 
+    }
+
+    @Override
+    public List<BuyOrder> getBuyOrdersByBotId(Long botId) {
+        List<BuyOrder> buyOrders = buyOrderRepository.findAllByBotId(botId);
+        if (buyOrders.isEmpty())
+            throw new BuyOrderNotFoundException(botId);
+
+        return buyOrders;
     }
 }
