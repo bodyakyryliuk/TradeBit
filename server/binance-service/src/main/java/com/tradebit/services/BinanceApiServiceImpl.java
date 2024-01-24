@@ -93,6 +93,29 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
+    public JsonNode getAveragePriceByPeriod(String tradingPair, int period) {
+        double totalPrice = 0.0;
+        int count = 0;
+        JsonNode historicalPrices = getHistoricalPricesForPeriod(tradingPair, period);
+
+        for (JsonNode priceNode : historicalPrices) {
+            double price = priceNode.get("closePrice").asDouble();
+            totalPrice += price;
+            count++;
+        }
+
+        if (count == 0)
+            throw new BinanceRequestException("No data available for the specified period and trading pair: " + tradingPair + ", " + period);
+
+        double averagePrice = totalPrice / count;
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode resultNode = mapper.createObjectNode();
+        resultNode.put("averagePrice", averagePrice);
+        return resultNode;
+    }
+
+    @Override
     public JsonNode getAllTradingPairs() {
         HttpUrl url = binanceRequestService.buildRequestUrl("/api/v3/exchangeInfo");
         Request request = binanceRequestService.buildRequest(url);
@@ -136,7 +159,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         long startTimeMillis = Instant.now().minusMillis(period * 3600000L).toEpochMilli();
         ObjectMapper objectMapper = new ObjectMapper();
 
-        ArrayNode allPricesNode = objectMapper.createArrayNode(); // Assuming objectMapper is initialized
+        ArrayNode allPricesNode = objectMapper.createArrayNode();
         String interval = binanceDataUtils.getIntervalFromPeriod(period);
         HttpUrl url = binanceRequestService.buildKlineUrl(tradingPair, interval, startTimeMillis, endTimeMillis - binanceDataUtils.getMillisFromInterval(interval));
         Request request = binanceRequestService.buildRequest(url);
@@ -144,7 +167,6 @@ public class BinanceApiServiceImpl implements BinanceApiService{
 
         JsonNode pricesNode = responseProcessingService.processClosePrices(response);
 
-        // Append the retrieved prices to the allPricesNode
         allPricesNode.addAll((ArrayNode) pricesNode);
 
         return allPricesNode;
