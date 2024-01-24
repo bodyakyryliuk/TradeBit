@@ -2,6 +2,7 @@ package com.tradebit.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tradebit.dto.order.BinanceOrderDTO;
+import com.tradebit.exceptions.AveragePriceFetchException;
 import com.tradebit.exceptions.CurrentPriceFetchException;
 import com.tradebit.exceptions.CustomClientException;
 import com.tradebit.exceptions.HighestPriceFetchException;
@@ -86,6 +87,36 @@ public class BinanceUtilServiceImpl implements BinanceUtilService{
         }
 
         return response.getHighestPrice();
+    }
+
+    @Override
+    public Double getAveragePriceForTimePeriod(String tradingPair, int period) {
+        Mono<Double> responseMono = WebClient.builder()
+                .baseUrl(baseUrl)
+                .build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/binance-service/binance/averagePriceByPeriod/{tradingPair}")
+                        .queryParam("period", period)
+                        .build(tradingPair))
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Client Error: " + errorBody, response.statusCode().value())))
+                )
+                .onStatus(HttpStatusCode::is5xxServerError, response ->
+                        response.bodyToMono(String.class).flatMap(errorBody ->
+                                Mono.error(new CustomClientException("Server Error: " + errorBody, response.statusCode().value())))
+                )
+                .bodyToMono(Double.class);
+
+        Double response = responseMono.block();
+
+        if (response == null) {
+            throw new AveragePriceFetchException(tradingPair, period);
+        }
+
+        return response;
     }
 
     @Override

@@ -62,6 +62,13 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(AveragePriceFetchException.class)
+    public ResponseEntity<Map<String, String>> handleAveragePriceFetchException(AveragePriceFetchException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MaxBotsLimitExceededException.class)
     public ResponseEntity<Map<String, String>> handleMaxBotsLimitExceededException(MaxBotsLimitExceededException ex) {
         return new ResponseEntity<>(

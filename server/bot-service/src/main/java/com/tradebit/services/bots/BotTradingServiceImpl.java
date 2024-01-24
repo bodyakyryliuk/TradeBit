@@ -31,7 +31,7 @@ public class BotTradingServiceImpl implements BotTradingService {
     private final EmailService emailService;
 
     // The bot monitors the trading pair's price.
-    // if price < recent highest price by buyThreshold percents -> bot buys tradeSize of tradingPair
+    // if price < average price by buyThreshold percents -> bot buys tradeSize of tradingPair
     // if bot bought something:
     //      remember the price
     //      if current price > buy price by sellThreshold -> sell
@@ -56,7 +56,9 @@ public class BotTradingServiceImpl implements BotTradingService {
     }
 
     private BuyOrder handleBuying(Bot bot){
-        if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold())) {
+        double averagePrice = binanceUtilService.getAveragePriceForTimePeriod(bot.getTradingPair(), 168);
+
+        if (shouldBuy(bot.getTradingPair(), bot.getBuyThreshold(), averagePrice)) {
             try {
                 JsonNode order = executeBuyOrder(bot.getUserId(), bot.getTradingPair(), bot.getTradeSize());
                 log.info("Executed buy order");
@@ -106,11 +108,10 @@ public class BotTradingServiceImpl implements BotTradingService {
         else return (buyPrice - currentPrice) / buyPrice * 100 >= stopLossPercentage;
     }
 
-    private boolean shouldBuy(String tradingPair, double buyThreshold){
-        double highestPrice = binanceUtilService.getHighestPriceForTimePeriod(tradingPair, 168);
+    private boolean shouldBuy(String tradingPair, double buyThreshold, double averagePrice){
         double currentPrice = binanceUtilService.getCurrentPrice(tradingPair);
 
-        return ((highestPrice - currentPrice) / highestPrice * 100) >= buyThreshold;
+        return ((averagePrice - currentPrice) / averagePrice * 100) >= buyThreshold;
     }
 
     private JsonNode executeBuyOrder(String userId, String tradingPair, double quantity) {
