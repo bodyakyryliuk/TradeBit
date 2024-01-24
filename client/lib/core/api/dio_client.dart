@@ -13,6 +13,7 @@ import 'package:cointrade/features/auth/domain/usecase/get_refresh_token_use_cas
 import 'package:cointrade/features/auth/domain/usecase/post_refresh_token_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/save_access_token_use_case.dart';
 import 'package:cointrade/features/auth/domain/usecase/save_refresh_token_use_case.dart';
+import 'package:flutter/foundation.dart';
 
 class DioClient {
   String? _accessToken;
@@ -25,6 +26,7 @@ class DioClient {
       _accessToken = HiveBoxes.appStorageBox.get(DbKeys.accessTokenKey);
     } catch (_) {}
     _dio = _createDio();
+
 
     _dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       if (options.extra.containsKey("includeAuthorization") &&
@@ -48,6 +50,13 @@ class DioClient {
         }
       }
     }));
+
+    _dio.interceptors.add(
+      LogInterceptor(
+        logPrint: (o) => debugPrint(o.toString()),
+      ),
+    );
+
   }
 
   Future<String?> refreshToken() async {
@@ -122,7 +131,7 @@ class DioClient {
       receiveTimeout: const Duration(seconds: 25),
       connectTimeout: const Duration(seconds: 25),
       validateStatus: (int? status) {
-        return status! > 0 && status <= 400;
+        return (status! > 0 && status <= 400 )|| status == 403;
       }));
 
   Future<Response> getRequest(

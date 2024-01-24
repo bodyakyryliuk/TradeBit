@@ -12,12 +12,12 @@ services:
       - microservices-network
 
   identity-service:
-    image: 322cbd7d01a8e690f1e26ff9cd0080c460479406297e22c6973bf64c7b481dd8
+    image: c091fd4a43e4cb8876d28ebedc953665d7707950d2b03b1aa142c66fd276dc4c
     ports:
       - "8085:8085"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      KEYCLOAK_CREDENTIALS_SECRET: ZUhQX7zpa9Pt5rdkqjrj95xN6cdBITP9
+      KEYCLOAK_CREDENTIALS_SECRET: 29bmWC1hyvTOPOQvCsGnwZ5Q6Cv4vQIc
     networks:
       - microservices-network
 
@@ -39,7 +39,7 @@ services:
       - microservices-network
 
   email-service:
-    image: c2b91f07699ba3f9f6eaf1b295d7869a85cb573e90e981d611af785549a50bb0
+    image: 6588dcbb0a08d2bdba33e6183711378c3dc47b04437530c9e6cf389da329e6a5
     ports:
       - "8081:8081"
     environment:
@@ -74,10 +74,11 @@ services:
       - "8180:8080"
     volumes:
       - keycloak_data:/opt/jboss/keycloak/standalone/data
+
     networks:
       - microservices-network
 
-  binance-integration:
+  binance-service:
     image: bodyakyryliuk/binance-service:v2
     ports:
       - "8086:8086"
@@ -91,6 +92,13 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
+    networks:
+      - microservices-network
+
+  bot-service:
+    image: bodyakyryliuk/bot-service:v1
+    ports:
+      - "8087:8087"
     networks:
       - microservices-network
 
