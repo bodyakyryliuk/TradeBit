@@ -12,15 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/prediction")
+@RequestMapping("/predictions")
 @RequiredArgsConstructor
 public class PredictionsController {
     private final PredictionService predictionService;
 
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<Map<String, String>> addPredictions(@RequestBody PredictionsDTO predictionsDTO){
         try {
-            System.out.println(predictionsDTO);
             predictionService.addPredictions(predictionsDTO);
             return ResponseEntity.ok(Map.of("status", "success", "message", "Predicted data have been published successfully"));
         }catch (Exception e){
@@ -30,7 +29,7 @@ public class PredictionsController {
         }
     }
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<?> getPrediction(@RequestParam String tradingPair){
         List<Prediction> predictions = predictionService.getPredictionsByTradingPair(tradingPair);
         if (predictions.isEmpty()) {

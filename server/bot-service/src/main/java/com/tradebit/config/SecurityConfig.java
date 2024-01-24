@@ -17,7 +17,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/prediction/**").permitAll()
+                                .requestMatchers("/predictions/**").permitAll()
                                 .requestMatchers("/binance/**").permitAll()
                                 .anyRequest().authenticated()
                 )
