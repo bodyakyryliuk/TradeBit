@@ -93,7 +93,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
     }
 
     @Override
-    public JsonNode getAveragePriceByPeriod(String tradingPair, int period) {
+    public Double getAveragePriceByPeriod(String tradingPair, int period) {
         double totalPrice = 0.0;
         int count = 0;
         JsonNode historicalPrices = getHistoricalPricesForPeriod(tradingPair, period);
@@ -107,12 +107,7 @@ public class BinanceApiServiceImpl implements BinanceApiService{
         if (count == 0)
             throw new BinanceRequestException("No data available for the specified period and trading pair: " + tradingPair + ", " + period);
 
-        double averagePrice = totalPrice / count;
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode resultNode = mapper.createObjectNode();
-        resultNode.put("averagePrice", averagePrice);
-        return resultNode;
+        return totalPrice / count;
     }
 
     @Override
