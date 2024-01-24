@@ -16,7 +16,9 @@ import 'package:cointrade/features/bots/data/datasources/bot_remote_datasource.d
 import 'package:cointrade/features/bots/data/repositories/bot_repository_impl.dart';
 import 'package:cointrade/features/bots/domain/repositories/bot_repository.dart';
 import 'package:cointrade/features/bots/domain/usecases/create_bot_use_case.dart';
+import 'package:cointrade/features/bots/domain/usecases/fetch_bots_use_case.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/cubit/add_bot_cubit.dart';
+import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart';
 import 'package:cointrade/features/wallet/data/datasources/wallet_remote_datasouce.dart';
 import 'package:cointrade/features/wallet/data/repositories/wallet_repository_impl.dart';
 import 'package:cointrade/features/wallet/domain/repositories/wallet_repository.dart';
@@ -65,6 +67,7 @@ void registerBlocs() {
   sl.registerFactory(() => CurrentPriceTradingPairCubit(sl()));
   sl.registerFactory(() => MakeOrderCubit(sl()));
   sl.registerFactory(() => AddBotCubit(sl()));
+  sl.registerFactory(() => BotsCubit(sl()));
 }
 
 void registerUseCases() {
@@ -83,6 +86,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => FetchCurrentPriceForTradingPairUseCase(sl()));
   sl.registerLazySingleton(() => MakeOrderUseCase(sl()));
   sl.registerLazySingleton(() => CreateBotUseCase(sl()));
+  sl.registerLazySingleton(() => FetchBotsUseCase(sl()));
 }
 
 void registerRepositories() {

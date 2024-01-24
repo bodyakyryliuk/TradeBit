@@ -3,6 +3,7 @@ import 'package:cointrade/features/auth/presentation/login/cubit/login_cubit.dar
 import 'package:cointrade/features/auth/presentation/register/cubit/register_cubit.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/cubit/reset_password_cubit.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/cubit/add_bot_cubit.dart';
+import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/converter_cubit/buy_sell_trading_pair_price_converter_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/current_price_trading_pair_cubit/current_price_trading_pair_cubit.dart';
@@ -34,6 +35,7 @@ class BlocsProviders extends StatelessWidget {
         BlocProvider<CurrentPriceTradingPairCubit>(create: (_) => sl<CurrentPriceTradingPairCubit>()),
         BlocProvider<MakeOrderCubit>(create: (_) => sl<MakeOrderCubit>()),
         BlocProvider<AddBotCubit>(create: (_) => sl<AddBotCubit>()),
+        BlocProvider<BotsCubit>(create: (_) => sl<BotsCubit>()),
       ],
       child: child,
     );

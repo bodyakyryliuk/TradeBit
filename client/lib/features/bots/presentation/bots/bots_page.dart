@@ -1,6 +1,8 @@
 import 'package:cointrade/core/routes/app_router.dart';
 import 'package:cointrade/core/widgets/common_text_button.dart';
+import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class BotsPage extends StatefulWidget {
@@ -12,21 +14,63 @@ class BotsPage extends StatefulWidget {
 
 class _BotsPageState extends State<BotsPage> {
   @override
+  void initState() {
+    context.read<BotsCubit>().fetchBots();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bots'),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: CommonTextButton(
-          title: 'Add bot',
-          onPressed: () {
-            context.push(Routes.addBot.path);
-          },
-        ),
-      ),
+    return BlocConsumer<BotsCubit, BotsState>(
+      builder: (context, state) {
+        return Scaffold(
+            appBar: AppBar(
+              title: const Text('Bots'),
+              actions: [
+                if (state.requested)
+                  const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator()),
+              ],
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: CommonTextButton(
+                title: 'Add bot',
+                onPressed: () {
+                  context.push(Routes.addBot.path);
+                },
+              ),
+            ),
+            body: state.bots.isEmpty
+                ? const Center(
+                    child: Text(
+                    'No bots found',
+                    style: TextStyle(fontSize: 20,color: Colors.white70),
+                  ))
+                : ListView.builder(
+                    itemCount: state.bots.length,
+                    itemBuilder: (context, index) {
+                      final bot = state.bots[index];
+                      return ListTile(
+                        title: Text(bot.name!),
+                      );
+                    },
+                  ));
+      },
+      listener: (BuildContext context, BotsState state) {
+        if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
     );
   }
 }

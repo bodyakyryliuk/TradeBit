@@ -1,6 +1,7 @@
 import 'package:cointrade/core/extensions/build_context_extensions.dart';
 import 'package:cointrade/core/widgets/common_text_form_field.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/cubit/add_bot_cubit.dart';
+import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -40,6 +41,8 @@ class _AddBotPageState extends State<AddBotPage> {
       listener: (context, state) {
         state.whenOrNull(
           success: (createBotResponseModel) {
+
+            context.read<BotsCubit>().fetchBots();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(createBotResponseModel.message),

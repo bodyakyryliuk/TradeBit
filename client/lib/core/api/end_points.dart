@@ -16,4 +16,5 @@ class EndPoints {
 
   static const String makeOrder = "/binance-service/order";
   static const String createBot = "/bot-service/bots/create";
+  static const String bots = "/bot-service/bots";
 }
