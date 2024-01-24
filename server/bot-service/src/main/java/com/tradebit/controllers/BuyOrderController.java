@@ -17,8 +17,13 @@ import java.util.List;
 public class BuyOrderController {
     private final BuyOrderService buyOrderService;
 
-    @GetMapping
+    @GetMapping(params = "botId")
     public ResponseEntity<List<BuyOrder>> getBuyOrdersByBotId(@RequestParam Long botId){
         return ResponseEntity.ok(buyOrderService.getBuyOrdersByBotId(botId));
+    }
+
+    @GetMapping(params = "orderId")
+    public ResponseEntity<BuyOrder> getBuyOrderById(@RequestParam Long orderId){
+        return ResponseEntity.ok(buyOrderService.getBuyOrderById(orderId));
     }
 }

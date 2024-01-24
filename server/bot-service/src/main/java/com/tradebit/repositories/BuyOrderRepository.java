@@ -11,4 +11,5 @@ public interface BuyOrderRepository extends JpaRepository<BuyOrder, Long> {
     Optional<BuyOrder> findFirstByBotOrderByTimestampDesc(Bot bot);
     boolean existsByBot(Bot bot);
     List<BuyOrder> findAllByBotId(Long botId);
+    Optional<BuyOrder> findById(Long orderId);
 }

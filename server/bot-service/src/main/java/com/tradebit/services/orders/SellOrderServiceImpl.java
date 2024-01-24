@@ -1,6 +1,7 @@
 package com.tradebit.services.orders;
 
 import com.tradebit.exceptions.BuyOrderNotFoundException;
+import com.tradebit.exceptions.SellOrderNotFoundException;
 import com.tradebit.models.Bot;
 import com.tradebit.models.order.BuyOrder;
 import com.tradebit.models.order.SellOrder;
@@ -48,8 +49,17 @@ public class SellOrderServiceImpl implements SellOrderService{
     public List<SellOrder> getSellOrdersByBotId(Long botId) {
         List<SellOrder> sellOrders = sellOrderRepository.findAllByBotId(botId);
         if (sellOrders.isEmpty())
-            throw new BuyOrderNotFoundException(botId);
+            throw new SellOrderNotFoundException("No sell order found by bot with id: " + botId);
 
         return sellOrders;
+    }
+
+    @Override
+    public SellOrder getSellOrderById(Long orderId) {
+        Optional<SellOrder> sellOrder = sellOrderRepository.findById(orderId);
+        if (sellOrder.isEmpty()){
+            throw new SellOrderNotFoundException("Sell order not found with id: " + orderId);
+        }
+        return sellOrder.get();
     }
 }

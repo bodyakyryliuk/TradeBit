@@ -95,4 +95,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
+    @ExceptionHandler(SellOrderNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleSellOrderNotFoundException(SellOrderNotFoundException ex) {
+        return new ResponseEntity<>(
+                Map.of("status", "failure", "message", ex.getMessage()),
+                HttpStatus.NOT_FOUND);
+    }
+
 }

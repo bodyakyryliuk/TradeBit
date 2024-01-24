@@ -9,4 +9,5 @@ public interface BuyOrderService {
     BuyOrder save(Bot bot, double buyPrice);
     BuyOrder getRecentBuyOrderByBot(Bot bot);
     List<BuyOrder> getBuyOrdersByBotId(Long botId);
+    BuyOrder getBuyOrderById(Long orderId);
 }

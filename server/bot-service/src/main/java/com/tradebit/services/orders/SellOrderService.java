@@ -11,4 +11,5 @@ public interface SellOrderService {
     SellOrder save(Bot bot, BuyOrder buyOrder, double sellPrice);
     Optional<SellOrder> getSellOrderByBotAndSold(Bot bot, boolean sold);
     List<SellOrder> getSellOrdersByBotId(Long botId);
+    SellOrder getSellOrderById(Long orderId);
 }
