@@ -41,11 +41,11 @@ class _AddBotPageState extends State<AddBotPage> {
       listener: (context, state) {
         state.whenOrNull(
           success: (createBotResponseModel) {
-
             context.read<BotsCubit>().fetchBots();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(createBotResponseModel.message),
+                content: Text(
+                    "Bot \"${createBotResponseModel.name!}\" created successfully"),
                 backgroundColor: Colors.green,
               ),
             );

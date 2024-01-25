@@ -4,6 +4,7 @@ import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/bots/data/datasources/bot_remote_datasource.dart';
 import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/data/models/create_bot_response_model.dart';
+import 'package:cointrade/features/bots/data/models/toggle_bot_enabled_response_model.dart';
 import 'package:cointrade/features/bots/domain/repositories/bot_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -29,6 +30,20 @@ class BotRepositoryImpl implements BotRepository {
   Future<Either<Failure, BotsResponseModel>> fetchBots() async {
     try {
       final response = await botRemoteDataSource.fetchBots();
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return const Left(ServerFailure('Unknown error occured'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> toggleBotEnabled(
+      ToggleBotEnabledParams toggleBotEnabledParams) async {
+    try {
+      final response =
+          await botRemoteDataSource.toggleBotEnabled(toggleBotEnabledParams);
       return Right(response);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

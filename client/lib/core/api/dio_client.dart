@@ -131,7 +131,7 @@ class DioClient {
       receiveTimeout: const Duration(seconds: 25),
       connectTimeout: const Duration(seconds: 25),
       validateStatus: (int? status) {
-        return (status! > 0 && status <= 400 )|| status == 403;
+        return (status! > 0 && status <= 400 )|| status == 403 || status == 409;
       }));
 
   Future<Response> getRequest(

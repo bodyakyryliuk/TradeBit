@@ -119,7 +119,8 @@ class MakeOrderParams {
     this.linkDto,
   });
 
-  factory MakeOrderParams.fromJson(Map<String, dynamic> json) => _$MakeOrderParamsFromJson(json);
+  factory MakeOrderParams.fromJson(Map<String, dynamic> json) =>
+      _$MakeOrderParamsFromJson(json);
 
   Map<String, dynamic> toJson() => _$MakeOrderParamsToJson(this);
 }
@@ -136,7 +137,8 @@ class LinkDto {
     this.secretApiKey,
   });
 
-  factory LinkDto.fromJson(Map<String, dynamic> json) => _$LinkDtoFromJson(json);
+  factory LinkDto.fromJson(Map<String, dynamic> json) =>
+      _$LinkDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$LinkDtoToJson(this);
 }
@@ -159,7 +161,8 @@ class OrderDto {
     this.quantity,
   });
 
-  factory OrderDto.fromJson(Map<String, dynamic> json) => _$OrderDtoFromJson(json);
+  factory OrderDto.fromJson(Map<String, dynamic> json) =>
+      _$OrderDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$OrderDtoToJson(this);
 }
@@ -191,9 +194,16 @@ class CreateBotParams {
     required this.tradingPair,
   });
 
-  factory CreateBotParams.fromJson(Map<String, dynamic> json) => _$CreateBotParamsFromJson(json);
+  factory CreateBotParams.fromJson(Map<String, dynamic> json) =>
+      _$CreateBotParamsFromJson(json);
 
   Map<String, dynamic> toJson() => _$CreateBotParamsToJson(this);
 }
 
+class ToggleBotEnabledParams {
+  final int botId;
 
+  ToggleBotEnabledParams({required this.botId});
+
+  Map<String, dynamic> toJson() => {"botId": botId};
+}

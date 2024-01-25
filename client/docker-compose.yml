@@ -39,7 +39,7 @@ services:
       - microservices-network
 
   email-service:
-    image: 6588dcbb0a08d2bdba33e6183711378c3dc47b04437530c9e6cf389da329e6a5
+    image: c2b91f07699ba3f9f6eaf1b295d7869a85cb573e90e981d611af785549a50bb0
     ports:
       - "8081:8081"
     environment:
@@ -96,7 +96,7 @@ services:
       - microservices-network
 
   bot-service:
-    image: bodyakyryliuk/bot-service:v1
+    image: bodyakyryliuk/bot-service:v2
     ports:
       - "8087:8087"
     networks:

@@ -15,6 +15,7 @@ class EndPoints {
   static const String currentPriceForTradingPair = "/binance-service/binance/currentPrice";
 
   static const String makeOrder = "/binance-service/order";
-  static const String createBot = "/bot-service/bots/create";
+  static const String createBot = "/bot-service/bots";
   static const String bots = "/bot-service/bots";
+  static const String toggleBotEnabled = "/bot-service/bots/toggleBot";
 }
