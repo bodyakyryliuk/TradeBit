@@ -11,7 +11,9 @@ abstract class BotRepository {
 
   Future<Either<Failure, BotsResponseModel>> fetchBots();
 
-
   Future<Either<Failure, bool>> toggleBotEnabled(
       ToggleBotEnabledParams toggleBotEnabledParams);
+
+  Future<Either<Failure, void>> deleteBot(
+      DeleteBotParams deleteBotParams);
 }

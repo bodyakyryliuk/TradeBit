@@ -67,7 +67,28 @@ class _BotsPageState extends State<BotsPage> {
                       itemCount: state.bots.length,
                       itemBuilder: (context, index) {
                         final bot = state.bots[index];
-                        return BotTile(bot: bot);
+                        return Dismissible(
+                            key: Key(bot.id.toString()),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              color: Colors.red,
+                              child: const Align(
+                                alignment: Alignment.centerRight,
+                                child: Padding(
+                                  padding: EdgeInsets.only(right: 20.0),
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            onDismissed: (direction) {
+                              if(direction == DismissDirection.endToStart) {
+                                context.read<BotsCubit>().deleteBot(bot.id!);
+                              }
+                            },
+                            child: BotTile(bot: bot));
                       },
                     )),
         );

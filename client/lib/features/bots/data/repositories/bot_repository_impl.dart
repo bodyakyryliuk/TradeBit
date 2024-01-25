@@ -51,4 +51,17 @@ class BotRepositoryImpl implements BotRepository {
       return const Left(ServerFailure('Unknown error occured'));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteBot(DeleteBotParams deleteBotParams) async{
+    try {
+      final response =
+      await botRemoteDataSource.deleteBot(deleteBotParams);
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return const Left(ServerFailure('Unknown error occured'));
+    }
+  }
 }

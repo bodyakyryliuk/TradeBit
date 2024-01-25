@@ -57,4 +57,20 @@ class BotRemoteDataSource {
       throw ServerException(e.message);
     }
   }
+
+  Future<void> deleteBot(
+      DeleteBotParams deleteBotParams) async {
+    try {
+      final response = await _client.deleteRequest(EndPoints.bots,
+          queryParameters: deleteBotParams.toJson());
+      final result = response.data;
+      if (response.statusCode == 204) {
+        return result;
+      } else {
+        throw ServerException("Error deleting the bot");
+      }
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
 }

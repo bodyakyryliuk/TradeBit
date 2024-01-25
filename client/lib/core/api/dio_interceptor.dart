@@ -122,6 +122,10 @@ class DioLogInterceptor extends Interceptor {
     postRefreshTokenResult.fold(
       (failure) {
         HiveBoxes.appStorageBox.delete(DbKeys.accessTokenKey);
+        HiveBoxes.appStorageBox.delete(DbKeys.refreshTokenKey);
+        HiveBoxes.appStorageBox
+            .delete(DbKeys.binanceSecretApiKey);
+        HiveBoxes.appStorageBox.delete(DbKeys.binanceApiKey);
       },
       (responseModel) {
         refreshTokenResponseModel =

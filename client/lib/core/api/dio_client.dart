@@ -167,4 +167,20 @@ class DioClient {
       throw ServerFailure(e.message);
     }
   }
+  Future<Response> deleteRequest(
+    String url, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
+    bool includeAuthorization = true,
+  }) async {
+    try {
+      return await dio.delete(url,
+          data: data,
+          queryParameters: queryParameters,
+          options:
+              Options(extra: {'includeAuthorization': includeAuthorization}));
+    } on DioException catch (e) {
+      throw ServerFailure(e.message);
+    }
+  }
 }

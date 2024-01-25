@@ -207,3 +207,11 @@ class ToggleBotEnabledParams {
 
   Map<String, dynamic> toJson() => {"botId": botId};
 }
+
+class DeleteBotParams {
+  final int botId;
+
+  DeleteBotParams({required this.botId});
+
+  Map<String, dynamic> toJson() => {"botId": botId};
+}
