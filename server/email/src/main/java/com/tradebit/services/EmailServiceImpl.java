@@ -55,7 +55,7 @@ public class EmailServiceImpl implements EmailService{
 
             String content = loadTemplate("reset-password-email.html");
             content = content.replace("${resetPasswordLink}",
-                    "http://" + hostName + "/identity-service/auth/reset-password?token=" + emailRequest.getMessage());
+                    "http://" + hostName + "/identity-service/auth/resetPassword?token=" + emailRequest.getMessage());
             helper.setText(content, true); // set to true to indicate the text content is HTML
 
             mailSender.send(mail);
