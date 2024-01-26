@@ -40,11 +40,7 @@ public class BuyOrderServiceImpl implements BuyOrderService{
 
     @Override
     public List<BuyOrder> getBuyOrdersByBotId(Long botId) {
-        List<BuyOrder> buyOrders = buyOrderRepository.findAllByBotId(botId);
-        if (buyOrders.isEmpty())
-            throw new BuyOrderNotFoundException("No buy order found by bot with id: " + botId);
-
-        return buyOrders;
+        return buyOrderRepository.findAllByBotId(botId);
     }
 
     @Override

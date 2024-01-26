@@ -4,6 +4,7 @@ import com.tradebit.models.order.BuyOrder;
 import com.tradebit.models.order.SellOrder;
 import com.tradebit.services.orders.SellOrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,11 @@ public class SellOrderController {
 
     @GetMapping(params = "botId")
     public ResponseEntity<List<SellOrder>> getBuyOrdersByBotId(@RequestParam Long botId){
-        return ResponseEntity.ok(sellOrderService.getSellOrdersByBotId(botId));
+        List<SellOrder> sellOrders = sellOrderService.getSellOrdersByBotId(botId);
+        if (sellOrders.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        return ResponseEntity.ok(sellOrders);
     }
 
     @GetMapping(params = "orderId")

@@ -47,11 +47,7 @@ public class SellOrderServiceImpl implements SellOrderService{
 
     @Override
     public List<SellOrder> getSellOrdersByBotId(Long botId) {
-        List<SellOrder> sellOrders = sellOrderRepository.findAllByBotId(botId);
-        if (sellOrders.isEmpty())
-            throw new SellOrderNotFoundException("No sell order found by bot with id: " + botId);
-
-        return sellOrders;
+        return sellOrderRepository.findAllByBotId(botId);
     }
 
     @Override
