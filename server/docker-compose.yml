@@ -23,17 +23,23 @@ services:
       - microservices-network
 
   identity-service:
-    image: bodyakyryliuk/identity-service:v1
+    #image: bodyakyryliuk/identity-service:v2
+    build:
+      context: .
+      dockerfile : ./identity-service/Dockerfile
     ports:
       - "8085:8085"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      KEYCLOAK_CREDENTIALS_SECRET: Tbzz9fXNLoAHXYyQ9mF2uulxhacoCUDz
+      KEYCLOAK_CREDENTIALS_SECRET: DqpDFqcqvNbtzRTTCkYkNahKPDUc8Cyf
     networks:
       - microservices-network
 
-  binance-integration:
-    image: bodyakyryliuk/binance-service:v1
+  binance-service:
+    #image: bodyakyryliuk/binance-service:v2
+    build:
+      context: .
+      dockerfile: ./binance-service/Dockerfile
     ports:
       - "8086:8086"
     networks:
@@ -51,8 +57,12 @@ services:
       - microservices-network
 
     image: postgres:latest
+
   email-service:
-    image: bodyakyryliuk/email-service:v1
+    #image: bodyakyryliuk/email-service:v1
+    build:
+      context: .
+      dockerfile : ./email/Dockerfile
     ports:
       - "8081:8081"
     environment:
@@ -62,6 +72,9 @@ services:
 
   api-gateway:
     image: bodyakyryliuk/api-gateway:v1
+#    build:
+#      context: .
+#      dockerfile: ./api-gateway/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -69,18 +82,30 @@ services:
     networks:
       - microservices-network
 
-  amqp:
-    image: bodyakyryliuk/amqp:v1
-    environment:
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-    networks:
-      - microservices-network
+#  amqp:
+#    image: bodyakyryliuk/amqp:v1
+#    depends_on:
+#      - rabbitmq
+#    environment:
+#      SPRING_RABBITMQ_HOST: rabbitmq
+#      SPRING_RABBITMQ_PORT: 5672
+#    networks:
+#      - microservices-network
 
   eureka-server:
     image: bodyakyryliuk/eureka-server:v1
     ports:
       - "8761:8761"
+    networks:
+      - microservices-network
+
+  bot-service:
+    #image: bodyakyryliuk/bot-service:v2
+    build:
+      context: .
+      dockerfile : ./bot-service/Dockerfile
+    ports:
+      - "8087:8087"
     networks:
       - microservices-network
 

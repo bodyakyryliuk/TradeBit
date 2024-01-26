@@ -29,7 +29,6 @@ import java.util.List;
 public class AuthorizationServiceImpl implements AuthorizationService{
     @Value("${keycloak.realm}")
     public String realm;
-
     private final KeycloakProvider kcProvider;
     private final KeycloakService keycloakService;
     private final RabbitMQMessageProducer messageProducer;

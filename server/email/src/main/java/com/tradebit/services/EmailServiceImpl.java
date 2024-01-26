@@ -106,8 +106,9 @@ public class EmailServiceImpl implements EmailService{
 
     @Override
     public void sendSellOrderMail(EmailRequest emailRequest) {
-       sendOrderMail(emailRequest, "sell-order.html");
+        sendOrderMail(emailRequest, "sell-order.html");
     }
+
 
     private String loadTemplate(String filename) throws IOException {
         var resource = resourceLoader.getResource("classpath:templates/" + filename);

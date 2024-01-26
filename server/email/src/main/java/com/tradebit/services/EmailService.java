@@ -10,5 +10,4 @@ public interface EmailService {
     void sendBuyOrderMail(EmailRequest emailRequest);
 
     void sendSellOrderMail(EmailRequest emailRequest);
-
 }

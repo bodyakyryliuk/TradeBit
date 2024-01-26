@@ -14,7 +14,7 @@ public class EmailConsumer {
     private final EmailService emailService;
 
     @RabbitListener(queues = "${rabbitmq.queue.email}")
-    public void consumer(EmailRequest emailRequest) {
+    public void consumer(EmailRequest emailRequest){
         try {
             log.info("Sending message of " + emailRequest.getEmailType() + " type");
             switch (emailRequest.getEmailType()) {

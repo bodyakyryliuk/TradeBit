@@ -1,11 +1,10 @@
 FROM openjdk:19-jdk-alpine
 VOLUME /tmp
 ARG JAR_FILE=target/*.jar
-COPY ./target/identity-service-0.0.1-SNAPSHOT.jar app.jar
+COPY ../../identity-service/target/identity-service-0.0.1-SNAPSHOT.jar app.jar
 ENV API_GATEWAY_HOST="api-gateway:8080"\
     EUREKA_CLIENT_SERVICEURL_DEFAULTZONE="http://eureka-server:8761/eureka/" \
     KEYCLOAK_AUTH_SERVER_URL="http://keycloak:8080/auth" \
-    KEYCLOAK_CREDENTIALS_SECRET="YFgifhoA72N5p9ax7dmdHCvV4F0aHJhq" \
     KEYCLOAK_HOST="keycloak:8080" \
     KEYCLOAK_REALM="tradebit-realm" \
     KEYCLOAK_RESOURCE="tradebit" \
