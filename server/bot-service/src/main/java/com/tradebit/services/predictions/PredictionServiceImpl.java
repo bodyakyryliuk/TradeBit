@@ -25,7 +25,7 @@ public class PredictionServiceImpl implements PredictionService {
                 predictions.add(prediction);
             });
         });
-
+        predictionRepository.deleteAll();
         predictionRepository.saveAll(predictions);
     }
 

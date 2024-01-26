@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,14 +41,16 @@ public class BuyOrderServiceImpl implements BuyOrderService{
 
     @Override
     public List<BuyOrder> getBuyOrdersByBotId(Long botId) {
-        return buyOrderRepository.findAllByBotId(botId);
+        List<BuyOrder> buyOrders = buyOrderRepository.findAllByBotId(botId);
+        buyOrders.sort(Comparator.comparingLong(BuyOrder::getId).reversed());
+        return buyOrders;
     }
 
     @Override
     public BuyOrder getBuyOrderById(Long orderId) {
         Optional<BuyOrder> buyOrder = buyOrderRepository.findById(orderId);
         if (buyOrder.isEmpty()){
-            throw new BuyOrderNotFoundException("Buy order not found with id: " + orderId);
+            throw new BuyOrderNotFoundException("Buy order not found");
         }
         return buyOrder.get();
     }

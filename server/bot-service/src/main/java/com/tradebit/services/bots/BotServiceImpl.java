@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,7 +76,7 @@ public class BotServiceImpl implements BotService {
     @Override
     public void deleteBotById(Long botId) {
         Bot bot = botRepository.findById(botId)
-                .orElseThrow(() -> new BotNotFoundException("Bot with ID: " + botId + " not found"));
+                .orElseThrow(() -> new BotNotFoundException("Bot not found!"));
 
         if (buyOrderRepository.existsByBot(bot) || sellOrderRepository.existsByBot(bot)){
             bot.setHidden(true);
@@ -96,23 +97,21 @@ public class BotServiceImpl implements BotService {
     public Bot getBot(Long botId, String userId) {
         Optional<Bot> botOptional = botRepository.findByIdAndUserId(botId, userId);
         return botOptional.orElseThrow(() ->
-                new BotNotFoundException("Bot " + botId + ", with userId: " + userId + " not found!"));
+                new BotNotFoundException("Bot not found!"));
     }
 
     @Override
     public Bot getBot(Long botId) {
         Optional<Bot> botOptional = botRepository.findById(botId);
         return botOptional.orElseThrow(() ->
-                new BotNotFoundException("Bot " + botId + " not found!"));
+                new BotNotFoundException("Bot not found!"));
     }
 
     @Override
     public List<Bot> getAllByUserId(Authentication authentication) {
         String userId = getUserIdFromAuthentication(authentication);
-
         List<Bot> bots = botRepository.findAllByUserId(userId);
-        if (bots.isEmpty())
-            throw new BotNotFoundException("No bot found by userId: " + userId);
+        bots.sort(Comparator.comparingLong(Bot::getId));
 
         return bots;
     }

@@ -35,7 +35,9 @@ public class BotController {
 
     @GetMapping
     public ResponseEntity<List<Bot>> getBotsByUser(Authentication authentication){
-        return ResponseEntity.ok(botService.getAllByUserId(authentication));
+        List<Bot> bots = botService.getAllByUserId(authentication);
+
+        return ResponseEntity.ok(bots);
     }
 
     @GetMapping("/bot")

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,14 +48,16 @@ public class SellOrderServiceImpl implements SellOrderService{
 
     @Override
     public List<SellOrder> getSellOrdersByBotId(Long botId) {
-        return sellOrderRepository.findAllByBotId(botId);
+        List<SellOrder> sellOrders = sellOrderRepository.findAllByBotId(botId);
+        sellOrders.sort(Comparator.comparingLong(SellOrder::getId).reversed());
+        return sellOrders;
     }
 
     @Override
     public SellOrder getSellOrderById(Long orderId) {
         Optional<SellOrder> sellOrder = sellOrderRepository.findById(orderId);
         if (sellOrder.isEmpty()){
-            throw new SellOrderNotFoundException("Sell order not found with id: " + orderId);
+            throw new SellOrderNotFoundException("Sell order not found");
         }
         return sellOrder.get();
     }

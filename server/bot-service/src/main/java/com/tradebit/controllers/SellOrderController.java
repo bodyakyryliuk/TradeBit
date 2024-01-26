@@ -22,8 +22,6 @@ public class SellOrderController {
     @GetMapping(params = "botId")
     public ResponseEntity<List<SellOrder>> getBuyOrdersByBotId(@RequestParam Long botId){
         List<SellOrder> sellOrders = sellOrderService.getSellOrdersByBotId(botId);
-        if (sellOrders.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         return ResponseEntity.ok(sellOrders);
     }
