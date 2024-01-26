@@ -215,3 +215,11 @@ class DeleteBotParams {
 
   Map<String, dynamic> toJson() => {"botId": botId};
 }
+
+class BotBuyOrdersParams {
+  final int botId;
+
+  BotBuyOrdersParams({required this.botId});
+
+  Map<String, dynamic> toJson() => {"botId": botId};
+}

@@ -11,6 +11,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'TradeBit',
+      debugShowCheckedModeBanner: false,
       darkTheme: darkTheme(context),
       routerConfig: AppRouter.router,
       builder: (context, child) {

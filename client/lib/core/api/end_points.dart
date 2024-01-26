@@ -18,4 +18,5 @@ class EndPoints {
   static const String createBot = "/bot-service/bots";
   static const String bots = "/bot-service/bots";
   static const String toggleBotEnabled = "/bot-service/bots/toggleBot";
+  static const String botBuyOrders = "/bot-service/buyOrders";
 }

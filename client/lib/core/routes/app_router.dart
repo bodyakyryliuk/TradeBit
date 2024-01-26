@@ -10,7 +10,9 @@ import 'package:cointrade/features/auth/presentation/landing/landing_page.dart';
 import 'package:cointrade/features/auth/presentation/login/login_page.dart';
 import 'package:cointrade/features/auth/presentation/register/register_page.dart';
 import 'package:cointrade/features/auth/presentation/reset_password/reset_password_page.dart';
+import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/add_bot_page.dart';
+import 'package:cointrade/features/bots/presentation/bot_detailed/bot_detailed_page.dart';
 import 'package:cointrade/features/bots/presentation/bots/bots_page.dart';
 import 'package:cointrade/features/wallet/presentation/cryptocurrency_pair_detailed/cryptocurrency_pair_detailed_page.dart';
 import 'package:cointrade/features/wallet/presentation/home/home_page.dart';
@@ -31,6 +33,7 @@ enum Routes {
   emailConfirmation("/auth/email-confirmation"),
   cryptocurrencyPairDetailed("/cryptocurrency-pair-detailed/:currencyPair"),
   bots("/bots"),
+  botDetailed("/bot-detailed/:botId"),
   addBot("/add-bot");
 
   const Routes(this.path);
@@ -128,6 +131,12 @@ class AppRouter {
         path: Routes.addBot.path,
         name: Routes.addBot.name,
         builder: (context, state) => const AddBotPage(),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: Routes.botDetailed.path,
+        name: Routes.botDetailed.name,
+        builder: (context, state) =>  BotDetailedPage(botId: int.parse(state.pathParameters['botId']!)),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

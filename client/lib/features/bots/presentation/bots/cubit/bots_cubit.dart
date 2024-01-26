@@ -18,11 +18,6 @@ class BotsCubit extends Cubit<BotsState> {
       this.deleteBotUseCase)
       : super(BotsState(bots: [], errorMessage: null));
 
-  @override
-  void onChange(Change<BotsState> change) {
-    change.nextState.bots.sort((a, b) => a.enabled! ? -1 : 1);
-    super.onChange(change);
-  }
 
   List<BotModel> bots = [];
 

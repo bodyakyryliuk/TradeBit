@@ -3,6 +3,7 @@ import 'package:cointrade/core/api/end_points.dart';
 import 'package:cointrade/core/error/exceptions.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/core/usecase/usecase.dart';
+import 'package:cointrade/features/bots/data/models/bot_buy_orders_response_model.dart';
 import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/data/models/create_bot_response_model.dart';
 import 'package:cointrade/features/bots/data/models/toggle_bot_enabled_response_model.dart';
@@ -58,8 +59,7 @@ class BotRemoteDataSource {
     }
   }
 
-  Future<void> deleteBot(
-      DeleteBotParams deleteBotParams) async {
+  Future<void> deleteBot(DeleteBotParams deleteBotParams) async {
     try {
       final response = await _client.deleteRequest(EndPoints.bots,
           queryParameters: deleteBotParams.toJson());
@@ -68,6 +68,22 @@ class BotRemoteDataSource {
         return result;
       } else {
         throw ServerException("Error deleting the bot");
+      }
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  Future<BotBuyOrdersResponseModel> fetchBotBuyOrders(
+      BotBuyOrdersParams botBuyOrdersParams) async {
+    try {
+      final response = await _client.getRequest(EndPoints.botBuyOrders,
+          queryParameters: botBuyOrdersParams.toJson());
+      final result = BotBuyOrdersResponseModel.fromJson(response.data);
+      if (response.statusCode == 200) {
+        return result;
+      } else {
+        throw ServerException("Error fetching bot buy orders");
       }
     } on ServerException catch (e) {
       throw ServerException(e.message);

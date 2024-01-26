@@ -12,7 +12,7 @@ services:
       - microservices-network
 
   identity-service:
-    image: c091fd4a43e4cb8876d28ebedc953665d7707950d2b03b1aa142c66fd276dc4c
+    image: 49bae3252de5eb0488ef6ee0a15173d40dc2ef23dfd977d147879d16a729ba95
     ports:
       - "8085:8085"
     environment:
@@ -39,7 +39,7 @@ services:
       - microservices-network
 
   email-service:
-    image: c2b91f07699ba3f9f6eaf1b295d7869a85cb573e90e981d611af785549a50bb0
+    image: 316175933ed3d9e097bd0ae07f23fa4b619ec641a4e13c4dd9099c095e24b1f6
     ports:
       - "8081:8081"
     environment:
@@ -96,9 +96,11 @@ services:
       - microservices-network
 
   bot-service:
-    image: bodyakyryliuk/bot-service:v2
+    image: bodyakyryliuk/bot-service:v3
     ports:
       - "8087:8087"
+    environment:
+      KEYCLOAK_CLIENT_SECRET: Dpm1H9uWGFFLZqnXPw83w8Tvu4CUg8dW
     networks:
       - microservices-network
 
