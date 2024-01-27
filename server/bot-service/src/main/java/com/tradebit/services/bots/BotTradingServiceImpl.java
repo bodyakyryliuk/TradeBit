@@ -101,14 +101,14 @@ public class BotTradingServiceImpl implements BotTradingService {
     }
 
 
-    private boolean shouldSell(String tradingPair, double buyPrice, double sellThreshold, double stopLossPercentage){
+    public boolean shouldSell(String tradingPair, double buyPrice, double sellThreshold, double stopLossPercentage){
         double currentPrice = binanceUtilService.getCurrentPrice(tradingPair);
         if((currentPrice - buyPrice) / currentPrice * 100 >= sellThreshold)
             return true;
         else return (buyPrice - currentPrice) / buyPrice * 100 >= stopLossPercentage;
     }
 
-    private boolean shouldBuy(String tradingPair, double buyThreshold, double averagePrice){
+    public boolean shouldBuy(String tradingPair, double buyThreshold, double averagePrice){
         double currentPrice = binanceUtilService.getCurrentPrice(tradingPair);
 
         return ((averagePrice - currentPrice) / averagePrice * 100) >= buyThreshold;
