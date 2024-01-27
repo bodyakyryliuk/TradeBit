@@ -29,7 +29,7 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers("/public/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/users/**").permitAll()
+                                .requestMatchers("/users/**").hasRole("ADMIN")
                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/static/**").permitAll()
                                 .requestMatchers("/templates/**").permitAll()
