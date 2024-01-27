@@ -1,7 +1,6 @@
 package com.tradebit.controller;
 
 import com.tradebit.service.KeycloakService;
-import com.tradebit.user.repositories.UserRepository;
 import com.tradebit.user.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -18,17 +17,20 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private final KeycloakService keycloakService;
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable String userId){
-        userService.deleteUser(userId);
-        keycloakService.deleteUser(userId);
-        return new ResponseEntity<>(Map.of("status", "success",
-                "message", "User has been deleted successfully!"),
-                HttpStatus.OK);
+    @DeleteMapping
+    public ResponseEntity<Map<String, String>> deleteUser(@RequestParam(required = false) String userId){
+        if (userId != null) {
+            userService.deleteUser(userId);
+            keycloakService.deleteUser(userId);
+            return new ResponseEntity<>(Map.of("status", "success",
+                    "message", "User has been deleted successfully!"),
+                    HttpStatus.OK);
+        }else{
+            return deleteAllUsers();
+        }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<Map<String, String>> deleteAllUsers(){
+    private ResponseEntity<Map<String, String>> deleteAllUsers(){
         userService.deleteAllUsers();
         keycloakService.deleteAllUsers();
         return ResponseEntity.ok(Map.of(
@@ -42,8 +44,8 @@ public class UserController {
         return keycloakService.getAllUsers();
     }
 
-    @GetMapping("/{userId}")
-    public UserRepresentation getUser(@PathVariable String userId){
+    @GetMapping(params = "userId")
+    public UserRepresentation getUser(@RequestParam String userId){
         return keycloakService.getUser(userId);
     }
 

@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
@@ -65,4 +63,15 @@ public class UserServiceImpl implements UserService{
                 .build();
 
         return user;    }
+
+    @Override
+    public User getUserById(String userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new UserNotFoundException("User with id:" + userId + " not found!"));
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

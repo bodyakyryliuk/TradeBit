@@ -1,11 +1,10 @@
 package com.tradebit.service;
 
 import com.tradebit.requests.AuthorizationRequest;
-import org.keycloak.representations.AccessTokenResponse;
-import org.springframework.http.ResponseEntity;
+import com.tradebit.responses.TokenResponse;
 
 public interface AuthorizationService {
-    AccessTokenResponse login(AuthorizationRequest authorizationRequest);
+    TokenResponse login(AuthorizationRequest authorizationRequest);
     void forgotPassword(String email);
 
 }

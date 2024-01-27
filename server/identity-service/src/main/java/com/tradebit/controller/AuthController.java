@@ -1,13 +1,14 @@
 package com.tradebit.controller;
 
 import com.tradebit.requests.AuthorizationRequest;
+import com.tradebit.requests.EmailRequest;
+import com.tradebit.requests.PasswordRequest;
 import com.tradebit.requests.RegistrationRequest;
 import com.tradebit.resetToken.ResetTokenService;
+import com.tradebit.responses.TokenResponse;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.KeycloakService;
 import com.tradebit.service.RegistrationService;
-import com.tradebit.requests.EmailRequest;
-import com.tradebit.requests.PasswordRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -30,13 +31,13 @@ public class AuthController {
     private String apiGatewayHost;
     private final RegistrationService registrationService;
     private final AuthorizationService authorizationService;
-    private final ResetTokenService resetTokenService;
     private final KeycloakService keycloakService;
     @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
-        registrationService.register(registrationRequest);
+        String userId = registrationService.register(registrationRequest);
         return new ResponseEntity<>(Map.of("status", "success",
-                "message", "User has been registered successfully!"),
+                "message", "User has been registered successfully!",
+                "userId", userId),
                 HttpStatus.CREATED);
     }
 
@@ -46,7 +47,7 @@ public class AuthController {
     }
 
     @PostMapping("/login/email")
-    public ResponseEntity<AccessTokenResponse> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
+    public ResponseEntity<TokenResponse> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authorizationService.login(authorizationRequest));
     }
 
@@ -66,18 +67,6 @@ public class AuthController {
                 "http://" +
                 apiGatewayHost
                 +"/identity-service/auth");
-    }
-
-    @PostMapping("/registrationConfirm")
-    public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token){
-        try {
-            registrationService.confirmRegistration(token);
-            return new ResponseEntity<>(Map.of("status", "success",
-                    "message", "User email verified successfully. Please log in to continue."),
-                    HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
     }
 
     @PostMapping("/refresh-token")
@@ -114,22 +103,19 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam("token") String token){
-        boolean isValidToken = resetTokenService.isTokenValid(token);
-        if (isValidToken) {
-            return ResponseEntity.ok(Map.of("status", "success", "message", "Token is valid."));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("status", "failure", "message", "Invalid or expired token."));
-        }
-    }
-
     @PostMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestParam("token") String token,
                                             @RequestBody @Valid PasswordRequest passwordRequest) {
         keycloakService.updatePassword(token, passwordRequest);
         return new ResponseEntity<>(Map.of("status", "success", "message", "Password has been successfully updated."), HttpStatus.OK);
 
+    }
+
+
+    @PostMapping("/sendConfirmationMail")
+    public ResponseEntity<Map<String, String>> sendConfirmationMail(@RequestParam("userId") String userId){
+        registrationService.sendVerificationLink(userId);
+        return new ResponseEntity<>(Map.of("status", "success", "message", "Verification link has been sent."), HttpStatus.OK);
     }
 
 

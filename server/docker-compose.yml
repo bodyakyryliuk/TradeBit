@@ -17,25 +17,33 @@ services:
       JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled"
     ports:
       - "8180:8080"
+    volumes:
+      - keycloak_data:/opt/jboss/keycloak/standalone/data
     networks:
       - microservices-network
 
   identity-service:
-    image: bodyakyryliuk/identity-service:v1
+    image: bodyakyryliuk/identity-service:v2
+#    build:
+#      context: .
+#      dockerfile : ./identity-service/Dockerfile
     ports:
       - "8085:8085"
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      KEYCLOAK_CREDENTIALS_SECRET: jUrOMkDoewUt8Ht1Q1emycLm0ESkJxZy
+      KEYCLOAK_CREDENTIALS_SECRET: DqpDFqcqvNbtzRTTCkYkNahKPDUc8Cyf
     networks:
       - microservices-network
 
-#  binance-integration:
-#    image: 93aa8f7ae37e899d4187fbe93a693a69d06550dc54a58b0e8fb156a3c1d153fb
-#    ports:
-#      - "8086:8086"
-#    networks:
-#      - microservices-network
+  binance-service:
+    #image: bodyakyryliuk/binance-service:v2
+    build:
+      context: .
+      dockerfile: ./binance-service/Dockerfile
+    ports:
+      - "8086:8086"
+    networks:
+      - microservices-network
 
   postgres-custom:
     environment:
@@ -49,17 +57,22 @@ services:
       - microservices-network
 
     image: postgres:latest
+
   email-service:
-    image: bodyakyryliuk/email-service:v1
+    image: bodyakyryliuk/email-service:v2
+#    build:
+#      context: .
+#      dockerfile : ./email/Dockerfile
     ports:
       - "8081:8081"
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     networks:
       - microservices-network
 
   api-gateway:
     image: bodyakyryliuk/api-gateway:v1
+#    build:
+#      context: .
+#      dockerfile: ./api-gateway/Dockerfile
     ports:
       - "8080:8080"
     environment:
@@ -67,18 +80,30 @@ services:
     networks:
       - microservices-network
 
-  amqp:
-    image: bodyakyryliuk/amqp:v1
-    environment:
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-    networks:
-      - microservices-network
+#  amqp:
+#    image: bodyakyryliuk/amqp:v1
+#    depends_on:
+#      - rabbitmq
+#    environment:
+#      SPRING_RABBITMQ_HOST: rabbitmq
+#      SPRING_RABBITMQ_PORT: 5672
+#    networks:
+#      - microservices-network
 
   eureka-server:
     image: bodyakyryliuk/eureka-server:v1
     ports:
       - "8761:8761"
+    networks:
+      - microservices-network
+
+  bot-service:
+    image: bodyakyryliuk/bot-service:v3
+#    build:
+#      context: .
+#      dockerfile : ./bot-service/Dockerfile
+    ports:
+      - "8087:8087"
     networks:
       - microservices-network
 
@@ -90,3 +115,4 @@ networks:
 
 volumes:
   my_db_data:
+  keycloak_data:
