@@ -1,15 +1,16 @@
 import 'package:cointrade/features/bots/presentation/components/bot_order_tile.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
+import 'package:cointrade/features/bots/presentation/components/bot_sell_orders/cubit/bot_sell_orders_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BotBuyOrders extends StatelessWidget {
-  const BotBuyOrders({Key? key}) : super(key: key);
+class BotSellOrders extends StatelessWidget {
+  const BotSellOrders({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BotBuyOrdersCubit, BotBuyOrdersState>(
+    return BlocBuilder<BotSellOrdersCubit, BotSellOrdersState>(
       builder: (context, state) {
         return state.when(
           initial: () {
@@ -22,26 +23,28 @@ class BotBuyOrders extends StatelessWidget {
                   height: 20, width: 20, child: CircularProgressIndicator()),
             );
           },
-          success: (botBuyOrdersResponseModel) {
-            if (botBuyOrdersResponseModel.botBuyOrders!.isEmpty) {
+          success: (botSellOrdersResponseModel) {
+            if (botSellOrdersResponseModel.botSellOrders!.isEmpty) {
               return const Padding(
                 padding: EdgeInsets.all(20.0),
-                child: Text('No buy orders'),
+                child: Text('No sell orders'),
               );
             }
 
             return ListView.separated(
               shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
-              itemCount: botBuyOrdersResponseModel.botBuyOrders!.length,
+              itemCount: botSellOrdersResponseModel.botSellOrders!.length,
               itemBuilder: (context, index) {
-                final botBuyOrder =
-                    botBuyOrdersResponseModel.botBuyOrders![index];
+                final botSellOrder =
+                    botSellOrdersResponseModel.botSellOrders![index];
                 return BotOrderTile(
-                  price: botBuyOrder.buyPrice!,
-                  timestamp: botBuyOrder.timestamp!,
-                  quantity: botBuyOrder.quantity!,
+                  price: botSellOrder.sellPrice!,
+                  quantity: botSellOrder.quantity!,
+                  timestamp: botSellOrder.timestamp!,
+                  profit: botSellOrder.profit,
                 );
+                return Text(botSellOrder.profit!.toString());
               },
               separatorBuilder: (BuildContext context, int index) {
                 return const SizedBox(height: 10);

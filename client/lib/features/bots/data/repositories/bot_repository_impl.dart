@@ -3,6 +3,7 @@ import 'package:cointrade/core/error/failures.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/bots/data/datasources/bot_remote_datasource.dart';
 import 'package:cointrade/features/bots/data/models/bot_buy_orders_response_model.dart';
+import 'package:cointrade/features/bots/data/models/bot_sell_orders_response_model.dart';
 import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/data/models/create_bot_response_model.dart';
 import 'package:cointrade/features/bots/data/models/toggle_bot_enabled_response_model.dart';
@@ -54,10 +55,10 @@ class BotRepositoryImpl implements BotRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteBot(DeleteBotParams deleteBotParams) async{
+  Future<Either<Failure, void>> deleteBot(
+      DeleteBotParams deleteBotParams) async {
     try {
-      final response =
-      await botRemoteDataSource.deleteBot(deleteBotParams);
+      final response = await botRemoteDataSource.deleteBot(deleteBotParams);
       return Right(response);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -67,10 +68,25 @@ class BotRepositoryImpl implements BotRepository {
   }
 
   @override
-  Future<Either<Failure, BotBuyOrdersResponseModel>> fetchBotBuyOrders(BotBuyOrdersParams botBuyOrdersParams) async{
+  Future<Either<Failure, BotBuyOrdersResponseModel>> fetchBotBuyOrders(
+      BotBuyOrdersParams botBuyOrdersParams) async {
     try {
       final response =
           await botRemoteDataSource.fetchBotBuyOrders(botBuyOrdersParams);
+      return Right(response);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return const Left(ServerFailure('Unknown error occured'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, BotSellOrdersResponseModel>> fetchBotSellOrders(
+      BotSellOrdersParams botSellOrdersParams) async {
+    try {
+      final response =
+      await botRemoteDataSource.fetchBotSellOrders(botSellOrdersParams);
       return Right(response);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

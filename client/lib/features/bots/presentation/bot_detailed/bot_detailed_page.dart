@@ -4,6 +4,7 @@ import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/b
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_detail_cell.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_orders.dart';
+import 'package:cointrade/features/bots/presentation/components/bot_sell_orders/cubit/bot_sell_orders_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,10 +18,10 @@ class BotDetailedPage extends StatefulWidget {
 }
 
 class _BotDetailedPageState extends State<BotDetailedPage> {
-
   @override
   void initState() {
     context.read<BotBuyOrdersCubit>().fetchBotBuyOrders(widget.botId);
+    context.read<BotSellOrdersCubit>().fetchBotSellOrders(widget.botId);
     super.initState();
   }
 
@@ -28,7 +29,8 @@ class _BotDetailedPageState extends State<BotDetailedPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<BotsCubit, BotsState>(
       builder: (context, state) {
-        final BotModel bot = state.bots.firstWhere((bot) => bot.id == widget.botId);
+        final BotModel bot =
+            state.bots.firstWhere((bot) => bot.id == widget.botId);
         return Scaffold(
           appBar: AppBar(
             title: Text(bot.name!),
