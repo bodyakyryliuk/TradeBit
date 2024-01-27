@@ -23,10 +23,10 @@ services:
       - microservices-network
 
   identity-service:
-    #image: bodyakyryliuk/identity-service:v2
-    build:
-      context: .
-      dockerfile : ./identity-service/Dockerfile
+    image: bodyakyryliuk/identity-service:v2
+#    build:
+#      context: .
+#      dockerfile : ./identity-service/Dockerfile
     ports:
       - "8085:8085"
     environment:
@@ -59,14 +59,12 @@ services:
     image: postgres:latest
 
   email-service:
-    #image: bodyakyryliuk/email-service:v1
-    build:
-      context: .
-      dockerfile : ./email/Dockerfile
+    image: bodyakyryliuk/email-service:v2
+#    build:
+#      context: .
+#      dockerfile : ./email/Dockerfile
     ports:
       - "8081:8081"
-    environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     networks:
       - microservices-network
 
@@ -100,10 +98,10 @@ services:
       - microservices-network
 
   bot-service:
-    #image: bodyakyryliuk/bot-service:v2
-    build:
-      context: .
-      dockerfile : ./bot-service/Dockerfile
+    image: bodyakyryliuk/bot-service:v3
+#    build:
+#      context: .
+#      dockerfile : ./bot-service/Dockerfile
     ports:
       - "8087:8087"
     networks:

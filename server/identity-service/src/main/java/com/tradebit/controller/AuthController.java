@@ -31,7 +31,6 @@ public class AuthController {
     private String apiGatewayHost;
     private final RegistrationService registrationService;
     private final AuthorizationService authorizationService;
-    private final ResetTokenService resetTokenService;
     private final KeycloakService keycloakService;
     @PostMapping(value = "/register")
     public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
@@ -101,16 +100,6 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     Map.of("status", "failure", "message",e.getMessage()));
-        }
-    }
-
-    @GetMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam("token") String token){
-        boolean isValidToken = resetTokenService.isTokenValid(token);
-        if (isValidToken) {
-            return ResponseEntity.ok(Map.of("status", "success", "message", "Token is valid."));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("status", "failure", "message", "Invalid or expired token."));
         }
     }
 

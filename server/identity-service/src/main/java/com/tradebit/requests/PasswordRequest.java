@@ -12,4 +12,6 @@ public class PasswordRequest {
     @Pattern(regexp = ".*[A-Z].*", message = "Password must have at least one uppercase letter")
     @Pattern(regexp = ".*\\d.*", message = "Password must have at least one digit")
     private String password;
+
+    private String confirmPassword;
 }
