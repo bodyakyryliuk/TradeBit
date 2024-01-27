@@ -33,7 +33,7 @@ enum Routes {
   emailConfirmation("/auth/email-confirmation"),
   cryptocurrencyPairDetailed("/cryptocurrency-pair-detailed/:currencyPair"),
   bots("/bots"),
-  botDetailed("/bot-detailed/:botId"),
+  botDetailed("/bot-detailed/:botId/:tradingPair"),
   addBot("/add-bot");
 
   const Routes(this.path);
@@ -136,7 +136,10 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         path: Routes.botDetailed.path,
         name: Routes.botDetailed.name,
-        builder: (context, state) =>  BotDetailedPage(botId: int.parse(state.pathParameters['botId']!)),
+        builder: (context, state) => BotDetailedPage(
+          botId: int.parse(state.pathParameters['botId']!),
+          tradingPair: state.pathParameters['tradingPair']!,
+        ),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

@@ -20,11 +20,13 @@ import 'package:cointrade/features/bots/domain/usecases/delete_bot_use_case.dart
 import 'package:cointrade/features/bots/domain/usecases/fetch_bot_buy_orders_use_case.dart';
 import 'package:cointrade/features/bots/domain/usecases/fetch_bot_sell_orders_use_case.dart';
 import 'package:cointrade/features/bots/domain/usecases/fetch_bots_use_case.dart';
+import 'package:cointrade/features/bots/domain/usecases/fetch_predictions_use_case.dart';
 import 'package:cointrade/features/bots/domain/usecases/toggle_bot_enabled_use_case.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/cubit/add_bot_cubit.dart';
 import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_sell_orders/cubit/bot_sell_orders_cubit.dart';
+import 'package:cointrade/features/bots/presentation/components/predictions/cubit/predictions_cubit.dart';
 import 'package:cointrade/features/wallet/data/datasources/wallet_remote_datasouce.dart';
 import 'package:cointrade/features/wallet/data/repositories/wallet_repository_impl.dart';
 import 'package:cointrade/features/wallet/domain/repositories/wallet_repository.dart';
@@ -76,6 +78,7 @@ void registerBlocs() {
   sl.registerFactory(() => BotsCubit(sl(),sl(),sl()));
   sl.registerFactory(() => BotBuyOrdersCubit(sl()));
   sl.registerFactory(() => BotSellOrdersCubit(sl()));
+  sl.registerFactory(() => PredictionsCubit(sl()));
 }
 
 void registerUseCases() {
@@ -99,6 +102,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => DeleteBotUseCase(sl()));
   sl.registerLazySingleton(() => FetchBotBuyOrdersUseCase(sl()));
   sl.registerLazySingleton(() => FetchBotSellOrdersUseCase(sl()));
+  sl.registerLazySingleton(() => FetchPredictionsUseCase(sl()));
 }
 
 void registerRepositories() {

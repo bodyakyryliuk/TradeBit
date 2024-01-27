@@ -7,6 +7,7 @@ import 'package:cointrade/features/bots/data/models/bot_buy_orders_response_mode
 import 'package:cointrade/features/bots/data/models/bot_sell_orders_response_model.dart';
 import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/data/models/create_bot_response_model.dart';
+import 'package:cointrade/features/bots/data/models/predictions_response_model.dart';
 import 'package:cointrade/features/bots/data/models/toggle_bot_enabled_response_model.dart';
 
 class BotRemoteDataSource {
@@ -101,6 +102,22 @@ class BotRemoteDataSource {
         return result;
       } else {
         throw ServerException("Error fetching bot sell orders");
+      }
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  Future<PredictionsResponseModel> fetchPredictions(
+      PredictionsParams predictionsParams) async {
+    try {
+      final response = await _client.getRequest(EndPoints.predictions,
+          queryParameters: predictionsParams.toJson());
+      final result = PredictionsResponseModel.fromJson(response.data);
+      if (response.statusCode == 200) {
+        return result;
+      } else {
+        throw ServerException("Error fetching predictions");
       }
     } on ServerException catch (e) {
       throw ServerException(e.message);

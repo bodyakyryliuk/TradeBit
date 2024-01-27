@@ -14,7 +14,7 @@ class BotTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: (){
-        context.push('/bot-detailed/${bot.id}');
+        context.push('/bot-detailed/${bot.id}/${bot.tradingPair}');
       },
       leading:
           const Icon(Icons.smart_toy_outlined, color: Colors.white, size: 30),

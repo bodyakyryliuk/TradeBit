@@ -231,3 +231,11 @@ class BotSellOrdersParams {
 
   Map<String, dynamic> toJson() => {"botId": botId};
 }
+
+class PredictionsParams{
+  final String tradingPair;
+
+  PredictionsParams({required this.tradingPair});
+
+  Map<String, dynamic> toJson() => {"tradingPair": tradingPair};
+}
