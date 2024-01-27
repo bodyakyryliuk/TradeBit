@@ -1,9 +1,0 @@
-version: "Apple Swift version 5.8 (swiftlang-5.8.0.124.2 clang-1403.0.22.11.100)"
-options: "4d51a2fb94448dc993d28fd32c906b933778f25aaf107011bf83402e97daca0f"
-build_start_time: [1697397737, 533055000]
-build_end_time: [1697397766, 332680000]
-inputs:
-  ? "/Users/sergiyvergun/Documents/University/5 Semester/Software Engineering/Project/cointrade/macos/Flutter/GeneratedPluginRegistrant.swift"
-  : [1697397693, 290395513]
-  "/Users/sergiyvergun/Documents/University/5 Semester/Software Engineering/Project/cointrade/macos/Runner/AppDelegate.swift": [1633548545, 658047345]
-  "/Users/sergiyvergun/Documents/University/5 Semester/Software Engineering/Project/cointrade/macos/Runner/MainFlutterWindow.swift": [1686138838, 290949752]
