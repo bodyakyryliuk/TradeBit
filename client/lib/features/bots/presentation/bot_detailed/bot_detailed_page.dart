@@ -7,6 +7,7 @@ import 'package:cointrade/features/bots/presentation/components/bot_orders.dart'
 import 'package:cointrade/features/bots/presentation/components/bot_sell_orders/cubit/bot_sell_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/predictions/cubit/predictions_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/predictions/predictions.dart';
+import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -26,6 +27,7 @@ class _BotDetailedPageState extends State<BotDetailedPage> {
     context.read<BotBuyOrdersCubit>().fetchBotBuyOrders(widget.botId);
     context.read<BotSellOrdersCubit>().fetchBotSellOrders(widget.botId);
     context.read<PredictionsCubit>().fetchPredictions(widget.tradingPair);
+    context.read<HistoricalPricesCubit>().fetchHistoricalPrices(currencyPair: widget.tradingPair, period: 24*7);
     super.initState();
   }
 

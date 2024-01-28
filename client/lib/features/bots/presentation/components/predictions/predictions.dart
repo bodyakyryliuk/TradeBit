@@ -1,9 +1,11 @@
-import 'package:cointrade/core/extensions/build_context_extensions.dart';
-import 'package:cointrade/features/bots/data/models/predictions_response_model.dart';
-import 'package:cointrade/features/bots/presentation/components/predictions/cubit/predictions_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:cointrade/core/extensions/build_context_extensions.dart';
+import 'package:cointrade/features/bots/data/models/predictions_response_model.dart';
+import 'package:cointrade/features/bots/presentation/components/predictions/cubit/predictions_cubit.dart';
+import 'package:cointrade/features/wallet/data/models/historical_prices_response_model.dart';
+import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
 
 class Predictions extends StatelessWidget {
   const Predictions({Key? key}) : super(key: key);
@@ -13,33 +15,77 @@ class Predictions extends StatelessWidget {
     return BlocBuilder<PredictionsCubit, PredictionsState>(
       builder: (context, state) {
         return SizedBox(
-          height: 300,
+          height: 400,
           child: Center(
-            child: state.when(
-              initial: () => const Center(child: CircularProgressIndicator()),
-              loading: () => const Center(child: CircularProgressIndicator()),
+            child: state.maybeWhen(
+              initial: () => const CircularProgressIndicator(),
+              loading: () => const CircularProgressIndicator(),
               success: (predictionsResponseModel) {
-                return SfCartesianChart(
+                return BlocBuilder<HistoricalPricesCubit,
+                    HistoricalPricesState>(
+                  builder: (context, historicalPricesState) {
+                    bool showHistoricalPrices = historicalPricesState.maybeMap(
+                      success: (historicalPricesResponseModel) => true,
+                      orElse: () => false,
+                    );
 
-                  primaryXAxis: CategoryAxis(
-                    majorTickLines: MajorTickLines(color: Colors.grey[900]!,width: 1),
-                    majorGridLines:  MajorGridLines(color: Colors.grey[900]!,width: 1),
-                    minorGridLines:  MinorGridLines(color: Colors.grey[900]!,width: 1),
-                  ),
-                  series: <ChartSeries>[
-                    LineSeries<Prediction, DateTime>(
-                      enableTooltip: true,
-                      color: context.theme.primaryColor,
-                      dataSource: predictionsResponseModel.predictions,
-                      xValueMapper: (Prediction prediction, _) =>
-                          prediction.timestamp!,
-                      yValueMapper: (Prediction prediction, _) =>
-                          prediction.predictedPrice,
-                    )
-                  ],
+                    return SfCartesianChart(
+                      zoomPanBehavior: ZoomPanBehavior(
+                        enablePanning: true,
+                        enablePinching: true,
+                        enableDoubleTapZooming: true,zoomMode: ZoomMode.x
+                      ),
+                      primaryXAxis: CategoryAxis(
+                        interval: 30,
+                        isInversed: true,
+                        majorTickLines: MajorTickLines(
+                          color: Colors.grey[900]!,
+                          width: 1,
+                        ),
+                        majorGridLines: MajorGridLines(
+                          color: Colors.grey[900]!,
+                          width: 1,
+                        ),
+                        minorGridLines: MinorGridLines(
+                          color: Colors.grey[900]!,
+                          width: 1,
+                        ),
+                      ),
+                      series: <ChartSeries>[
+                        LineSeries<Prediction, DateTime>(
+                          enableTooltip: true,
+                          color: context.theme.primaryColor,
+                          dataSource: predictionsResponseModel.predictions,
+                          xValueMapper: (Prediction prediction, _) =>
+                              prediction.timestamp!,
+                          yValueMapper: (Prediction prediction, _) =>
+                              prediction.predictedPrice,
+                        ),
+                        if (showHistoricalPrices)
+                          LineSeries<HistoricalPrice, DateTime>(
+                            enableTooltip: true,
+                            color: Colors.grey,
+                            dataSource: historicalPricesState.maybeMap(
+                              success: (state) => state
+                                  .historicalPricesResponseModel
+                                  .historicalPrices,
+                              orElse: () => [],
+                            ),
+                            xValueMapper:
+                                (HistoricalPrice historicalPrice, _) =>
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        historicalPrice.timestamp!),
+                            yValueMapper:
+                                (HistoricalPrice historicalPrice, _) =>
+                                    historicalPrice.highPrice,
+                          ),
+                      ],
+                    );
+                  },
                 );
               },
               failure: (message) => Text(message),
+              orElse: () => const CircularProgressIndicator(),
             ),
           ),
         );

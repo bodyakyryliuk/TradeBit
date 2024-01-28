@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:async/async.dart';
 import 'package:cointrade/core/db/hive_boxes.dart';
 import 'package:cointrade/core/db/keys.dart';
+import 'package:cointrade/core/di/injector.dart';
 import 'package:cointrade/core/routes/pages/not_found_page.dart';
 import 'package:cointrade/features/auth/presentation/email_verification/email_verification_page.dart';
 import 'package:cointrade/features/auth/presentation/landing/landing_page.dart';
@@ -14,12 +15,14 @@ import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/add_bot_page.dart';
 import 'package:cointrade/features/bots/presentation/bot_detailed/bot_detailed_page.dart';
 import 'package:cointrade/features/bots/presentation/bots/bots_page.dart';
+import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/cryptocurrency_pair_detailed/cryptocurrency_pair_detailed_page.dart';
 import 'package:cointrade/features/wallet/presentation/home/home_page.dart';
 import 'package:cointrade/features/settings/presentation/connect_binance/connect_binance_page.dart';
 import 'package:cointrade/features/settings/presentation/settings_page.dart';
 import 'package:cointrade/features/skeleton/presentation/skeleton_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 enum Routes {
@@ -58,7 +61,7 @@ class AppRouter {
       String? accessToken = HiveBoxes.appStorageBox
           .get(DbKeys.accessTokenKey, defaultValue: null);
       String? binanceApiKey =
-          HiveBoxes.appStorageBox.get(DbKeys.binanceApiKey, defaultValue: null);
+      HiveBoxes.appStorageBox.get(DbKeys.binanceApiKey, defaultValue: null);
       String? binanceSecretApiKey = HiveBoxes.appStorageBox
           .get(DbKeys.binanceSecretApiKey, defaultValue: null);
 
@@ -136,10 +139,14 @@ class AppRouter {
         parentNavigatorKey: _rootNavigatorKey,
         path: Routes.botDetailed.path,
         name: Routes.botDetailed.name,
-        builder: (context, state) => BotDetailedPage(
-          botId: int.parse(state.pathParameters['botId']!),
-          tradingPair: state.pathParameters['tradingPair']!,
-        ),
+        builder: (context, state) =>
+            BlocProvider(
+              create: (context) => sl<HistoricalPricesCubit>(),
+              child: BotDetailedPage(
+                botId: int.parse(state.pathParameters['botId']!),
+                tradingPair: state.pathParameters['tradingPair']!,
+              ),
+            ),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,
@@ -175,9 +182,10 @@ class AppRouter {
       GoRoute(
         path: Routes.emailConfirmation.path,
         name: Routes.emailConfirmation.name,
-        builder: (context, state) => EmailConfirmationPage(
-          email: state.extra as String,
-        ),
+        builder: (context, state) =>
+            EmailConfirmationPage(
+              email: state.extra as String,
+            ),
       ),
     ],
     errorBuilder: (context, state) => const NotFoundPage(),
@@ -191,7 +199,7 @@ class GoRouterRefreshStream extends ChangeNotifier {
     notifyListeners();
     _subscription = stream.asBroadcastStream().listen(
           (dynamic _) => notifyListeners(),
-        );
+    );
   }
 
   late final StreamSubscription<dynamic> _subscription;
