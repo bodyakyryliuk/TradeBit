@@ -20,10 +20,17 @@ class SettingsPage extends StatelessWidget {
               context: context,
               tiles: [
                 SettingsTile(
-                    titleText: 'Connect Binance',
-                    onPressed: () {
-                      context.push(Routes.connectBinance.path);
-                    }),
+                  titleText: 'Connect Binance',
+                  onPressed: () {
+                    context.push(Routes.connectBinance.path);
+                  },
+                ),
+                SettingsTile(
+                  titleText: 'Top up',
+                  onPressed: () {
+                    context.push(Routes.topUp.path);
+                  },
+                ),
                 SettingsTile(
                     titleText: 'Log out',
                     isDestructive: true,

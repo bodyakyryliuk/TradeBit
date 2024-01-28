@@ -15,6 +15,7 @@ import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/add_bot_page.dart';
 import 'package:cointrade/features/bots/presentation/bot_detailed/bot_detailed_page.dart';
 import 'package:cointrade/features/bots/presentation/bots/bots_page.dart';
+import 'package:cointrade/features/settings/presentation/top_up/top_up_page.dart';
 import 'package:cointrade/features/wallet/presentation/components/historical_prices/cubit/historical_prices_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/cryptocurrency_pair_detailed/cryptocurrency_pair_detailed_page.dart';
 import 'package:cointrade/features/wallet/presentation/home/home_page.dart';
@@ -29,6 +30,7 @@ enum Routes {
   root("/"),
   settings("/settings"),
   connectBinance("/connect-binance"),
+  topUp("/top-up"),
   landing("/landing"),
   login("/auth/login"),
   register("/auth/register"),
@@ -128,6 +130,12 @@ class AppRouter {
         path: Routes.connectBinance.path,
         name: Routes.connectBinance.name,
         builder: (context, state) => const ConnectBinancePage(),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: Routes.topUp.path,
+        name: Routes.topUp.name,
+        builder: (context, state) => const TopUpPage(),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

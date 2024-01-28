@@ -7,6 +7,7 @@ import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart'
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_sell_orders/cubit/bot_sell_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/predictions/cubit/predictions_cubit.dart';
+import 'package:cointrade/features/settings/presentation/top_up/cubit/top_up_code_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/all_cryptocurrencies/cubit/all_cryptocurrencies_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/converter_cubit/buy_sell_trading_pair_price_converter_cubit.dart';
 import 'package:cointrade/features/wallet/presentation/components/buy_sell/current_price_trading_pair_cubit/current_price_trading_pair_cubit.dart';
@@ -42,6 +43,7 @@ class BlocsProviders extends StatelessWidget {
         BlocProvider<BotBuyOrdersCubit>(create: (_) => sl<BotBuyOrdersCubit>()),
         BlocProvider<BotSellOrdersCubit>(create: (_) => sl<BotSellOrdersCubit>()),
         BlocProvider<PredictionsCubit>(create: (_) => sl<PredictionsCubit>()),
+        BlocProvider<TopUpCodeCubit>(create: (_) => sl<TopUpCodeCubit>()),
       ],
       child: child,
     );

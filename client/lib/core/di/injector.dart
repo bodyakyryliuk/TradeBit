@@ -27,6 +27,8 @@ import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart'
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_sell_orders/cubit/bot_sell_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/predictions/cubit/predictions_cubit.dart';
+import 'package:cointrade/features/settings/domain/usecases/fetch_top_up_code_use_case.dart';
+import 'package:cointrade/features/settings/presentation/top_up/cubit/top_up_code_cubit.dart';
 import 'package:cointrade/features/wallet/data/datasources/wallet_remote_datasouce.dart';
 import 'package:cointrade/features/wallet/data/repositories/wallet_repository_impl.dart';
 import 'package:cointrade/features/wallet/domain/repositories/wallet_repository.dart';
@@ -79,6 +81,7 @@ void registerBlocs() {
   sl.registerFactory(() => BotBuyOrdersCubit(sl()));
   sl.registerFactory(() => BotSellOrdersCubit(sl()));
   sl.registerFactory(() => PredictionsCubit(sl()));
+  sl.registerFactory(() => TopUpCodeCubit(sl()));
 }
 
 void registerUseCases() {
@@ -103,6 +106,7 @@ void registerUseCases() {
   sl.registerLazySingleton(() => FetchBotBuyOrdersUseCase(sl()));
   sl.registerLazySingleton(() => FetchBotSellOrdersUseCase(sl()));
   sl.registerLazySingleton(() => FetchPredictionsUseCase(sl()));
+  sl.registerLazySingleton(() => FetchTopUpCodeUseCase(sl()));
 }
 
 void registerRepositories() {

@@ -30,6 +30,7 @@ dependencies:
   interactive_chart: ^0.3.4
   decimal: ^2.3.3
   syncfusion_flutter_charts: ^21.2.4
+  qr_flutter: ^4.1.0
 
   
 
