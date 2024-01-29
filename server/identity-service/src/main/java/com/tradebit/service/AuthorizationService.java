@@ -1,10 +1,10 @@
 package com.tradebit.service;
 
-import com.tradebit.requests.AuthorizationRequest;
+import com.tradebit.dto.AuthorizationDTO;
 import com.tradebit.responses.TokenResponse;
 
 public interface AuthorizationService {
-    TokenResponse login(AuthorizationRequest authorizationRequest);
+    TokenResponse login(AuthorizationDTO authorizationDTO);
     void forgotPassword(String email);
 
 }

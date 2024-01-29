@@ -38,7 +38,6 @@ public class SecurityConfigTest {
 
     @Test
     public void whenUnauthenticated_thenAccessGrantedForPublicEndpoint() throws Exception {
-        // not found - no prediction in db
         mockMvc.perform(get("/predictions").param("tradingPair", "BTCUSDT"))
                 .andExpect(status().isNotFound());
     }

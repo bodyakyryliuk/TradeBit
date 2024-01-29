@@ -7,7 +7,7 @@ import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.InternalErrorException;
 import com.tradebit.exception.InvalidTokenException;
 import com.tradebit.exception.UserNotFoundException;
-import com.tradebit.requests.PasswordRequest;
+import com.tradebit.dto.ResetPasswordDTO;
 import com.tradebit.resetToken.ResetToken;
 import com.tradebit.resetToken.ResetTokenService;
 import com.tradebit.user.models.User;
@@ -139,7 +139,7 @@ public class KeycloakServiceImpl implements KeycloakService{
     }
 
     @Override
-    public void updatePassword(String token, PasswordRequest newPassword) {
+    public void updatePassword(String token, ResetPasswordDTO newPassword) {
         ResetToken resetToken = resetTokenService.getResetToken(token);
         if (resetToken != null && resetTokenService.isTokenValid(token)) {
             String userId = resetToken.getUser().getId();

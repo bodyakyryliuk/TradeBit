@@ -5,8 +5,8 @@ import com.tradebit.config.KeycloakProvider;
 import com.tradebit.exception.AccountNotVerifiedException;
 import com.tradebit.exception.InternalErrorException;
 import com.tradebit.exception.InvalidCredentialsException;
-import com.tradebit.requests.AuthorizationRequest;
-import com.tradebit.requests.MailRequest;
+import com.tradebit.dto.AuthorizationDTO;
+import com.tradebit.requests.EmailRequest;
 import com.tradebit.resetToken.ResetToken;
 import com.tradebit.resetToken.ResetTokenService;
 import com.tradebit.responses.TokenResponse;
@@ -35,12 +35,12 @@ public class AuthorizationServiceImpl implements AuthorizationService{
     private final ResetTokenService resetTokenService;
 
     @Override
-    public TokenResponse login(AuthorizationRequest authorizationRequest) {
+    public TokenResponse login(AuthorizationDTO authorizationDTO) {
         Keycloak keycloak = kcProvider.getInstance();
 
         // Check if the user's email is verified
         UsersResource usersResource = keycloak.realm(realm).users();
-        List<UserRepresentation> users = usersResource.search(authorizationRequest.getEmail(), true);
+        List<UserRepresentation> users = usersResource.search(authorizationDTO.getEmail(), true);
         if (users.isEmpty()) {
             throw new InvalidCredentialsException("Invalid credentials");
         }
@@ -49,7 +49,7 @@ public class AuthorizationServiceImpl implements AuthorizationService{
 
         // Proceed to attempt login
         try {
-            keycloak = kcProvider.newKeycloakBuilderWithPasswordCredentials(authorizationRequest.getEmail(), authorizationRequest.getPassword()).build();
+            keycloak = kcProvider.newKeycloakBuilderWithPasswordCredentials(authorizationDTO.getEmail(), authorizationDTO.getPassword()).build();
             AccessTokenResponse accessTokenResponse = keycloak.tokenManager().getAccessToken();
 
             if (!user.isEmailVerified()) {
@@ -111,8 +111,8 @@ public class AuthorizationServiceImpl implements AuthorizationService{
         );
     }
 
-    private MailRequest generateEmailRequest(String to, String token, EmailType emailType) {
-        return MailRequest.builder()
+    private EmailRequest generateEmailRequest(String to, String token, EmailType emailType) {
+        return EmailRequest.builder()
                 .to(to)
                 .message(token)
                 .emailType(emailType)

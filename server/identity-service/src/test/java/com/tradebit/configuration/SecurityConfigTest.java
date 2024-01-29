@@ -1,23 +1,18 @@
 package com.tradebit.configuration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tradebit.RabbitMQMessageProducer;
 import com.tradebit.config.SecurityConfig;
 import com.tradebit.controller.AuthController;
 import com.tradebit.controller.UserController;
-import com.tradebit.requests.RegistrationRequest;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.KeycloakService;
 import com.tradebit.service.RegistrationService;
 import com.tradebit.user.services.UserService;
-import com.tradebit.verificationToken.VerificationTokenService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
