@@ -120,12 +120,10 @@ class _SignUpPageState extends State<SignUpPage> {
                           placeholder: 'Password',
                           obscureText: true,
                           validator: (String? value) {
-                            return null;
-                            if (value!.isValidPassword) {
+                            if (value!.isNotEmpty) {
                               return null;
                             }
-                            return "Password must contain at least:\n- One uppercase letter (A-Z)\n- One lowercase letter (a-z)\n- One digit (0-9)\n- One special character (one of !@#\$&*~)\nAnd must be at least 8 characters in length.";
-                          },
+                            return 'Provide correct password';},
                           controller: _passwordController,
                         ),
                         const SizedBox(height: 10),
@@ -133,6 +131,10 @@ class _SignUpPageState extends State<SignUpPage> {
                           placeholder: 'Repeat password',
                           obscureText: true,
                           validator: (String? value) {
+                            if(value!.isEmpty){
+                              return 'Provide correct password';
+                            }
+
                             if (_passwordController.text == value) {
                               return null;
                             }
