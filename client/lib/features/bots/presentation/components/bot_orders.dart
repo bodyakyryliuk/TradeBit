@@ -1,4 +1,5 @@
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/bot_buy_orders.dart';
+import 'package:cointrade/features/bots/presentation/components/bot_sell_orders/bot_sell_orders.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +36,7 @@ class _BotOrdersState extends State<BotOrders> {
         if(selectedSegment == 0)
           const BotBuyOrders()
         else
-          const Text('Sell orders')
+          const BotSellOrders()
       ],
     );
   }

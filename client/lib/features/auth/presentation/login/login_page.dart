@@ -74,7 +74,12 @@ class _SignInPageState extends State<SignInPage> {
                 CommonTextFormField(
                   placeholder: 'Password',
                   obscureText: true,
-                  validator: (String? value) {},
+                  validator: (String? value) {
+                    if (value!.isNotEmpty) {
+                      return null;
+                    }
+                    return 'Provide correct password';
+                  },
                   controller: passwordTextEditingController,
                 ),
                 const SizedBox(height: 15),

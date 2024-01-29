@@ -80,6 +80,8 @@ class CurrencyTile extends StatelessWidget {
         return 'assets/images/usdt.webp';
       case 'ETH':
         return 'assets/images/eth.png';
+      case 'LTC':
+        return 'assets/images/ltc.png';
     }
     return null;
   }

@@ -2,6 +2,7 @@ import 'package:cointrade/core/error/exceptions.dart';
 import 'package:cointrade/core/error/failures.dart';
 import 'package:cointrade/core/params/params.dart';
 import 'package:cointrade/features/settings/data/datasources/link_binance_remote_datasource.dart';
+import 'package:cointrade/features/settings/data/models/top_up_code_response_model.dart';
 import 'package:cointrade/features/settings/domain/entities/link_binance_response_entity.dart';
 import 'package:cointrade/features/settings/domain/repositories/link_binance_repository.dart';
 import 'package:dartz/dartz.dart';
@@ -18,6 +19,20 @@ class LinkBinanceRepositoryImpl implements LinkBinanceRepository {
       final response =
           await linkBinanceRemoteDataSource.linkBinance(linkBinanceParams);
       return Right(response.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return const Left(ServerFailure('Unknown error occured'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, TopUpCodeResponseModel>> fetchTopUpCode(
+      TopUpCodeParams topUpCodeParams) async {
+    try {
+      final response =
+          await linkBinanceRemoteDataSource.fetchTopUpCode(topUpCodeParams);
+      return Right(response);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {

@@ -1,7 +1,10 @@
 import 'package:cointrade/core/extensions/build_context_extensions.dart';
+import 'package:cointrade/core/utils/logger.dart';
 import 'package:cointrade/core/widgets/common_text_form_field.dart';
 import 'package:cointrade/features/bots/presentation/add_bot/cubit/add_bot_cubit.dart';
 import 'package:cointrade/features/bots/presentation/bots/cubit/bots_cubit.dart';
+import 'package:cointrade/core/widgets/common_dropdown_button_form_field.dart';
+import 'package:cointrade/features/bots/presentation/components/all_trading_pairs/cubit/all_trading_pairs_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -21,7 +24,14 @@ class _AddBotPageState extends State<AddBotPage> {
   final takeProfitPercentageController = TextEditingController();
   final stopLossPercentageController = TextEditingController();
   final tradeSizeController = TextEditingController();
-  final tradingPairController = TextEditingController();
+
+  String? tradingPair;
+
+  @override
+  void initState() {
+    context.read<AllTradingPairsCubit>().fetchTradingPairs();
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -31,7 +41,6 @@ class _AddBotPageState extends State<AddBotPage> {
     takeProfitPercentageController.dispose();
     stopLossPercentageController.dispose();
     tradeSizeController.dispose();
-    tradingPairController.dispose();
     super.dispose();
   }
 
@@ -75,7 +84,7 @@ class _AddBotPageState extends State<AddBotPage> {
                       stopLossPercentage:
                           double.parse(stopLossPercentageController.text),
                       tradeSize: double.parse(tradeSizeController.text),
-                      tradingPair: tradingPairController.text,
+                      tradingPair: tradingPair!,
                     );
               }
             },
@@ -161,15 +170,44 @@ class _AddBotPageState extends State<AddBotPage> {
                 },
               ),
               const SizedBox(height: 15),
-              CommonTextFormField(
-                controller: tradingPairController,
-                placeholder: 'Trading pair',
-                keyboardType: TextInputType.text,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Trading pair must not be empty';
-                  }
-                  return null;
+              BlocBuilder<AllTradingPairsCubit, AllTradingPairsState>(
+                builder: (context, AllTradingPairsState state) {
+                  print(state);
+                  List<String> items = state.when(
+                    initial: () => [],
+                    loading: () => [],
+                    success: (tradingPairsResponseModel) =>
+                        tradingPairsResponseModel.tradingPairs,
+                    failure: (message) => [],
+                  );
+
+                  bool isLoading =
+                      state.maybeWhen(loading: () => true, orElse: () => false);
+
+                  return CommonDropdownButtonFormField(
+                    icon: isLoading
+                        ? const SizedBox(
+                            height: 15,
+                            width: 15,
+                            child: CircularProgressIndicator())
+                        : null,
+                    hint: 'Trading pair',
+                    items: items,
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          tradingPair == null) {
+                        return 'Trading pair must not be empty';
+                      }
+                      return null;
+                    },
+                    onChanged: (String? value) {
+                      setState(() {
+                        tradingPair = value!;
+                      });
+                    },
+                    value: tradingPair,
+                  );
                 },
               ),
             ],

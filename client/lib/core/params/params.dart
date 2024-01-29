@@ -90,6 +90,25 @@ class WalletParams {
       };
 }
 
+class TopUpCodeParams {
+  final String apiKey;
+  final String secretApiKey;
+
+  final String coin;
+
+  TopUpCodeParams(
+      {required this.apiKey, required this.secretApiKey, required this.coin});
+
+  Map<String, dynamic> toJson() => {
+        "apiKey": apiKey,
+        "secretApiKey": secretApiKey,
+      };
+
+  Map<String, dynamic> queryParamsToJson() => {
+        "coin": coin,
+      };
+}
+
 class HistoricalPricesParams {
   final String currencyPair;
   final int period;
@@ -222,4 +241,20 @@ class BotBuyOrdersParams {
   BotBuyOrdersParams({required this.botId});
 
   Map<String, dynamic> toJson() => {"botId": botId};
+}
+
+class BotSellOrdersParams {
+  final int botId;
+
+  BotSellOrdersParams({required this.botId});
+
+  Map<String, dynamic> toJson() => {"botId": botId};
+}
+
+class PredictionsParams {
+  final String tradingPair;
+
+  PredictionsParams({required this.tradingPair});
+
+  Map<String, dynamic> toJson() => {"tradingPair": tradingPair};
 }

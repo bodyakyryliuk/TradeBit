@@ -29,6 +29,8 @@ dependencies:
   async: ^2.11.0
   interactive_chart: ^0.3.4
   decimal: ^2.3.3
+  syncfusion_flutter_charts: ^21.2.4
+  qr_flutter: ^4.1.0
 
   
 
@@ -40,6 +42,8 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   theme_tailor: ^2.0.0
   json_serializable: ^6.7.1
+  mockito: ^5.4.4
+  bloc_test: ^9.1.5
 
 flutter:
 

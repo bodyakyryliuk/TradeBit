@@ -1,4 +1,4 @@
-import 'package:cointrade/features/bots/presentation/components/bot_buy_order_tile.dart';
+import 'package:cointrade/features/bots/presentation/components/bot_order_tile.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
 import 'package:cointrade/features/bots/presentation/components/bot_buy_orders/cubit/bot_buy_orders_cubit.dart';
 import 'package:flutter/material.dart';
@@ -32,11 +32,16 @@ class BotBuyOrders extends StatelessWidget {
 
             return ListView.separated(
               shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
               itemCount: botBuyOrdersResponseModel.botBuyOrders!.length,
               itemBuilder: (context, index) {
                 final botBuyOrder =
                     botBuyOrdersResponseModel.botBuyOrders![index];
-                return BotBuyOrderTile(botBuyOrder: botBuyOrder);
+                return BotOrderTile(
+                  price: botBuyOrder.buyPrice!,
+                  timestamp: botBuyOrder.timestamp!,
+                  quantity: botBuyOrder.quantity!,
+                );
               },
               separatorBuilder: (BuildContext context, int index) {
                 return const SizedBox(height: 10);
