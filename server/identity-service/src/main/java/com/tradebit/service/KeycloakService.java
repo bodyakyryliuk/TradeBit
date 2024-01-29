@@ -2,7 +2,7 @@ package com.tradebit.service;
 
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.tradebit.requests.PasswordRequest;
+import com.tradebit.dto.ResetPasswordDTO;
 import com.tradebit.user.models.User;
 import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -24,5 +24,5 @@ public interface KeycloakService {
 
     User userExists(String email);
 
-    void updatePassword(String token, PasswordRequest newPassword);
+    void updatePassword(String token, ResetPasswordDTO newPassword);
 }

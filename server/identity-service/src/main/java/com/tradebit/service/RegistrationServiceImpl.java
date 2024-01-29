@@ -6,8 +6,8 @@ import com.tradebit.exception.InvalidTokenException;
 import com.tradebit.exception.UserAlreadyVerifiedException;
 import com.tradebit.exception.UserCreationException;
 import com.tradebit.exception.UserNotFoundException;
-import com.tradebit.requests.MailRequest;
-import com.tradebit.requests.RegistrationRequest;
+import com.tradebit.requests.EmailRequest;
+import com.tradebit.dto.RegistrationDTO;
 import com.tradebit.user.models.EmailType;
 import com.tradebit.user.models.Role;
 import com.tradebit.user.models.User;
@@ -53,10 +53,10 @@ public class RegistrationServiceImpl implements RegistrationService {
 
 
     @Override
-    public String register(RegistrationRequest registrationRequest) {
+    public String register(RegistrationDTO registrationDTO) {
         try {
             UsersResource usersResource = kcProvider.getInstance().realm(realm).users();
-            UserRepresentation kcUser = createKeycloakUser(registrationRequest);
+            UserRepresentation kcUser = createKeycloakUser(registrationDTO);
             Response response = usersResource.create(kcUser);
             if (response.getStatus() == 201) {
                 String userId = extractUserId(response);
@@ -126,7 +126,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
 
-    public UserRepresentation createKeycloakUser(RegistrationRequest user) {
+    public UserRepresentation createKeycloakUser(RegistrationDTO user) {
         CredentialRepresentation credentialRepresentation = createPasswordCredentials(user.getPassword());
 
         UserRepresentation kcUser = new UserRepresentation();
@@ -142,8 +142,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         return kcUser;
     }
 
-    private MailRequest generateEmailRequest(String to, String token, EmailType emailType) {
-        return MailRequest.builder()
+    private EmailRequest generateEmailRequest(String to, String token, EmailType emailType) {
+        return EmailRequest.builder()
                 .to(to)
                 .message(token)
                 .emailType(emailType)

@@ -1,4 +1,4 @@
-package com.tradebit.requests;
+package com.tradebit.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistrationRequest {
+public class RegistrationDTO {
     @NotBlank(message = "Email is mandatory")
     @Email(message = "Email must be valid")
     String email;

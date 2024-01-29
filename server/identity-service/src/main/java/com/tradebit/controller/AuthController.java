@@ -1,10 +1,9 @@
 package com.tradebit.controller;
 
-import com.tradebit.requests.AuthorizationRequest;
-import com.tradebit.requests.EmailRequest;
-import com.tradebit.requests.PasswordRequest;
-import com.tradebit.requests.RegistrationRequest;
-import com.tradebit.resetToken.ResetTokenService;
+import com.tradebit.dto.AuthorizationDTO;
+import com.tradebit.dto.EmailDTO;
+import com.tradebit.dto.ResetPasswordDTO;
+import com.tradebit.dto.RegistrationDTO;
 import com.tradebit.responses.TokenResponse;
 import com.tradebit.service.AuthorizationService;
 import com.tradebit.service.KeycloakService;
@@ -33,8 +32,8 @@ public class AuthController {
     private final AuthorizationService authorizationService;
     private final KeycloakService keycloakService;
     @PostMapping(value = "/register")
-    public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
-        String userId = registrationService.register(registrationRequest);
+    public ResponseEntity<?> createUser(@RequestBody @Valid RegistrationDTO registrationDTO) {
+        String userId = registrationService.register(registrationDTO);
         return new ResponseEntity<>(Map.of("status", "success",
                 "message", "User has been registered successfully!",
                 "userId", userId),
@@ -47,8 +46,8 @@ public class AuthController {
     }
 
     @PostMapping("/login/email")
-    public ResponseEntity<TokenResponse> loginEmail(@RequestBody @Valid AuthorizationRequest authorizationRequest) {
-        return ResponseEntity.status(HttpStatus.OK).body(authorizationService.login(authorizationRequest));
+    public ResponseEntity<TokenResponse> loginEmail(@RequestBody @Valid AuthorizationDTO authorizationDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(authorizationService.login(authorizationDTO));
     }
 
     @GetMapping("/login/google")
@@ -93,7 +92,7 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody @Valid EmailRequest email) {
+    public ResponseEntity<?> forgotPassword(@RequestBody @Valid EmailDTO email) {
         try {
             authorizationService.forgotPassword(email.getEmail());
             return ResponseEntity.ok(Map.of("success", "If an account with that email exists, a password reset email has been sent."));
@@ -105,8 +104,8 @@ public class AuthController {
 
     @PostMapping("/update-password")
     public ResponseEntity<?> updatePassword(@RequestParam("token") String token,
-                                            @RequestBody @Valid PasswordRequest passwordRequest) {
-        keycloakService.updatePassword(token, passwordRequest);
+                                            @RequestBody @Valid ResetPasswordDTO resetPasswordDTO) {
+        keycloakService.updatePassword(token, resetPasswordDTO);
         return new ResponseEntity<>(Map.of("status", "success", "message", "Password has been successfully updated."), HttpStatus.OK);
 
     }

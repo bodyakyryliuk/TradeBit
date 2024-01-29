@@ -1,12 +1,17 @@
 package com.tradebit.requests;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import com.tradebit.user.models.EmailType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EmailRequest {
-    @NotBlank(message = "Email is mandatory")
-    @Email(message = "Email must be valid")
-    private String email;
+    String to;
+    String message;
+    EmailType emailType;
 }
