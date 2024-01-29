@@ -9,6 +9,7 @@ import 'package:cointrade/features/bots/data/models/bots_response_model.dart';
 import 'package:cointrade/features/bots/data/models/create_bot_response_model.dart';
 import 'package:cointrade/features/bots/data/models/predictions_response_model.dart';
 import 'package:cointrade/features/bots/data/models/toggle_bot_enabled_response_model.dart';
+import 'package:cointrade/features/bots/data/models/trading_pairs_response_model.dart';
 
 class BotRemoteDataSource {
   final DioClient _client;
@@ -118,6 +119,22 @@ class BotRemoteDataSource {
         return result;
       } else {
         throw ServerException("Error fetching predictions");
+      }
+    } on ServerException catch (e) {
+      throw ServerException(e.message);
+    }
+  }
+
+  Future<TradingPairsResponseModel> fetchTradingPairs() async {
+    try {
+      final response = await _client.getRequest(
+        EndPoints.tradingPairs,
+      );
+      final result = TradingPairsResponseModel.fromJson(response.data);
+      if (response.statusCode == 200) {
+        return result;
+      } else {
+        throw ServerException("Error fetching trading pairs");
       }
     } on ServerException catch (e) {
       throw ServerException(e.message);

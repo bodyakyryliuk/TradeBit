@@ -12,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BotDetailedPage extends StatefulWidget {
-  const BotDetailedPage({Key? key, required this.botId, required this.tradingPair}) : super(key: key);
+  const BotDetailedPage(
+      {Key? key, required this.botId, required this.tradingPair})
+      : super(key: key);
 
   final int botId;
   final String tradingPair;
@@ -24,11 +26,20 @@ class BotDetailedPage extends StatefulWidget {
 class _BotDetailedPageState extends State<BotDetailedPage> {
   @override
   void initState() {
-    context.read<BotBuyOrdersCubit>().fetchBotBuyOrders(widget.botId);
-    context.read<BotSellOrdersCubit>().fetchBotSellOrders(widget.botId);
-    context.read<PredictionsCubit>().fetchPredictions(widget.tradingPair);
-    context.read<HistoricalPricesCubit>().fetchHistoricalPrices(currencyPair: widget.tradingPair, period: 24*7);
+    _refresh();
     super.initState();
+  }
+
+  Future _refresh() {
+    return Future.wait(
+      [
+        context.read<BotBuyOrdersCubit>().fetchBotBuyOrders(widget.botId),
+        context.read<BotSellOrdersCubit>().fetchBotSellOrders(widget.botId),
+        context.read<PredictionsCubit>().fetchPredictions(widget.tradingPair),
+        context.read<HistoricalPricesCubit>().fetchHistoricalPrices(
+            currencyPair: widget.tradingPair, period: 24 * 7),
+      ],
+    );
   }
 
   @override
@@ -48,48 +59,53 @@ class _BotDetailedPageState extends State<BotDetailedPage> {
                   })
             ],
           ),
-          body: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              const Predictions(),
-              const SizedBox(height: 20),
-              GridView.count(
-                physics: const ClampingScrollPhysics(),
-                crossAxisCount: 3,
-                shrinkWrap: true,
-                childAspectRatio: 1.5,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                children: [
-                  BotDetailCell(
-                    titleText: 'Buy threshold',
-                    valueText: bot.buyThreshold!.toString(),
-                  ),
-                  BotDetailCell(
-                    titleText: 'Sell threshold',
-                    valueText: bot.sellThreshold!.toString(),
-                  ),
-                  BotDetailCell(
-                    titleText: 'Take profit',
-                    valueText: '${bot.takeProfitPercentage!}%',
-                  ),
-                  BotDetailCell(
-                    titleText: 'Stop loss',
-                    valueText: '${bot.stopLossPercentage!}%',
-                  ),
-                  BotDetailCell(
-                    titleText: 'Trade size',
-                    valueText: bot.tradeSize!.toString(),
-                  ),
-                  BotDetailCell(
-                    titleText: 'Trading pair',
-                    valueText: bot.tradingPair!,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const BotOrders(),
-            ],
+          body: RefreshIndicator(
+            onRefresh: () {
+              return _refresh();
+            },
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              children: [
+                const Predictions(),
+                const SizedBox(height: 20),
+                GridView.count(
+                  physics: const ClampingScrollPhysics(),
+                  crossAxisCount: 3,
+                  shrinkWrap: true,
+                  childAspectRatio: 1.5,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  children: [
+                    BotDetailCell(
+                      titleText: 'Buy threshold',
+                      valueText: bot.buyThreshold!.toString(),
+                    ),
+                    BotDetailCell(
+                      titleText: 'Sell threshold',
+                      valueText: bot.sellThreshold!.toString(),
+                    ),
+                    BotDetailCell(
+                      titleText: 'Take profit',
+                      valueText: '${bot.takeProfitPercentage!}%',
+                    ),
+                    BotDetailCell(
+                      titleText: 'Stop loss',
+                      valueText: '${bot.stopLossPercentage!}%',
+                    ),
+                    BotDetailCell(
+                      titleText: 'Trade size',
+                      valueText: bot.tradeSize!.toString(),
+                    ),
+                    BotDetailCell(
+                      titleText: 'Trading pair',
+                      valueText: bot.tradingPair!,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const BotOrders(),
+              ],
+            ),
           ),
         );
       },

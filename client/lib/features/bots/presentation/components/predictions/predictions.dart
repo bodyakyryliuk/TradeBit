@@ -31,10 +31,10 @@ class Predictions extends StatelessWidget {
 
                     return SfCartesianChart(
                       zoomPanBehavior: ZoomPanBehavior(
-                        enablePanning: true,
-                        enablePinching: true,
-                        enableDoubleTapZooming: true,zoomMode: ZoomMode.x
-                      ),
+                          enablePanning: true,
+                          enablePinching: true,
+                          enableDoubleTapZooming: true,
+                          zoomMode: ZoomMode.x),
                       primaryXAxis: CategoryAxis(
                         interval: 30,
                         isInversed: true,
@@ -84,7 +84,17 @@ class Predictions extends StatelessWidget {
                   },
                 );
               },
-              failure: (message) => Text(message),
+              failure: (message) => const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.area_chart_sharp, size: 50, color: Colors.white70),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Prices prediction not found',
+                    style: const TextStyle(color: Colors.white70, fontSize: 18),
+                  ),
+                ],
+              ),
               orElse: () => const CircularProgressIndicator(),
             ),
           ),

@@ -22,4 +22,5 @@ class EndPoints {
   static const String botBuyOrders = "/bot-service/buyOrders";
   static const String botSellOrders = "/bot-service/sellOrders";
   static const String predictions = "/bot-service/predictions";
+  static const String tradingPairs = "/binance-service/binance/tradingPairs";
 }
