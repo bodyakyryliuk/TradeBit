@@ -4,28 +4,80 @@ Leveraging advanced algorithms and real-time market analysis, it enables users t
 From executing trades manually to deploying sophisticated trading bots, our application empowers users to make informed decisions and automate their trading strategies.
 ## Table of Contents
 - [Features](#features)
-- [Technolody Stack](#TechnologyStack)
-- [Getting Started](#GettingStarted)
-- [Usage](#Usage)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+- [Team Contributions](#team-contributions)
 
 ## Features
-- Binance Integration:
-  - Directly connect your application account to Binance, providing seamless access to real-time market data and the ability to execute trades on the platform.
-- Manual Trading Support:
-  - Offers users the flexibility to manually execute trades, giving them complete control over their trading decisions.
-- Automated Trading Bots:
-  - Users can create and customize trading bots with various parameters, allowing for automated trading based on predefined strategies. This feature is designed to help users capitalize on market opportunities 24/7.
-- Advanced Market Analysis Tools:
-  - Equipped with powerful analysis tools, our platform enables users to conduct in-depth market research and analysis, aiding in more informed trading decisions.
-- AI-Powered Predictions:
-  - Leverage AI-driven insights for cryptocurrency market predictions, helping users to make smarter trading choices based on data-driven forecasts.
-- Secure Authentication and Authorization:
-  - With Keycloak integration, our platform ensures robust security measures for user authentication and authorization, safeguarding users' information and assets.
+- Authentication:
+  - Secure and streamlined authentication process allowing users to easily sign in or sign up to access their personalized trading dashboard using JWT and Keycloak.
+<br>
+<p float="left">
+  <img src="assets/screenshots/welcome.png" width="330" />
+  <img src="assets/screenshots/login.png" width="330" /> 
+  <img src="assets/screenshots/register.png" width="330" />
+</p>
+
+- Connect Binance:
+  - Simple Binance integration that enables users to link their Binance account for synchronized and secure trading activities.
+
+<br>
+
+<p float="left">
+  <img src="assets/screenshots/connect-binance.png" width="330" />
+  <img src="assets/screenshots/success-connect-binance.png" width="330" />
+</p>
+
+- User Wallet:
+  - A clear and detailed view of the user's wallet, showcasing available balances across various cryptocurrencies.
+  
+<p float="left">
+  <img src="assets/screenshots/wallet.png" width="330" />
+  <img src="assets/screenshots/currencies.png" width="330" /> 
+</p>
+
+- Manual Trading:
+  - Engage in manual trading with real-time market data and charts, giving users full control over their buy and sell operations.
+
+<p float="left">
+  <img src="assets/screenshots/currency.png" width="330" />
+</p>
+
+- Trading Bot Configuration:
+  - Empower your trading strategy with custom bots. Set up your own trading bots specifying the name, buy/sell thresholds, profit targets, and more. Easily manage and review your fleet of bots from a comprehensive dashboard.
+
+<p float="left">
+  <img src="assets/screenshots/create-bot.png" width="330" />
+  <img src="assets/screenshots/bots.png" width="330" />
+</p>
+
+- Cryptocurrency Price Prediction::
+  - Each bot provides a visual chart that not only displays current price movements but also predicts future trends with a purple forecast line, helping you make informed decisions.
+ 
+<p float="left">
+  <img src="assets/screenshots/prediction.png" width="280" />
+</p>
+
+- Automated Trading History:
+  - Track your bot's trading performance with a detailed history of automated transactions. Each bot records its own series of executed buy and sell orders, providing transparent insights into its trading activity.
+
+<p float="left">
+  <img src="assets/screenshots/bot-trades.png" width="280" />
+</p>
+
+- Real-Time Email Notifications:
+  - Stay informed with real-time email notifications for account activities, including email verification, password resets, and order execution confirmations, ensuring you're always up-to-date with your trading bot's operations.
+
+<p float="left">
+  <img src="assets/screenshots/email-verification-mail.png" width="240" />
+  <img src="assets/screenshots/reset-password-mail.png" width="240" />
+  <img src="assets/screenshots/buy-order-mail.png" width="240" height="150"/>
+  <img src="assets/screenshots/sell-order-mail.png" width="240" height="150"/>
+</p>
+
 - Cross-Platform Accessibility:
   - Thanks to the client application developed in Flutter, users can enjoy a consistent and responsive experience across all devices, ensuring they can trade anytime, anywhere.
-- Real-Time Notifications:
-  - Stay updated with real-time alerts and notifications on market movements and bot trading activities, ensuring users never miss a critical trading opportunity.
-
+  
 ## Technology Stack
 - Spring Boot:
   - For creating a standalone, production-grade application.
@@ -42,7 +94,7 @@ From executing trades manually to deploying sophisticated trading bots, our appl
 - Binance API:
   - For executing trades and retrieving market data as well as user account data.
 
-## Setup Instructions
+## Getting Started
 ### Backend
 1. Clone the Repository
 ```
@@ -82,7 +134,3 @@ Our project's success is attributed to the dedicated efforts of our talented tea
 
 ### Ilgin Sogut: 
 - Focused on the integration and development of AI-powered prediction models for providing user
-
-This collaborative effort has resulted in a comprehensive trading platform that is powerful, user-friendly, and innovative. We extend our deepest gratitude to each team member for their remarkable contributions and unwavering commitment to the project's success.
-
-
